@@ -91,6 +91,36 @@ class GithubChangesTests(unittest.TestCase):
             for repo,path,method in [(changes.WRITE_REPOSITORY,'git/refs/heads/main','PATCH'),('other/repo','pulls','POST'),(changes.WRITE_REPOSITORY,'issues','POST')]:
                 with self.assertRaises(ToolError):changes.api(repo,path,method,{})
 
+    def test_explicit_first_write_denied_preserves_draft_without_automatic_retry(self):
+        did=self.create();calls=[]
+        def denied(repo,suffix,method='GET',payload=None):
+            calls.append(method)
+            if method=='POST':raise changes.GithubRejected('github_write_denied',403)
+            return self.api(repo,suffix,method,payload)
+        with self.permission(),patch.object(ADAPTERS['github'],'token',return_value='fixture'),patch.object(changes,'api',side_effect=denied):
+            with self.assertRaises(changes.GithubRejected):changes.publish(did,'owner-one')
+        self.assertEqual(calls.count('POST'),1)
+        draft=changes.list_drafts('owner-one')[0];self.assertEqual(draft['state'],'prepared');self.assertEqual(draft['result']['http_status'],403)
+        with self.permission(),patch.object(ADAPTERS['github'],'token',return_value='fixture'),patch.object(changes,'api',side_effect=self.api):
+            self.assertTrue(changes.publish(did,'owner-one')['url'].endswith('/pull/1'))
+
+    def test_rejection_after_mutation_stays_unknown(self):
+        did=self.create()
+        def denied(repo,suffix,method='GET',payload=None):
+            if suffix=='git/commits' and method=='POST':raise changes.GithubRejected('github_write_denied',403)
+            return self.api(repo,suffix,method,payload)
+        with self.permission(),patch.object(ADAPTERS['github'],'token',return_value='fixture'),patch.object(changes,'api',side_effect=denied):
+            with self.assertRaises(ToolError):changes.publish(did,'owner-one')
+        self.assertEqual(changes.list_drafts('owner-one')[0]['state'],'outcome_unknown')
+
+    def test_transport_classifies_permissions_and_rate_limit_without_echoing_body(self):
+        from test_tools import Connection,Response
+        for status,headers,code in [(403,{},'github_write_denied'),(403,{'X-RateLimit-Remaining':'0'},'github_rate_limited'),(403,{'Retry-After':'60'},'github_rate_limited'),(401,{},'github_credential_invalid'),(429,{},'github_rate_limited')]:
+            Connection.responses=[Response(b'private-response-fixture',status=status,headers=headers)]
+            with patch.object(ADAPTERS['github'],'token',return_value='fixture'),patch.object(changes,'resolve',return_value='8.8.8.8'),patch.object(changes,'PinnedHTTPS',Connection):
+                with self.assertRaises(changes.GithubRejected) as error:changes.api(changes.WRITE_REPOSITORY,'git/trees','POST',{})
+            self.assertEqual(error.exception.code,code);self.assertNotIn('private-response-fixture',str(error.exception))
+
     def uncertain(self):
         did=self.create()
         with changes.store() as conn:conn.execute("UPDATE drafts SET state='outcome_unknown' WHERE id=?",(did,))

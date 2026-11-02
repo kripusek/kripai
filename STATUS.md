@@ -342,3 +342,17 @@ VLM/RAG/uninstall i realny Gaming nie zostały ponownie odebrane w tej sesji.
 Pełny raport i ograniczenia: docs/AUDYT_DZIALAJACEJ_APLIKACJI.md.
 Rutynowe dostępne testy wykonuje agent samodzielnie; dalej PR po lokalnym
 włączeniu zapisu, odbiór pozostałych modułów, kopie dziennika/MCP/WWW.
+
+## 02.11.2026 — rzeczywista próba zapisu autoexec i obsługa odmowy
+Właściciel autoryzował test gałęzi/PR w kripusek/kripusek-autoexec. Klucza
+z rozmowy nie powielano ani nie utrwalano; zalecono lokalną konfigurację nowego.
+Istniejące lokalne poświadczenie przeszło odczyt, ale GitHub odrzucił pierwsze
+POST git/trees. Nie powstała gałąź ani PR; nie zmieniono main ani trwałych
+uprawnień modelu. Propozycja README jest przygotowana i zachowuje grafiki/komendy.
+Poprawiono rozróżnianie 401/403/limitów i jawnej odmowy przed pierwszą mutacją:
+propozycja zostaje prepared do ręcznego ponowienia po konfiguracji. Błąd po
+mutacji/utrata odpowiedzi nadal outcome_unknown. Brak automatycznych retry.
+Windows: 156/156 Python i Node 50/50 OK. Rzeczywistej publikacji PR NIE ZALICZONO.
+Szczegóły: docs/TEST_ZAPISU_GITHUB.md; dalej lokalne połączenie z Contents/Pull
+requests write tylko dla autoexec i ponowny test. Kopie dziennika/MCP/WWW nadal
+pozostają kolejnym zakresem. Start nadal START.cmd; bez nowych zależności/modeli.

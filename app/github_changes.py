@@ -15,6 +15,12 @@ from .integrations import ADAPTERS
 
 WRITE_REPOSITORY='kripusek/kripusek-autoexec'
 
+class GithubRejected(ToolError):
+    """GitHub zwrócił jednoznaczną odmowę; bez treści odpowiedzi i sekretów."""
+    def __init__(self,code,status):
+        self.status=status
+        super().__init__(code)
+
 def api(repo, suffix, method='GET', payload=None):
     if method not in {'GET','POST'} or method=='POST' and (repo!=WRITE_REPOSITORY or suffix not in {'git/trees','git/commits','git/refs','pulls'}):raise ToolError('tool_permission_denied')
     token=ADAPTERS['github'].token(repo)
@@ -26,7 +32,10 @@ def api(repo, suffix, method='GET', payload=None):
         conn.request(method,'/repos/'+repo+('/'+suffix if suffix else ''),body=json.dumps(payload).encode() if payload is not None else None,headers=headers)
         response=conn.getresponse()
         if response.status==404 and method=='GET':return None
-        if response.status not in (200,201):raise ToolError('github_remote_rejected')
+        if response.status not in (200,201):
+            limited=response.status==429 or response.status==403 and (response.getheader('X-RateLimit-Remaining')=='0' or response.getheader('Retry-After') is not None)
+            code='github_credential_invalid' if response.status==401 else 'github_rate_limited' if limited else 'github_write_denied' if response.status==403 and method=='POST' else 'github_remote_rejected'
+            raise GithubRejected(code,response.status)
         data,_=body(response)
         return json.loads(data)
     except (OSError,ValueError,http.client.HTTPException):raise ToolError('github_network_failed') from None
@@ -94,21 +103,28 @@ def publish(did,owner):
         if repo!=WRITE_REPOSITORY or repo not in conf.get('write_repositories',[]):raise ToolError('github_write_not_configured')
         if not ADAPTERS['github'].token(repo):raise ToolError('github_write_not_configured')
         conn.execute("UPDATE drafts SET state='publishing' WHERE id=?",(did,))
-    branch='kripai/'+did
+    branch='kripai/'+did;mutated=False
     try:
         # Konflikt z nowszą pracą zatrzymuje publikację przed pierwszą mutacją.
         current=api(repo,'git/ref/heads/'+quote(data['base'],safe=''))
         if current['object']['sha']!=data['head']:raise ToolError('github_base_changed')
         commit=api(repo,'git/commits/'+data['head'])
         tree=api(repo,'git/trees','POST',{'base_tree':commit['tree']['sha'],'tree':[{'path':f['path'],'mode':f['mode'],'type':'blob','content':f['content']} for f in data['files']]})
+        mutated=True
         new=api(repo,'git/commits','POST',{'message':data['title'],'tree':tree['sha'],'parents':[data['head']]})
         api(repo,'git/refs','POST',{'ref':'refs/heads/'+branch,'sha':new['sha']})
         pr=api(repo,'pulls','POST',{'title':data['title'],'body':data['body']+'\n\nPrzygotowane przez lokalny KripAI. Testy kodu repozytorium nie zostały uruchomione.','head':branch,'base':data['base']})
         result={'url':pr['html_url'],'branch':branch}
         with store() as conn:conn.execute("UPDATE drafts SET state='published',result=? WHERE id=?",(json.dumps(result),did))
         return result
-    except Exception:
-        with store() as conn:conn.execute("UPDATE drafts SET state='outcome_unknown',result=? WHERE id=?",(json.dumps({'branch':branch,'url':'https://github.com/'+repo+'/tree/'+branch}),did))
+    except Exception as exc:
+        # Utrata odpowiedzi lub błąd po pierwszej mutacji pozostaje niepewny.
+        # Jawna odmowa 4xx przed jakąkolwiek mutacją pozwala ręcznie wrócić
+        # do tej samej propozycji po poprawieniu konfiguracji; bez auto-retry.
+        rejected=not mutated and isinstance(exc,GithubRejected) and exc.status in {401,403,404,409,422,429}
+        state='prepared' if rejected else 'outcome_unknown'
+        result={'error':exc.code,'http_status':exc.status} if rejected else {'branch':branch,'url':'https://github.com/'+repo+'/tree/'+branch}
+        with store() as conn:conn.execute('UPDATE drafts SET state=?,result=? WHERE id=?',(state,json.dumps(result),did))
         raise
 
 def _reconcile(did,owner):

@@ -116,3 +116,6 @@ https://docs.github.com/en/rest/pulls/pulls#create-a-pull-request
 ## Kreator GitHub
 https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
 https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectdata
+
+## Odmowy i limity GitHub REST
+https://docs.github.com/en/rest/using-the-rest-api/troubleshooting-the-rest-api
