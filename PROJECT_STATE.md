@@ -145,3 +145,14 @@ DPAPI sprawdzono sztuczną wartością. Prywatne repo właściciela NIE URUCHOMI
 Start nadal START.cmd. Konfiguracja lokalna: scripts/configure-github.ps1.
 Szczegóły, limity i następny konkretny zakres MCP: docs/INTEGRACJE_4C.md.
 MCP pozostaje planem; bez nowych zależności, modeli ani migracji bazy.
+
+## 02.11.2026 — odbiór właściciela i poprawka katalogów
+Właściciel potwierdził panel integracji, cancel/Gaming i historię. Listy GitHub
+zachowują teraz ścieżki bez streszczania LLM, z osobnym URL każdego katalogu.
+Zajawki wyszukiwarki odróżniono od odczytu strony. Prawdziwy model CUDA zwrócił
+17 plików app bez przypuszczeń; bezpośredni odczyt pathlib: 61453 znaki.
+Bing RSS zwraca nietrafne wyniki pathlib — wyszukiwanie NIE ZALICZONE, wymaga
+dalszej pracy nad dostawcą. Nie deklarujemy naprawy tego zewnętrznego problemu.
+Windows: 130/130 Python OK i 43 zachowania JS OK (Node raportuje 44).
+Instrukcja prywatnego repo i wyniki: docs/ODBIOR_INTERNETU_2026-11-02.md.
+Prywatne konto właściciela nadal nieweryfikowane. Brak zmian bazy/modeli.

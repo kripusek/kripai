@@ -183,7 +183,7 @@ def search(query):
         except ToolError:continue
         if url in seen:continue
         seen.add(url);parser=Text();parser.feed(node.findtext('description') or '');snippet,_=parser.result()
-        items.append({'url':url,'title':(node.findtext('title') or host)[:200],'text':re.sub(r'\s+',' ',snippet).strip()[:500],'truncated':True})
+        items.append({'url':url,'title':(node.findtext('title') or host)[:200],'text':re.sub(r'\s+',' ',snippet).strip()[:500],'truncated':True,'content_kind':'search_snippet'})
         if len(items)>=5:break
     return {'provider':'Bing RSS','query':query,'items':items}
 
@@ -240,8 +240,9 @@ def execute(name,args,scope):
     data=json.loads(result['data'])
     if args['section']=='tree':
         if not isinstance(data,list):raise ToolError('tool_format_denied')
-        text=json.dumps([{'path':r['path'],'type':r['type'],'size':r.get('size')} for r in data[:200]],ensure_ascii=False)
-        return {'url':'https://github.com/'+repo,'title':repo+' · '+path,'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(data)>=200 or len(text)>MAX_TEXT}
+        # Lista katalogu jest wynikiem API, nie prozą do streszczenia przez LLM.
+        text='\n'.join(r['type']+' '+r['path'] for r in data[:200])
+        return {'url':'https://github.com/'+repo+'/tree/HEAD'+('/'+quote(path,safe='/') if path else ''),'title':repo+' · katalog '+(path or '/'),'text':text[:12000],'excerpt':text[:1200],'content_kind':'directory','truncated':len(data)>200 or len(text)>12000}
     if args['section'] in {'readme','file'}:
         if data.get('encoding')!='base64':raise ToolError('tool_format_denied')
         raw=base64.b64decode(data['content'],validate=False)
