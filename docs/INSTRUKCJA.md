@@ -207,3 +207,14 @@ Przed usuwaniem tworzona jest kopia; dane mogą pozostać w starszych kopiach.
 Nie jest to mechanizm bezpiecznego wymazania dysku. Dekoder ma limit pamięci
 512 MiB i czasu 20 s, ale Windows Job Object nie jest pełnym sandboxem.
 Testy CUDA/VRAM i wizualny odbiór Windows pozostają do wykonania na docelowym PC.
+
+## Nowy moduł 2.5b — pamięć tekstowych PDF
+Windows: zaktualizuj źródła (git pull --ff-only), uruchom START.cmd i Ctrl+F5.
+START pobiera dodatkowy model E5 około 126 MiB oraz sqlite-vec. Rozmowy zostają.
+Dodaj tekstowy PDF w „Zdjęcia i PDF”, otwórz „Pamięć dokumentów”, kliknij Indeksuj.
+Po stanie Gotowy zaznacz dokument i zadaj pytanie w czacie. Oczekuj nazw, stron
+i wycinków źródeł pod odpowiedzią. Sprawdź Wstrzymaj/Wznów, restart i Gaming.
+Skany i strony >12000 znaków są jawnie odrzucane; nie są gotowym indeksem.
+Usuń indeks zachowuje PDF, Usuń plik usuwa też indeks; wycinki znikają z replay.
+Sprawdź backup/restore źródeł i wektorów na danych testowych, bez kasowania
+prywatnej bazy. Zmierz RAM/VRAM — Linux QA nie potwierdza tych wyników Windows.

@@ -67,6 +67,8 @@ try {
     if ($LASTEXITCODE -ne 0) { Write-Warning 'Modul glosu niegotowy. Czat tekstowy nadal moze dzialac; START ponowi pobranie.' }
     & $python (Join-Path $target 'scripts\downloads.py') vision
     if ($LASTEXITCODE -ne 0) { Write-Warning 'Model obrazu niegotowy. Czat i podglad plikow nadal dostepne; START ponowi pobranie.' }
+    & $python (Join-Path $target 'scripts\downloads.py') rag
+    if ($LASTEXITCODE -ne 0) { Write-Warning 'Pamiec dokumentow niegotowa. START ponowi pobranie embeddingow.' }
     & $python (Join-Path $target 'scripts\manage.py') start
     if ($LASTEXITCODE -ne 0) { throw 'Uruchomienie nie powiodlo sie.' }
     Start-Process 'http://localhost:8765'

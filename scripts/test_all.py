@@ -24,6 +24,6 @@ if __name__=='__main__':
         suite=unittest.defaultTestLoader.discover(str(ROOT/'tests'))
         with redirect_stdout(stream),redirect_stderr(stream):
             result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite)
-        stream.write('Modele HTTP/STT/TTS/VLM: atrapy w testach przenosnych; dekodery PNG/JPEG/PDF: prawdziwe; baza: prawdziwy SQLite; procesy: prawdziwe procesy potomne.\n')
+        stream.write('Modele HTTP/STT/TTS/VLM/E5: atrapy w testach przenosnych; dekodery PNG/JPEG/PDF: prawdziwe; baza: prawdziwy SQLite z przypietym sqlite-vec; procesy: prawdziwe procesy potomne.\n')
         stream.write('NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, instalacja/odinstalowanie Windows, mikrofon i wizualny test przegladarki. Test System.Speech jest pomijany poza Windows lub przy braku glosow.\n')
     sys.exit(0 if result.wasSuccessful() else 1)

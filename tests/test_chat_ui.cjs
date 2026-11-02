@@ -57,3 +57,10 @@ test('zakończenie przez limit wyświetla ostrzeżenie o niepełnej odpowiedzi',
  await h.streams[0].events['run.status']({lastEventId:'1',data:JSON.stringify({state:'completed',error_code:'output_limit'})});
  assert.match(h.doc.getElementById('notice').textContent,/niepełna/);assert.match(h.doc.getElementById('notice').textContent,/Kontynuuj/);
 });
+test('wybrane dokumenty trafiają do wiadomości; zdjęcie i dokumenty nie są wysyłane razem',async()=>{
+ const h=await harness();h.ctx.window.KripRag={selection:()=>['pdf-id']};h.doc.getElementById('prompt').value='Pytanie do PDF';
+ await h.doc.getElementById('composer').onsubmit({preventDefault(){}});
+ const sends=h.calls.filter(([u,o])=>u.includes('/messages')&&o.method==='POST');assert.deepEqual(JSON.parse(sends[0][1].body).document_ids,['pdf-id']);
+ const other=await harness();other.ctx.window.KripRag={selection:()=>['pdf-id']};other.paste();await other.doc.getElementById('composer').onsubmit({preventDefault(){}});
+ assert(!other.calls.some(([u,o])=>u.includes('/messages')&&o.method==='POST'));assert.match(other.doc.getElementById('notice').textContent,/osobno/);
+});

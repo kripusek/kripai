@@ -74,5 +74,9 @@
   {
     "name": "pypdfium2-5.14.0-py3-none-win_amd64.whl",
     "sha256": "149fd5c6397b8df8bf7911a93506eff0be874f877afe7ac936cf5d37d21a6a06"
+  },
+  {
+    "name": "sqlite_vec-0.1.6-py3-none-win_amd64.whl",
+    "sha256": "c65bcfd90fa2f41f9000052bcb8bb75d38240b2dae49225389eca6c3136d3f0c"
   }
 ]

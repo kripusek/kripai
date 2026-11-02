@@ -205,3 +205,16 @@ Właściciel polecił wykonywać sprawdzone zwykłe pushe bez kolejnych zatwierd
 Zaktualizowano AGENTS/PROJECT_STATE i zakres synchronizacji. Zgoda obejmuje
 pierwszy import źródeł; nie zmienia brakujących testów Windows/CUDA ani zasad
 zachowania nowszej pracy. main przed publikacją nadal wskazuje 65667aab.
+
+## 02.11.2026 — RAG 2.5b, pierwszy zakres
+Zaimplementowano tekstowe PDF, sqlite-vec 0.1.6 i E5-small Q8_0 CPU. Migracja 4
+z kopią, checkpoint strony, pauza/wznów, usuwanie pochodnych, backup wektorów
+i filtr owner+document wewnątrz KNN. Wybór PDF w panelu i źródła w historii.
+Nowe moduły app/vectors.py, embeddings.py, rag.py, web/rag.js, rag-lock.json,
+004-rag.sql i testy RAG. Szczegóły: spec/etap-2.5b/RAG.md oraz PROJECT_STATE.md.
+Testy: 96 Python (92 OK, 4 Windows pominięte), 39 JS OK = 131 zaliczonych.
+Rzeczywisty E5 CPU b12000 oraz PDF→vec0→wyszukiwanie na Linux potwierdzone;
+3 proste przykłady PL/EN nie są benchmarkiem. Testy regresji modeli używają atrap.
+Natywny Windows/CUDA/VRAM/nowa DLL/instalator i wizualny UI niewykonane.
+Start Windows: git pull --ff-only, START.cmd, Ctrl+F5. Dodatkowe pobranie około
+126 MiB; istniejące rozmowy zachowane. Brak OCR skanów i innych formatów w RAG.

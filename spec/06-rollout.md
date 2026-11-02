@@ -1,6 +1,6 @@
 # 06 — Plan etapów Windows native
 Etap 2 ma wstępny moduł głosu opisany w etap-2/GLOS.md, bez odbioru Windows.
-Etap 2.5a ma implementację do odbioru na Windows; etapy 2.5b–6 są planem. Każdy moduł kończy się testem zachowania,
+Etap 2.5a ma implementację do odbioru na Windows; etap 2.5b ma pierwszy zakres tekstowych PDF do odbioru, etapy 2.5c–6 są planem. Każdy moduł kończy się testem zachowania,
 awarii i odzyskiwania. Brak terminów, gwarancji wydajności i ukrytych usług.
 
 | Etap | Zakres i zależności | Gotowe, gdy… |

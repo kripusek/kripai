@@ -30,3 +30,7 @@ Zmiany kodu względem wejściowego ZIP:
 Nie zmieniono modeli, budżetu GPU ani trzech migracji SQL. Hash wejściowego README
 zgadzał się z README GitHub. Właściciel zatwierdził publikację i kolejne zwykłe pushe bez osobnych pytań.
 Przed publikacją ponownie sprawdzić aktualny main, bez nadpisywania nowszej pracy.
+
+Uwaga: powyższe liczby dotyczą pierwszego importu. Dalszy moduł RAG i aktualne
+wyniki opisują PROJECT_STATE.md, spec/etap-2.5b/RAG.md i docs/RAG_TESTY.txt.
+Binarne zależności i model RAG nadal nie są publikowane w Git.

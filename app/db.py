@@ -18,6 +18,9 @@ def row_factory(cursor,row):
 
 def open_db(path=None):
     conn=sqlite3.connect(path or config.DATA/'kripai.sqlite3',timeout=10,isolation_level=None)
+    from .vectors import load
+    try:load(conn)
+    except BaseException:conn.close();raise
     conn.row_factory=row_factory
     conn.execute('PRAGMA foreign_keys=ON')
     conn.execute('PRAGMA busy_timeout=10000')
@@ -39,7 +42,7 @@ def connect():
 
 
 def migration_files():
-    return [config.ROOT/'spec/etap-1/baza.sql', config.ROOT/'spec/etap-2.5a/002-pliki.sql', config.ROOT/'spec/etap-2.5a/003-obraz-w-rozmowie.sql']
+    return [config.ROOT/'spec/etap-1/baza.sql', config.ROOT/'spec/etap-2.5a/002-pliki.sql', config.ROOT/'spec/etap-2.5a/003-obraz-w-rozmowie.sql', config.ROOT/'spec/etap-2.5b/004-rag.sql']
 
 
 def migration_checksums():

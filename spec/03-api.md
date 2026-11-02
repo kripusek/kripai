@@ -42,3 +42,10 @@ Etap 2.5a: GET /files, GET/DELETE /files/{id}, GET /files/{id}/preview i /downlo
 MessageCreate: opcjonalne attachment_id UUID właściciela (PNG/JPEG). GET messages zwraca attachment_id/null. Odpowiedź obrazu używa istniejących run/events i cancel. Sesja, Origin, CSRF i limity uploadu zachowane.
 
 Run zakończony przez limit wyjścia ma status completed i error_code=output_limit; treść częściowa pozostaje w historii. run.status SSE zawiera ten kod. Analiza pliku zwraca dodatkowo truncated (boolean). Zerwanie SSE bez DONE nadal zgłasza błąd.
+
+RAG 2.5b: GET /rag/documents, POST /rag/documents/{aid}/index (rebuild=false),
+POST /rag/documents/{aid}/pause, DELETE /rag/documents/{aid}, wszystko pod /api/v1.
+Sesja, ACL, Origin i CSRF jak pozostałe operacje; brak dowolnych ścieżek/SQL.
+MessageCreate.document_ids: do 5 gotowych PDF właściciela, bez jednoczesnego
+attachment_id. Run zapisuje wybór; SSE rag.sources i messages.sources zawierają
+użyte wycinki. Usunięcie indeksu usuwa je również z replay SSE. Szczegóły RAG.md.

@@ -17,6 +17,7 @@ class MessageCreate(Strict):
     text: str = Field(min_length=1,max_length=4000)
     client_message_id: UUID
     attachment_id: UUID | None = None
+    document_ids: list[UUID] = Field(default_factory=list,max_length=5)
 
 class Mode(Strict):
     mode: Literal['normal','gaming']
@@ -37,3 +38,6 @@ class MediaPage(Strict):
 class ImageQuestion(Strict):
     mode: Literal['ocr','question'] = 'question'
     question: str = Field(default='Opisz ten obraz.',min_length=1,max_length=1000)
+
+class RagIndex(Strict):
+    rebuild: bool = False

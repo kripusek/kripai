@@ -281,3 +281,10 @@ NIE URUCHOMIONO: Windows, CUDA, VRAM, instalator (w tym nowy bootstrap),
 Job Object, mikrofon, System.Speech i uninstall na docelowym systemie.
 Próba Playwright nie wystartowała: brak chromium_headless_shell-1234.
 NIE WYKONANO: push main, oczekuje zatwierdzenia zakresu przez właściciela.
+
+
+=== RAG 2.5b — 02.11.2026 ===
+96 Python: 92 OK, 4 pominięte Windows; 39 JS OK; razem 131 zaliczonych.
+Rzeczywisty E5 i PDF→vec0→retrieval sprawdzone osobno na Linux.
+Pełne logi, poprawka metadanych modelu i ograniczenia: docs/RAG_TESTY.txt.
+Windows/CUDA/VRAM i wizualny UI pozostają NIE URUCHOMIONE.

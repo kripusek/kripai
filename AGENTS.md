@@ -6,7 +6,7 @@ Właściciel 30.10.2026 jawnie zastąpił architekturę WSL/Docker/PostgreSQL/Ca
 Windows 11 x64, SQLite, prywatny Python, llama-server.exe CUDA, HTTP localhost.
 Właściciel następnie polecił rozpocząć kolejne możliwe kroki bez jego obecności.
 Aktualny zakres: ETAP 1, moduł głosu ETAPU 2 oraz ETAP 2.5a (PNG/JPEG/PDF i VLM),
-rozpoczęty na polecenie właściciela „następny etap”. Etapy 2.5b–6 nadal plan. Nie uznawaj etapu 2 za odebrany przed testem PL/EN na Windows.
+rozpoczęty na polecenie właściciela „następny etap”. Etap 2.5b rozpoczęty na nowe polecenie właściciela 02.11.2026; etapy 2.5c–6 nadal plan. Nie uznawaj etapu 2 za odebrany przed testem PL/EN na Windows.
 Rutynowe prace wykonuj samodzielnie, bez czekania na „dalej”. Pytaj o istotne
 nieznane decyzje i nierozstrzygalne sprzeczności. Nie zmieniaj ustaleń samowolnie.
 

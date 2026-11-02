@@ -27,3 +27,6 @@ Etap 2.5a: etap-2.5a/PLIKI.md i atomowa migracja 002-pliki.sql.
 Migracja 1 niezmieniona; przed aktualizacją istniejącej bazy automatyczna kopia.
 
 Doprecyzowanie właściciela: zdjęcia w czacie i formatowanie — etap-2.5a/CZAT.md oraz migracja 003-obraz-w-rozmowie.sql.
+
+Etap 2.5b rozpoczęty: etap-2.5b/RAG.md i 004-rag.sql. Tekstowe PDF,
+E5 CPU i sqlite-vec; odbiór Windows i pełne benchmarki pozostają niewykonane.

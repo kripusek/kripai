@@ -42,6 +42,7 @@ nie ma wymaganego runtime. Nie jest instalowany globalny CUDA Toolkit ani Python
 - [x] Automatyczne przełączanie modelu tekstowego i VLM bez ich równoległego uruchamiania.
 - [x] Markdown: nagłówki, listy, cytaty, tabele, pogrubienie i bloki kodu z kopiowaniem.
 - [x] Lokalne kolorowanie oznaczonych bloków JS/TS, Python, HTML, CSS, JSON, SQL, shell i PowerShell.
+- [x] Pamięć tekstowych PDF: indeksowanie, wybór dokumentów, źródła ze stroną i wycinkiem.
 - [x] Podstawowe wzory matematyczne jako MathML; nieznany zapis pozostaje tekstem.
 - [x] Nagrywanie do 30 sekund, lokalna transkrypcja Whisper do pola korekty.
 - [x] Odczyt tekstu lokalnym System.Speech, PL/EN zależnie od zainstalowanych głosów.
@@ -57,7 +58,7 @@ nie ma wymaganego runtime. Nie jest instalowany globalny CUDA Toolkit ani Python
 | 1 — rdzeń Windows | Implementacja, odbiór natywny nieukończony | Instalator, chat, SQLite, procesy modeli, Gaming i odzyskiwanie danych |
 | 2 — głos | Profil próbny, jakość do pomiaru | STT/TTS PL/EN, mikrofon, opóźnienia i stabilność na docelowym PC |
 | 2.5a — obrazy i PDF | Implementacja, odbiór GPU/UI nieukończony | Wklejanie zdjęć, OCR, VLM i podgląd dokumentów |
-| 2.5b — RAG | Niezaimplementowany | sqlite-vec, embeddingi, źródła/chunki, uprawnienia i cytowania |
+| 2.5b — RAG | Pierwszy zakres zaimplementowany, odbiór Windows nieukończony | Tekstowe PDF, E5 CPU, sqlite-vec, checkpointy i źródła w czacie |
 | 2.5c — większe pliki | Niezaimplementowany | Wznawianie uploadów i wizualne embeddingi |
 | 3 — Cardputer | Niezaimplementowany | Osobna zabezpieczona bramka, parowanie i unieważnianie urządzeń |
 | 4 — narzędzia agenta | Niezaimplementowany | Typowane narzędzia, polityka uprawnień i jawne zgody |
@@ -72,7 +73,7 @@ Pozostałe ograniczenia wymagające dalszej pracy:
 - [ ] Pełna pamięć multimodalna: kolejne pytanie bez załącznika nie analizuje dawnych pikseli.
 - [ ] Wiele zdjęć w jednej wiadomości i analiza całego dokumentu zamiast pojedynczej strony.
 - [ ] Pełny LaTeX oraz dokładniejsze wznawianie długiego kodu.
-- [ ] Automatyczne streszczanie rozmów i trwała pamięć wiedzy.
+- [ ] Automatyczne streszczanie rozmów, pamięć poza wybranymi PDF oraz OCR skanów do RAG.
 
 Szczegółowe kryteria odbioru: [plan etapów](spec/06-rollout.md).
 
@@ -114,8 +115,8 @@ wymazanie nośnika. Anulowany upload może wymagać usunięcia pliku w panelu.
 
 ## Testy i stopień weryfikacji
 
-Ostatni pełny przebieg: **81 testów Python — 77 OK, 4 pominięte Windows;
-33 testy JavaScript OK. Razem 110 zaliczonych i 4 pominięte.**
+Ostatni pełny przebieg: **96 testów Python — 92 OK, 4 pominięte Windows;
+39 testów JavaScript OK. Razem 131 zaliczonych i 4 pominięte.**
 
 SQLite, dekodery, HTTP/SSE i procesy potomne są rzeczywiste. Inference w testach
 regresji zastępują kontrolowane atrapy. Testy UI używają modelu DOM, nie testują
@@ -164,3 +165,20 @@ sama nie nadaje mu licencji open source.
 
 Bieżący stan i dalsze kroki: [PROJECT_STATE.md](PROJECT_STATE.md).
 Audyt odzyskania: [docs/AUDYT_2026-11-02.md](docs/AUDYT_2026-11-02.md).
+
+## Pamięć dokumentów — etap 2.5b
+
+Po aktualizacji uruchom START.cmd (dodatkowy model około 126 MiB) i Ctrl+F5.
+Dodaj PDF przez „Zdjęcia i PDF”, otwórz „Pamięć dokumentów”, kliknij Indeksuj
+i zaznacz gotowy dokument. Zadaj pytanie w czacie — pod odpowiedzią pojawią się
+nazwy, strony i użyte fragmenty. Do 5 wybranych PDF; wybór można wyczyścić.
+Pauza/wznowienie zapisuje postęp po stronie. Usuń indeks zachowuje PDF.
+
+Na razie PDF musi mieć tekst na każdej stronie (do 12000 znaków/stronę).
+Skany, PNG/JPEG i inne formaty nie są automatycznie indeksowane. Jednoczesne
+zdjęcie i dokumenty wyślij osobno. Podczas indeksowania pytanie RAG może wymagać
+poczekania; zwykły czat działa dalej. Encoder E5 pracuje na CPU; narzut RAM/VRAM
+oraz nowa DLL wymagają testu Windows. Szczegóły: [RAG.md](spec/etap-2.5b/RAG.md).
+
+Próba rzeczywistego E5 i sqlite-vec na Linux przeszła; trzy przykłady PL/EN
+nie są pełnym benchmarkiem ani testem poprawności odpowiedzi modelu tekstowego.

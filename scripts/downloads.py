@@ -152,6 +152,9 @@ if __name__=='__main__':
         elif sys.argv[1]=='model':binaries()
         elif sys.argv[1]=='voice':voice_files()
         elif sys.argv[1]=='vision':vision_files()
+        elif sys.argv[1]=='rag':
+            meta=json.loads((ROOT/'scripts/rag-lock.json').read_text(encoding='utf-8'))
+            download(meta['model'],config.DATA/'models'/meta['model']['name'])
         else:raise ValueError('Nieznana operacja')
     except Exception as exc:
         print('Przygotowanie przerwane: '+str(exc),file=sys.stderr);sys.exit(1)

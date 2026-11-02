@@ -30,10 +30,14 @@ def ensure_key():
 def validate(path):
     conn=sqlite3.connect(f'{Path(path).resolve().as_uri()}?mode=ro',uri=True)
     try:
+        from .vectors import load
+        load(conn)
         if conn.execute('PRAGMA integrity_check').fetchone()!=('ok',):raise ValueError('Uszkodzona kopia')
         if conn.execute('PRAGMA foreign_key_check').fetchone():raise ValueError('Niespójne relacje w kopii')
         if not known_migrations(conn.execute('SELECT version,checksum FROM schema_migrations ORDER BY version').fetchall()):raise ValueError('Nieobsługiwana wersja kopii')
         if conn.execute("SELECT 1 FROM sqlite_master WHERE type IN ('trigger','view')").fetchone():raise ValueError('Nieoczekiwany schemat kopii')
+        from .rag import validate_storage
+        validate_storage(conn)
     finally:conn.close()
 
 

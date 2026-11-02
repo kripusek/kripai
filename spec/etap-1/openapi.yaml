@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
-  title: KripAI native Windows — etap 1 i wstępny głos etapu 2
-  version: 1.3.1
+  title: KripAI native Windows — chat, głos, pliki i pamięć PDF
+  version: 1.4.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -426,7 +426,7 @@ paths:
           description: Origin lub CSRF niedozwolony
         '429':
           description: Limit 256 UUID/10 minut
-  /api/v1/files:
+  /files:
     get:
       summary: Files
       operationId: files_api_v1_files_get
@@ -456,7 +456,7 @@ paths:
           description: Błąd dekodera, modelu, kopii lub bazy
         '504':
           description: Timeout
-  /api/v1/media/jobs/{job_id}/files:
+  /media/jobs/{job_id}/files:
     post:
       summary: Upload File
       operationId: upload_file_api_v1_media_jobs__job_id__files_post
@@ -517,7 +517,7 @@ paths:
             schema:
               type: string
               format: binary
-  /api/v1/files/{aid}:
+  /files/{aid}:
     get:
       summary: File Metadata
       operationId: file_metadata_api_v1_files__aid__get
@@ -595,7 +595,7 @@ paths:
           description: Błąd dekodera, modelu, kopii lub bazy
         '504':
           description: Timeout
-  /api/v1/files/{aid}/preview:
+  /files/{aid}/preview:
     get:
       summary: File Preview
       operationId: file_preview_api_v1_files__aid__preview_get
@@ -635,7 +635,7 @@ paths:
           description: Błąd dekodera, modelu, kopii lub bazy
         '504':
           description: Timeout
-  /api/v1/files/{aid}/download:
+  /files/{aid}/download:
     get:
       summary: File Download
       operationId: file_download_api_v1_files__aid__download_get
@@ -675,7 +675,7 @@ paths:
           description: Błąd dekodera, modelu, kopii lub bazy
         '504':
           description: Timeout
-  /api/v1/media/jobs/{job_id}/files/{aid}/page:
+  /media/jobs/{job_id}/files/{aid}/page:
     post:
       summary: File Page
       operationId: file_page_api_v1_media_jobs__job_id__files__aid__page_post
@@ -732,7 +732,7 @@ paths:
           description: Błąd dekodera, modelu, kopii lub bazy
         '504':
           description: Timeout
-  /api/v1/media/jobs/{job_id}/files/{aid}/analyze:
+  /media/jobs/{job_id}/files/{aid}/analyze:
     post:
       summary: File Analyze
       operationId: file_analyze_api_v1_media_jobs__job_id__files__aid__analyze_post
@@ -798,7 +798,7 @@ paths:
           description: Błąd dekodera, modelu, kopii lub bazy
         '504':
           description: Timeout
-  /api/v1/media/jobs/{job_id}/cancel:
+  /media/jobs/{job_id}/cancel:
     post:
       summary: Cancel Media
       operationId: cancel_media_api_v1_media_jobs__job_id__cancel_post
@@ -838,6 +838,57 @@ paths:
           description: Błąd dekodera, modelu, kopii lub bazy
         '504':
           description: Timeout
+  /rag/documents:
+    get:
+      summary: PDF-y właściciela i postęp ich indeksowania
+      responses:
+        '200':
+          description: Lista items z id, filename, pages, status, next_page, chunks, error_code i space
+  /rag/documents/{aid}/index:
+    parameters:
+    - name: aid
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    post:
+      summary: Indeksuj lub wznów PDF; rebuild usuwa poprzedni indeks po kopii
+      description: Sesja, Origin i X-CSRF-Token. PDF z tekstem; max 50 stron. Powtórne zlecenie nie dubluje gotowych stron.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                rebuild: {type: boolean, default: false}
+      responses:
+        '202': {description: Zadanie queued lub istniejący gotowy indeks}
+        '404': {description: Brak pliku właściciela}
+        '409': {description: Gaming lub indeksowanie już trwa}
+  /rag/documents/{aid}/pause:
+    parameters:
+    - name: aid
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    post:
+      summary: Wstrzymaj zadanie indeksowania właściciela
+      description: Sesja, Origin i X-CSRF-Token. Niezapisana strona nie jest zatwierdzana.
+      responses:
+        '204': {description: Wstrzymano lub zadanie już nie pracuje}
+  /rag/documents/{aid}:
+    parameters:
+    - name: aid
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    delete:
+      summary: Usuń indeks, fragmenty i wycinki cytowań po kopii; PDF pozostaje
+      description: Sesja, Origin i X-CSRF-Token. Usunięcie źródłowego pliku usuwa także ten indeks.
+      responses:
+        '204': {description: Indeks usunięty}
+        '503': {description: Brak potwierdzonej kopii; dane zachowane}
 components:
   securitySchemes:
     sessionCookie:
@@ -941,6 +992,12 @@ components:
             format: uuid
           - type: 'null'
           title: Attachment Id
+        document_ids:
+          type: array
+          maxItems: 5
+          default: []
+          items: {type: string, format: uuid}
+          description: Gotowe indeksy PDF właściciela, wybierane jawnie; bez jednoczesnego attachment_id
       additionalProperties: false
       type: object
       required:
@@ -972,6 +1029,16 @@ components:
           - type: string
             format: uuid
           - type: 'null'
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              ordinal: {type: integer}
+              attachment_id: {type: string, format: uuid}
+              filename: {type: string}
+              page: {type: integer}
+              excerpt: {type: string, maxLength: 1000}
     RunCreated:
       type: object
       required:

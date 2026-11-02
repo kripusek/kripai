@@ -29,3 +29,9 @@ Etap 2.5a: Pillow 13.0.0, pypdfium2 5.14.0, Qwen3-VL-4B-Instruct Q4_K_M Unsloth 
 UI: Marked 17.0.5 MIT z lokalnej dystrybucji, web/vendor/marked, SHA scripts/web-vendor-lock.json. Bez CDN. Podstawowy TeX renderowany własnym ograniczonym parserem do natywnego MathML.
 
 Budżet odpowiedzi od 02.11: 2048 tokenów tekst/VLM, kontekst nadal 4096; tekst wejściowy i historia ograniczane tokenizerem. Nie zwiększano alokacji KV przez zmianę ctx-size. Natywny pomiar GPU niewykonany.
+
+Etap 2.5b: sqlite-vec 0.1.6 (weryfikowany DLL/SO) i multilingual E5-small
+Q8_0, około 126 MiB. Encoder CPU na czas zadania, port 8767, 4 wątki, 384
+wymiary, mean pooling; model i override w scripts/rag-lock.json. Windows
+Job Object 1536 MiB, pomiar docelowego RAM/VRAM niewykonany. RAG.md opisuje
+granice tekstowych PDF i odbiór. Bez dodatkowego modelu offloadowanego na GPU.

@@ -22,9 +22,9 @@ from .db import connect, event, change_state, migrate
 from . import config
 from .context import prepare, ContextTooLarge
 from .model_process import control
-from . import voice, media
+from . import voice, media, rag
 from fastapi.staticfiles import StaticFiles
-from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion
+from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex
 from .security import digest, password_hash, verify_password
 
 ORIGIN = config.ORIGIN
@@ -110,8 +110,23 @@ def infer(run):
             change_state(conn,rid,'preparing_context')
             history = conn.execute('SELECT role,content FROM messages WHERE conversation_id=? ORDER BY seq DESC LIMIT 200',(run['conversation_id'],)).fetchall()[::-1]
             total=conn.execute('SELECT count(*) AS n FROM messages WHERE conversation_id=?',(run['conversation_id'],)).fetchone()['n']
+        selected=json.loads(run.get('rag_selection','[]'))
+        citations=None
+        if selected:
+            def check_rag():
+                with connect() as conn:
+                    current=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()['status']
+                    mode=conn.execute('SELECT requested_mode FROM system_mode').fetchone()['requested_mode']
+                if current=='cancelling' or stop_worker.is_set() or rag.STOP.is_set():raise rag.RagError('rag_paused')
+                if mode!='normal':raise rag.RagError('gaming_mode')
+            with connect() as conn:uid=conn.execute('SELECT owner_id FROM conversations WHERE id=?',(run['conversation_id'],)).fetchone()['owner_id']
+            citations=rag.retrieve(selected,uid,history[-1]['content'],check_rag)
         with httpx.Client(timeout=20,headers=config.llm_headers(),trust_env=False) as tokenizer:
-            messages,omitted,tokens=prepare(history,tokenizer)
+            messages,omitted,tokens=prepare(history,tokenizer,citations)
+        if citations is not None:
+            with connect() as conn:
+                rag.validate_selection(conn,selected,uid)
+                event(conn,rid,'rag.sources',{'items':[dict(c,ordinal=i) for i,c in enumerate(citations,1)]})
         with connect() as conn:
             event(conn,rid,'context.info',{'omitted_messages':omitted+total-len(history),'input_tokens':tokens})
         with connect() as conn:
@@ -151,7 +166,9 @@ def infer(run):
                 change_state(conn,rid,'cancelled');return
             if pending:
                 event(conn,rid,'assistant.text.delta',{'text':pending})
-            conn.execute('INSERT INTO messages(id,conversation_id,role,content) VALUES (?,?,\'assistant\',?)',(uuid4(),run['conversation_id'],answer))
+            mid=uuid4()
+            conn.execute('INSERT INTO messages(id,conversation_id,role,content) VALUES (?,?,\'assistant\',?)',(mid,run['conversation_id'],answer))
+            if citations:rag.save_sources(conn,mid,citations)
             conn.execute('UPDATE conversations SET updated_at=now() WHERE id=?',(run['conversation_id'],))
             change_state(conn,rid,'completed','output_limit' if finish_reason=='length' else None)
     except Exception as exc:
@@ -159,7 +176,7 @@ def infer(run):
         with connect() as conn:
             row=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()
             if row and row['status'] not in TERMINAL:
-                change_state(conn,rid,'cancelled' if row['status']=='cancelling' else 'failed','context_too_large' if isinstance(exc,ContextTooLarge) else exc.code if isinstance(exc,media.MediaError) else 'inference_interrupted')
+                change_state(conn,rid,'cancelled' if row['status']=='cancelling' else 'failed','context_too_large' if isinstance(exc,ContextTooLarge) else exc.code if isinstance(exc,(media.MediaError,rag.RagError)) else 'inference_interrupted')
 
 
 def infer_image(run,image):
@@ -214,9 +231,11 @@ async def lifespan(app):
         for row in conn.execute("SELECT id FROM runs WHERE status NOT IN ('completed','cancelled','failed','expired','outcome_unknown')").fetchall():
             change_state(conn,row['id'],'failed','server_restarted')
     stop_worker.clear()
+    rag.start()
     thread=threading.Thread(target=worker,daemon=True);thread.start()
     model_thread=threading.Thread(target=control,args=(stop_worker,),daemon=True);model_thread.start()
     yield
+    rag.shutdown()
     voice.service.shutdown()
     media.guard.shutdown()
     stop_worker.set()
@@ -343,6 +362,7 @@ def messages(cid:UUID,limit:int=Query(20,ge=1,le=100),cursor:str|None=None,user=
     with connect() as conn:
         owned(conn,cid,user['id'])
         rows=conn.execute('SELECT m.seq,m.id,m.role,m.content,m.created_at,i.attachment_id FROM messages m LEFT JOIN message_images i ON i.message_id=m.id WHERE m.conversation_id=? AND m.seq<? ORDER BY m.seq DESC LIMIT ?',(cid,before,limit+1)).fetchall()
+        for row in rows:row['sources']=rag.sources(conn,row['id'],user['id'])
     selected=rows[:limit]
     return {'items':list(reversed(selected)),'next_cursor':str(selected[-1]['seq']) if len(rows)>limit else None}
 
@@ -358,6 +378,9 @@ def send(cid:UUID,body:MessageCreate,request:Request,user=Depends(identity)):
         if conn.execute('SELECT controller_state FROM system_mode').fetchone()['controller_state']!='ready':fail(503,'model_unavailable')
         if conn.execute("SELECT 1 FROM runs WHERE status NOT IN ('completed','cancelled','failed','expired','outcome_unknown') LIMIT 1").fetchone(): fail(409,'generation_busy')
         if conn.execute('SELECT 1 FROM messages WHERE conversation_id=? AND client_message_id=?',(cid,body.client_message_id)).fetchone(): fail(409,'client_message_conflict')
+        if body.document_ids:
+            if body.attachment_id:fail(422,'rag_image_combination')
+            rag.validate_selection(conn,body.document_ids,user['id'])
         if body.attachment_id:
             attachment=media.owned(conn,body.attachment_id,user['id'])
             if attachment['media_type'] not in {'image/png','image/jpeg'}:fail(422,'chat_image_format')
@@ -367,6 +390,7 @@ def send(cid:UUID,body:MessageCreate,request:Request,user=Depends(identity)):
         if body.attachment_id:
             conn.execute('INSERT INTO message_images VALUES (?,?,?)',(mid,body.attachment_id,user['session_id']))
         conn.execute('INSERT INTO runs(id,conversation_id,user_message_id,status) VALUES (?,?,?,\'queued\')',(rid,cid,mid))
+        conn.execute('UPDATE runs SET rag_selection=? WHERE id=?',(json.dumps([str(x) for x in body.document_ids]),rid))
         conn.execute("UPDATE conversations SET updated_at=now(),title=CASE WHEN title='' THEN ? ELSE title END WHERE id=?",(body.text[:60],cid))
         event(conn,rid,'run.status',{'state':'queued'})
         return remember(conn,user['id'],route,key,{'message_id':str(mid),'run_id':str(rid),'status':'queued'})
@@ -541,6 +565,29 @@ async def file_analyze(job_id:UUID,aid:UUID,body:ImageQuestion,user=Depends(iden
 @app.post('/api/v1/media/jobs/{job_id}/cancel',status_code=204)
 def cancel_media(job_id:UUID,user=Depends(identity)):
     media.guard.cancel(voice_key(user,job_id));return Response(status_code=204)
+
+
+@app.exception_handler(rag.RagError)
+async def rag_error(request,exc):
+    return JSONResponse({'error':{'code':exc.code,'message':exc.code}},exc.status)
+
+@app.get('/api/v1/rag/documents')
+def rag_documents(user=Depends(identity)):
+    return rag.list_documents(user['id'])
+
+@app.post('/api/v1/rag/documents/{aid}/index',status_code=202)
+def rag_index(aid:UUID,body:RagIndex,user=Depends(identity)):
+    return rag.queue(str(aid),user,body.rebuild)
+
+@app.post('/api/v1/rag/documents/{aid}/pause',status_code=204)
+def rag_pause(aid:UUID,user=Depends(identity)):
+    rag.pause(str(aid),user['id']);return Response(status_code=204)
+
+@app.delete('/api/v1/rag/documents/{aid}',status_code=204)
+def rag_remove(aid:UUID,user=Depends(identity)):
+    try:rag.remove(str(aid),user['id'])
+    except OSError:raise rag.RagError('backup_failed',503) from None
+    return Response(status_code=204)
 
 
 app.mount('/',StaticFiles(directory=config.ROOT/'web',html=True),name='web')

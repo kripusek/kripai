@@ -22,7 +22,7 @@ def decode(page):
     Image.MAX_IMAGE_PIXELS=16_000_000
     warnings.simplefilter('error',Image.DecompressionBombWarning)
     path=Path('original.bin')
-    text='';pages=1
+    text='';pages=1;truncated=False
     if path.read_bytes()[:5]==b'%PDF-':
         import pypdfium2 as pdfium
         with pdfium.PdfDocument(path) as document:
@@ -32,6 +32,7 @@ def decode(page):
                 width,height=pdf_page.get_size()
                 if not all(math.isfinite(x) and 0<x<=100000 for x in (width,height)):raise ValueError('size')
                 with closing(pdf_page.get_textpage()) as layer:
+                    truncated=layer.count_chars()>12000
                     text=layer.get_text_range(0,min(layer.count_chars(),12000))[:12000]
                 with closing(pdf_page.render(scale=min(2,1024/max(width,height)),may_draw_forms=False)) as bitmap:
                     image=bitmap.to_pil().convert('RGBA')
@@ -46,7 +47,7 @@ def decode(page):
     clean=Image.new('RGB',image.size,'white')
     clean.paste(image,mask=image.getchannel('A'))
     clean.save('preview.png',format='PNG')
-    Path('result.json').write_text(json.dumps({'media_type':media_type,'pages':pages,'current_page':page,'text_layer':text},ensure_ascii=False),encoding='utf-8')
+    Path('result.json').write_text(json.dumps({'media_type':media_type,'pages':pages,'current_page':page,'text_layer':text,'text_truncated':truncated},ensure_ascii=False),encoding='utf-8')
 
 
 if __name__=='__main__':

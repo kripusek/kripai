@@ -63,3 +63,19 @@ https://docs.pypi.org/api/json/
 Adres koła dopuszczony tylko HTTPS files.pythonhosted.org/packages/, hash
 i nazwa muszą zgadzać się z lokalnym vendor-lock.json. Odczyt dokumentacji
 nie jest testem rzeczywistego pobierania całej paczki na Windows.
+
+## RAG — sprawdzono 02.11.2026
+https://alexgarcia.xyz/sqlite-vec/python.html
+https://alexgarcia.xyz/sqlite-vec/features/vec0.html
+https://github.com/asg017/sqlite-vec/releases/tag/v0.1.6
+https://pypi.org/pypi/sqlite-vec/0.1.6/json
+https://huggingface.co/intfloat/multilingual-e5-small
+https://huggingface.co/intfloat/multilingual-e5-small/raw/main/config.json
+https://huggingface.co/cstr/multilingual-e5-small-GGUF
+https://raw.githubusercontent.com/ggml-org/llama.cpp/b12000/tools/server/README.md
+https://raw.githubusercontent.com/ggml-org/llama.cpp/b12000/src/models/bert.cpp
+https://raw.githubusercontent.com/ggml-org/llama.cpp/b12000/src/llama-arch.cpp
+Pobrano i zweryfikowano Windows/Linux wheels, DLL/SO i E5 Q8_0; hash w lockach.
+Jawny override tokenizer.ggml.token_type_count=int:2 wynika z config type_vocab_size
+i loadera b12000. Poprawność obu partycji vec0 i runtime E5 potwierdzono na Linux.
+Nie uznano dokumentacji upstream za test Windows.

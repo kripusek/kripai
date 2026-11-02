@@ -67,3 +67,10 @@ starych sesji, sekretów, kolejek ani zdarzeń; nie usuwa starej bazy.
     Podstawowy TeX jako MathML; nieznane polecenia pozostają źródłem.
 
 21. Poprawka cutoff: OUTPUT=2048 zamiast 768; CONTEXT=4096 bez zmiany. Tokenizer rezerwuje nowy budżet, trimując starsze tury. finish_reason=length oznacza zachowany, niepełny wynik i error_code=output_limit w ukończonym run. Przycisk Kontynuuj przygotowuje osobną wiadomość z końcówką do edycji.
+
+22. Etap 2.5b rozpoczęty 02.11.2026: sqlite-vec 0.1.6, przypięty wheel/DLL,
+    tekstowe PDF, migracja 4 z kopią. Lokalny E5-small Q8_0 na CPU jako krótko
+    żyjący osobny llama-server na loopback 8767; brak drugiego offloadu GPU.
+    Model/revizja/SHA i jawny override metadanych w rag-lock.json; szczegóły RAG.md.
+    Źródła wybierane jawnie; filtry owner+document wewnątrz KNN, checkpoint strony,
+    usuwanie pochodnych i wycinków z kopią. Nadal bez narzędzi agenta i bez cloud.

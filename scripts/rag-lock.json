@@ -1,0 +1,23 @@
+{
+  "space": "e5-small-q8-0a34067a-type2-v1",
+  "dimensions": 384,
+  "sqlite_vec": "0.1.6",
+  "extensions": {
+    "win32": {
+      "path": "runtime/deps/sqlite_vec/vec0.dll",
+      "sha256": "74e63ab75299804773676a5c757372472e797e03e02a2d8ff5fd91730dbd7531"
+    },
+    "linux": {
+      "path": "runtime/deps/sqlite_vec/vec0.so",
+      "sha256": "f285c46d5496fe7571be40ab40c0b151d091892c141f89a503e02392e0961233"
+    }
+  },
+  "model": {
+    "name": "rag-e5-small-q8.gguf",
+    "revision": "178420da727e544c2689e89b6648b205ad176eda",
+    "url": "https://huggingface.co/cstr/multilingual-e5-small-GGUF/resolve/178420da727e544c2689e89b6648b205ad176eda/multilingual-e5-small-q8_0.gguf",
+    "sha256": "0a34067a40f25d3149b36885faa62bee0e5284d0f9edc102acfc00e115d953e8",
+    "size": 131624960
+  },
+  "metadata_override": "tokenizer.ggml.token_type_count=int:2"
+}

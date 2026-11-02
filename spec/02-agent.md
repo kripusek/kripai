@@ -8,7 +8,7 @@ Czytamy maksymalnie 200 ostatnich wiadomości do budowy kontekstu; starsze
 pozostają w SQLite. SSE context.info podaje liczbę pominiętych wiadomości.
 UI pobiera po 50 wiadomości z kursorem seq, zaczynając od najnowszych.
 
-RAG etapu 2.5b: SQLite tables documents/chunks/owners oraz vec0 w sqlite-vec.
+RAG etapu 2.5b: pierwszy zakres opisuje etap-2.5b/RAG.md; tabele rag_documents/rag_chunks oraz rag_vectors vec0 w sqlite-vec.
 Każdy rekord ma owner_id, source_id, wersję embeddingu, wymiar i status indeksu.
 Treść, embedding i metadane muszą mieć spójny cykl utworzenia/usunięcia.
 Wyszukiwanie zawsze ogranicza zbiór do owner_id i dozwolonych dokumentów;

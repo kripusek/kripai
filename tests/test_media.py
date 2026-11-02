@@ -211,6 +211,7 @@ class MediaTests(DataCase):
 class MediaMigrationTests(DataCase):
     def old_database(self):
         with connect() as conn:
+            conn.execute('DROP TABLE message_sources');conn.execute('DROP TABLE rag_vectors');conn.execute('DROP TABLE rag_chunks');conn.execute('DROP TABLE rag_documents');conn.execute('ALTER TABLE runs DROP COLUMN rag_selection')
             conn.execute('DROP TABLE message_images')
             conn.execute('DROP TABLE attachments')
             conn.execute('ALTER TABLE system_mode DROP COLUMN requested_profile')
