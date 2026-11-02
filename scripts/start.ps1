@@ -1,4 +1,5 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿param([switch]$NoBrowser)
+$ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $source = Split-Path $PSScriptRoot -Parent
@@ -18,6 +19,15 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Nie udalo sie zabezpieczyc folderu danych.' }
     }
     $python = Join-Path $target 'runtime\python\python.exe'
+    $reuse = Join-Path $target 'scripts\reuse_running.py'
+    if ((Test-Path -LiteralPath $python) -and (Test-Path -LiteralPath $reuse)) {
+        & $python $reuse $source
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host 'KripAI juz dziala z tym samym kodem. Otwieram bez restartu modelu.'
+            if (-not $NoBrowser) { Start-Process 'http://localhost:8765' }
+            return
+        }
+    }
     if (Test-Path -LiteralPath $python) {
         & $python (Join-Path $target 'scripts\manage.py') stop
         if ($LASTEXITCODE -ne 0) { throw 'Nie udalo sie zatrzymac poprzedniej instancji.' }
@@ -71,7 +81,7 @@ try {
     if ($LASTEXITCODE -ne 0) { Write-Warning 'Pamiec dokumentow niegotowa. START ponowi pobranie embeddingow.' }
     & $python (Join-Path $target 'scripts\manage.py') start
     if ($LASTEXITCODE -ne 0) { throw 'Uruchomienie nie powiodlo sie.' }
-    Start-Process 'http://localhost:8765'
+    if (-not $NoBrowser) { Start-Process 'http://localhost:8765' }
     Write-Host 'KripAI uruchomione. Tryb gry zmieniasz w panelu; WYLACZ.cmd zamyka program.'
 } catch {
     Write-Host ('BLAD: ' + $_.Exception.Message) -ForegroundColor Red

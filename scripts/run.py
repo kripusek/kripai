@@ -9,11 +9,17 @@ from app import config
 from app.db import migrate
 from app.maintenance import backup
 from app.processes import InstanceLock
+from app.build import fingerprint
 
 
 def main():
     with InstanceLock():
         migrate();backup()
+        build=config.DATA/'active-build.sha256'
+        try:build.write_text(fingerprint(config.ROOT),encoding='ascii')
+        except (OSError,ValueError):
+            try:build.unlink(missing_ok=True)
+            except OSError:pass  # Brak cache nie blokuje zwykłego startu.
         flag=config.DATA/'stop.request'
         server=uvicorn.Server(uvicorn.Config('app.main:app',host='127.0.0.1',port=config.PORT,
             access_log=False,proxy_headers=False,log_level='error',timeout_graceful_shutdown=5))
@@ -31,6 +37,7 @@ def main():
         try:server.run()
         finally:
             done.set();thread.join(timeout=2)
+            build.unlink(missing_ok=True)
             backup();flag.unlink(missing_ok=True)
 
 if __name__=='__main__':

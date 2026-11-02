@@ -1,5 +1,5 @@
 # KripAI — stan projektu
-Aktualizacja: 02.11.2026. Ten plik opisuje bieżącą paczkę; STATUS.md zachowuje historię.
+Aktualizacja: 03.11.2026. Ten plik opisuje bieżącą paczkę; STATUS.md zachowuje historię.
 
 Aktualny zakres MCP i wyniki Windows: końcowy wpis „MCP stdio” oraz docs/MCP.md.
 Starsze wyniki i ograniczenia poniżej opisują kolejne historyczne paczki.
@@ -363,3 +363,21 @@ Pełny raport: docs/MOTYW_TESTY.txt. Dalej: poprawa zwykłego startu oraz MCP.
 Zwykłe zainstalowane manage.py stop/start przeszło po kopii kodu i danych.
 W osobnym kolejnym poleceniu health/live oraz chronione v1/models dały 200;
 backend i model przeżyły zakończenie launchera. Nie trzeba skryptu pomocniczego.
+
+## 03.11.2026 — szybkie ponowne otwarcie działającej aplikacji
+START porównuje odcisk uruchomionego kodu z instalacją i katalogiem źródłowym.
+Przy zgodności, aktywnej blokadzie i poprawnym health/live otwiera stronę bez
+stop/reinstalacji/testów/pobrań. Brak/zmiana/stara wersja procesu oznacza pełną
+dotychczasową ścieżkę. Odcisk nie obejmuje modeli/danych/poświadczeń i nie
+zastępuje SHA pobrań. Lokalna meta active-build.sha256, bez migracji/zależności.
+Windows: 201 testów Python (200 OK, 1 symlink pominięty), Node 53/53 OK.
+Rzeczywisty PowerShell START -NoBrowser: 3.917 s, PID modelu bez zmiany,
+backend live. Model podczas tej próby jeszcze się ładował; nie przerwano go.
+To nie przyspieszenie zimnego startu ani ponowny test pełnego instalatora.
+Struktura/limity/dalej: docs/SZYBKIE_OTWIERANIE.md; pełny raport obok.
+Start nadal START.cmd. Dalej: zimny start i zewnętrzni dostawcy MCP.
+
+03.11.2026: po aktualizacji model osiągnął ready. Osobna rzeczywista rozmowa
+CUDA po starcie zwróciła poprawne 391 na 17×23 (asercja w QA), bez narzędzi.
+Backend/model nadal dostępne w kolejnym poleceniu; nie deklarujemy czasu
+inference jako benchmarku. Kopie kodu/danych wykonano przed aktualizacją.

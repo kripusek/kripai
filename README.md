@@ -229,3 +229,6 @@ Wyszukiwanie dokumentacji modułów Pythona korzysta również z oficjalnego ind
 
 Wyszukiwanie respektuje site:domena i -site:domena z bieżącej wiadomości:
 [filtr domen](docs/FILTR_DOMEN_WWW.md).
+
+Ponowne uruchomienie START rozpoznaje działającą, niezmienioną paczkę
+i otwiera stronę bez restartu modelu: [zasady](docs/SZYBKIE_OTWIERANIE.md).
