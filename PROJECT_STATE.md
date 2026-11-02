@@ -422,3 +422,16 @@ docs/GITHUB_PR_ODCZYT.md i GITHUB_PR_ODCZYT_TESTY.txt. Dalej: panel GPU/MCP.
 Osobno CUDA/Qwen3-8B q8 KV odczytał PR python/cpython #158469 i zakończył
 odpowiedź ze źródłem (1106 znaków). Cała karta 7187/8192 MiB po próbie.
 To test przepływu i źródła, nie gwarancja trafności każdej recenzji.
+
+## 03.11.2026 — rzeczywisty pomiar VRAM w panelu systemu
+GET system/gpu (sesja/Host) i nowy web/gpu.js: całe karty NVIDIA, used/total/free,
+czas próbki, kontekst i limit porcji. Stały nvidia-smi w systemowych lokalizacjach,
+tylko query, timeout 3 s, cache 5 s, limit wyjścia/kart. Brak sterownika/błąd
+nie udają zera wolnego VRAM. Wylogowanie odrzuca spóźniony pomiar.
+Windows: 217 Python (216 OK, 1 symlink pominięty), Node 58/58. Rzeczywista
+RTX 3060 Ti przez API fixture: 7038/8192 MiB zajęte i 987 wolne. Chrome desktop/
+390px sprawdzony z kontrolowanym API zasilonym rzeczywistą próbką.
+To cała karta, nie tylko model ani gwarantowany budżet WDDM. Inference regresji
+kontrolowane; konto fixture, bez użycia hasła owner. Start START.cmd, brak deps/
+migracji. Kod app/gpu.py/main.py i web/gpu.js. Kontrakt/raport docs/PANEL_GPU.md
+oraz PANEL_GPU_TESTY.txt. Dalej: mobilna nawigacja i zewnętrzny MCP.

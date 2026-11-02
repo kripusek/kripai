@@ -22,7 +22,7 @@ from .db import connect, event, change_state, migrate
 from . import config
 from .context import prepare, ContextTooLarge
 from .model_process import control
-from . import voice, media, rag, tools
+from . import voice, media, rag, tools, gpu
 from fastapi.staticfiles import StaticFiles
 from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect
 from .security import digest, password_hash, verify_password
@@ -538,6 +538,10 @@ def status(user=Depends(identity)):
         elif row['requested_mode']=='normal' and state!='ready':state='starting'
     model={'ready':'ready','stopped':'unloaded','starting':'loading'}.get(state,'unavailable')
     return {'profile':row['requested_profile'],'mode':row['requested_mode'],'database':'ready','model':model,'controller':state,'backup':'error' if (config.DATA/'backup.error').exists() else 'ready'}
+
+@app.get('/api/v1/system/gpu')
+def gpu_status(user=Depends(identity)):
+    return gpu.snapshot()
 
 @app.post('/api/v1/system/mode')
 def mode(body:Mode,request:Request,user=Depends(identity)):

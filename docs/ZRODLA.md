@@ -148,3 +148,8 @@ https://github.com/ggml-org/llama.cpp/tree/master/examples/server
 
 ## PR tylko do odczytu
 https://docs.github.com/en/rest/pulls/pulls
+
+## Odczyt VRAM przez NVIDIA SMI
+https://docs.nvidia.com/deploy/nvidia-smi/index.html
+Lokalnie sprawdzone: --query-gpu=index,name,memory.used,memory.total,memory.free
+oraz --format=csv,noheader,nounits.

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.9.0
+  version: 1.10.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -9,6 +9,14 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /system/gpu:
+    get:
+      summary: Pomiar VRAM całych kart NVIDIA, cache 5 s (sesja, tylko odczyt)
+      responses:
+        '200':
+          description: available, devices (index/name/used_mib/total_mib/free_mib), sampled_at lub jawny error; context_tokens i output_tokens_per_segment
+        '401':
+          description: Wymagane logowanie
   /integrations/mcp/test:
     post:
       summary: Rzeczywisty handshake MCP i odczyt katalogu (sesja i CSRF)
