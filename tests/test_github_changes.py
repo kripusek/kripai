@@ -91,6 +91,54 @@ class GithubChangesTests(unittest.TestCase):
             for repo,path,method in [(changes.WRITE_REPOSITORY,'git/refs/heads/main','PATCH'),('other/repo','pulls','POST'),(changes.WRITE_REPOSITORY,'issues','POST')]:
                 with self.assertRaises(ToolError):changes.api(repo,path,method,{})
 
+    def uncertain(self):
+        did=self.create()
+        with changes.store() as conn:conn.execute("UPDATE drafts SET state='outcome_unknown' WHERE id=?",(did,))
+        return did
+
+    def reconciler(self,did,pulls=True,changed=False,missing=False):
+        import hashlib
+        raw=b'# Improved\n';blob=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+        def api(repo,suffix,method='GET',payload=None):
+            self.assertEqual(method,'GET');self.calls.append((suffix,method,payload))
+            if suffix.startswith('git/ref/heads/kripai'):return None if missing else {'object':{'sha':'new-commit'}}
+            if suffix=='git/commits/new-commit':return {'parents':[{'sha':self.head}],'tree':{'sha':'new-tree'}}
+            if suffix.startswith('git/trees/new-tree'):
+                return {'tree':[{'path':'README.md','mode':'100755','type':'blob','sha':'wrong' if changed else blob}]}
+            if suffix.startswith('pulls?'):return [{'head':{'ref':'kripai/'+did,'sha':'new-commit'},'base':{'ref':'main'},'html_url':'https://github.com/'+repo+'/pull/1'}] if pulls else []
+            if suffix.startswith('git/trees/old-tree'):return {'tree':[{'path':'README.md','mode':'100755','type':'blob','sha':'old-blob'}]}
+            return self.api(repo,suffix,method,payload)
+        return api
+
+    def test_reconcile_lost_response_finds_exact_pr_using_only_get(self):
+        did=self.uncertain();self.calls=[]
+        with patch.object(changes,'api',side_effect=self.reconciler(did)):
+            result=changes.reconcile(did,'owner-one')
+        self.assertEqual(result['state'],'published');self.assertTrue(result['url'].endswith('/pull/1'))
+        self.assertTrue(all(method=='GET' for _,method,_ in self.calls))
+        with patch.object(changes,'api',side_effect=AssertionError('no network')):
+            self.assertEqual(changes.reconcile(did,'owner-one'),result)
+
+    def test_reconcile_branch_only_missing_mismatch_and_other_owner_never_retries_write(self):
+        did=self.uncertain()
+        with patch.object(changes,'api',side_effect=self.reconciler(did,pulls=False)):
+            self.assertEqual(changes.reconcile(did,'owner-one')['state'],'branch_only')
+        with patch.object(changes,'api',side_effect=self.reconciler(did,changed=True)):
+            with self.assertRaises(ToolError):changes.reconcile(did,'owner-one')
+        with patch.object(changes,'api',side_effect=self.reconciler(did,missing=True)):
+            self.assertEqual(changes.reconcile(did,'owner-one')['state'],'outcome_unknown')
+        with patch.object(changes,'api',side_effect=AssertionError('network')):
+            with self.assertRaises(ToolError):changes.reconcile(did,'other')
+
+    def test_reconcile_rejects_unproposed_extra_file(self):
+        did=self.uncertain();original=self.reconciler(did)
+        def api(*args,**kwargs):
+            result=original(*args,**kwargs)
+            if args[1].startswith('git/trees/new-tree'):result['tree'].append({'path':'extra.py','type':'blob','mode':'100644','sha':'unexpected'})
+            return result
+        with patch.object(changes,'api',side_effect=api):
+            with self.assertRaises(ToolError):changes.reconcile(did,'owner-one')
+
 class GithubChangesAPITests(unittest.TestCase):
     def test_session_csrf_and_owner_bound_publication(self):
         from uuid import uuid4
@@ -102,5 +150,9 @@ class GithubChangesAPITests(unittest.TestCase):
             self.assertEqual(client.post(url,headers={'X-CSRF-Token':'bad'}).status_code,403)
             publish.assert_not_called()
             self.assertEqual(base.post(url.removeprefix('/api/v1'),{}).status_code,200);self.assertEqual(publish.call_count,1)
+        with patch.object(changes,'reconcile',return_value={'state':'branch_only'}) as reconcile:
+            route=url.replace('/publish','/reconcile')
+            self.assertEqual(client.post(route,headers={'X-CSRF-Token':'bad'}).status_code,403);reconcile.assert_not_called()
+            self.assertEqual(base.post(route.removeprefix('/api/v1'),{}).status_code,200);self.assertEqual(reconcile.call_count,1)
         client.cookies.clear()
         self.assertEqual(client.get('/api/v1/integrations/github/drafts').status_code,401)

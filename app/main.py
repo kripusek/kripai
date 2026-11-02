@@ -389,6 +389,12 @@ def github_publish(did:UUID,user=Depends(identity)):
     try:return publish(str(did),user['id'])
     except tools.ToolError as exc:fail(409,exc.code)
 
+@app.post('/api/v1/integrations/github/drafts/{did}/reconcile')
+def github_reconcile(did:UUID,user=Depends(identity)):
+    from .github_changes import reconcile
+    try:return reconcile(str(did),user['id'])
+    except tools.ToolError as exc:fail(409,exc.code)
+
 @app.post('/api/v1/integrations/github/test')
 def integration_test(body: tools.GithubRead, user=Depends(identity)):
     try:

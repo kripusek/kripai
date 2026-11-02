@@ -3,6 +3,7 @@ import json
 import base64
 import difflib
 import http.client
+import hashlib
 import re
 import sqlite3
 from contextlib import contextmanager
@@ -109,3 +110,51 @@ def publish(did,owner):
     except Exception:
         with store() as conn:conn.execute("UPDATE drafts SET state='outcome_unknown',result=? WHERE id=?",(json.dumps({'branch':branch,'url':'https://github.com/'+repo+'/tree/'+branch}),did))
         raise
+
+def _reconcile(did,owner):
+    """Po utracie odpowiedzi sprawdzamy stan zdalny wyłącznie przez GET."""
+    did=str(UUID(did))
+    with store() as conn:
+        row=conn.execute('SELECT * FROM drafts WHERE id=? AND owner=?',(did,str(owner))).fetchone()
+    if not row:raise ToolError('github_draft_not_found')
+    if row['state']=='published':return dict(json.loads(row['result']),state='published')
+    if row['state'] not in {'publishing','outcome_unknown','branch_only'}:raise ToolError('github_reconcile_not_needed')
+    data=json.loads(row['data']);repo=data['repository'];branch='kripai/'+did
+    if repo!=WRITE_REPOSITORY:raise ToolError('github_write_repository_denied')
+    reference=api(repo,'git/ref/heads/'+quote(branch,safe=''))
+    state='outcome_unknown';url='https://github.com/'+repo+'/tree/'+branch
+    if reference:
+        sha=reference['object']['sha'];commit=api(repo,'git/commits/'+sha)
+        if [parent['sha'] for parent in commit['parents']]!=[data['head']]:raise ToolError('github_reconcile_mismatch')
+        tree=api(repo,'git/trees/'+commit['tree']['sha']+'?recursive=1')
+        if tree.get('truncated'):raise ToolError('tool_response_too_large')
+        entries={entry['path']:entry for entry in tree['tree']}
+        original=api(repo,'git/commits/'+data['head'])
+        original_tree=api(repo,'git/trees/'+original['tree']['sha']+'?recursive=1')
+        if original_tree.get('truncated'):raise ToolError('tool_response_too_large')
+        expected_entries={entry['path']:(entry['mode'],entry['type'],entry['sha']) for entry in original_tree['tree'] if entry['type']!='tree'}
+        for file in data['files']:
+            raw=file['content'].encode('utf-8')
+            expected=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+            entry=entries.get(file['path'],{})
+            if entry.get('type')!='blob' or entry.get('sha')!=expected or entry.get('mode')!=file['mode']:raise ToolError('github_reconcile_mismatch')
+            expected_entries[file['path']]=(file['mode'],'blob',expected)
+        actual_entries={entry['path']:(entry['mode'],entry['type'],entry['sha']) for entry in tree['tree'] if entry['type']!='tree'}
+        if actual_entries!=expected_entries:raise ToolError('github_reconcile_mismatch')
+        state='branch_only'
+        pulls=api(repo,'pulls?'+urlencode({'state':'all','head':repo.split('/')[0]+':'+branch,'base':data['base'],'per_page':10}))
+        for pr in pulls:
+            if pr['head']['ref']==branch and pr['head']['sha']==sha and pr['base']['ref']==data['base'] and re.fullmatch('https://github.com/'+re.escape(repo)+r'/pull/[1-9][0-9]*',pr['html_url']):
+                state='published';url=pr['html_url'];break
+    result={'state':state,'url':url,'branch':branch}
+    with store() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        # Trwająca publikacja mogła w międzyczasie zapisać potwierdzony wynik.
+        current=conn.execute('SELECT state,result FROM drafts WHERE id=?',(did,)).fetchone()
+        if current['state']=='published':return dict(json.loads(current['result']),state='published')
+        conn.execute('UPDATE drafts SET state=?,result=? WHERE id=?',(state,json.dumps(result),did))
+    return result
+
+def reconcile(did,owner):
+    try:return _reconcile(did,owner)
+    except (KeyError,TypeError,ValueError):raise ToolError('github_reconcile_invalid') from None

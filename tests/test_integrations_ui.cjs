@@ -29,3 +29,16 @@ test('token kreatora tylko w lokalnym POST, czyszczony po błędzie i zamknięci
  assert.equal(token.value,'');assert(!calls[0][0].includes('fixture-only'));assert.equal(JSON.parse(calls[0][1].body).token,'fixture-only');assert.equal(calls[0][1].headers['X-CSRF-Token'],'csrf-fixture');
  token.value='again';doc.getElementById('integrationsDialog').listeners.close();assert.equal(token.value,'');
 });
+
+test('niepewna publikacja daje tylko sprawdzenie wyniku zamiast ponowienia zapisu',async()=>{
+ const doc=document(),events={},calls=[];doc.addEventListener=(name,fn)=>events[name]=fn;
+ const ctx={document:doc,window:{},URLSearchParams,api:async(url,method)=>{
+  calls.push([url,method]);if(method==='POST')return {state:'branch_only',url:'https://github.com/owner/repo/tree/kripai/id'};
+  return {items:[{id:'id',state:'outcome_unknown',proposal:{title:'Propozycja',repository:'owner/repo',files:[]}}]};
+ }};
+ vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/integrations.js'),'utf8'),ctx);events.DOMContentLoaded();
+ const panel=doc.getElementById('integrationsPanel');await walk(panel).find(n=>n.textContent==='Pokaż propozycje zmian').onclick();
+ assert(walk(panel).find(n=>n.textContent==='Utwórz gałąź i PR').disabled);
+ await walk(panel).find(n=>n.textContent==='Sprawdź wynik w GitHub').onclick();
+ assert.deepEqual(calls.filter(([,m])=>m==='POST').map(([u])=>u),['/integrations/github/drafts/id/reconcile']);
+});

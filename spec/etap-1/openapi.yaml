@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.7.0
+  version: 1.8.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -9,6 +9,21 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /integrations/github/drafts/{did}/reconcile:
+    post:
+      summary: Odczytowe sprawdzenie wyniku niepewnej publikacji (owner i CSRF)
+      parameters:
+      - name: did
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: published, branch_only lub outcome_unknown; bez zdalnego zapisu
+        '409':
+          description: Niepasująca zawartość gałęzi lub brak operacji do uzgodnienia
   /integrations/github/connect:
     post:
       summary: Test i zapis lokalnego połączenia GitHub przez DPAPI (owner i CSRF)

@@ -99,3 +99,8 @@ MCP i zapis 4d nadal planem. Prywatne konto właściciela nieweryfikowane.
 Lokalny github_draft, jawna publikacja w panelu do nowej gałęzi i PR, tylko
 kripusek/kripusek-autoexec z lokalnym write_repositories/PAT. Bez merge/delete.
 Kontrakt i ograniczenia: ../../docs/PR_I_DLUGIE_ODPOWIEDZI.md. MCP nadal planem.
+
+## Kreator i uzgadnianie wyniku
+Menu +, lokalny kreator DPAPI w UI i odczytowe sprawdzanie niepewnego PR:
+docs/MENU_I_POLACZENIE_GITHUB.md i docs/UZGADNIANIE_PR.md w katalogu głównym.
+MCP/OAuth z własną aplikacją nadal planem; istnieje działający kreator tokenu.

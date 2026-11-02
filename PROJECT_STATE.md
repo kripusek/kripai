@@ -203,3 +203,15 @@ i composer-menu.js. Start nadal WYLACZ/START, Ctrl+F5; bez modeli/zależności.
 Następny moduł: odczytowe uzgadnianie niepewnego wyniku publikacji PR; potem
 kopie dziennika, MCP i trafniejszy dostawca WWW. Użytkownik potwierdził działanie
 poprzedniej poprawki planera/długiej odpowiedzi.
+
+## 02.11.2026 — następny krok: sprawdzenie niepewnego PR
+W oknie Połączenia dodano Sprawdź wynik w GitHub dla operacji o niepewnym
+wyniku. Backend używa wyłącznie GET: parent, pliki/blob SHA/tryby, brak dodatkowych
+zmian i zgodny PR. Rozróżnia potwierdzony PR, samą gałąź i brak potwierdzenia.
+Nie odblokowuje ślepego ponowienia zapisu; owner i CSRF pozostają wymagane.
+Windows: 153/153 Python i Node 49/49 OK. GitHub kontrolowany w regresji;
+rzeczywistej publikacji/awarii konta właściciela NIE WYWOŁYWANO.
+Szczegóły i dług: docs/UZGADNIANIE_PR.md. Struktura github_changes.py/API/panel;
+bez nowych modeli, zależności i migracji. Start nadal START.cmd/Ctrl+F5.
+Dalszy zakres: kopie dziennika, szersze edycje, OAuth z własną aplikacją, MCP
+i trafniejszy dostawca WWW. Kreator lokalnego tokenu działa już bez PowerShella.

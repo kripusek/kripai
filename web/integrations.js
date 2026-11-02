@@ -24,9 +24,13 @@ window.KripIntegrations=(()=>{
   const version=epoch;
   try{const data=await api('/integrations/github/drafts');if(version!==epoch)return;drafts.replaceChildren();
    for(const item of data.items){
-    const row=el('details'),title=el('summary',item.proposal.title+' · '+item.state),content=el('pre',item.proposal.repository+'\n'+item.proposal.files.map(f=>f.diff||f.path+'\n'+f.content).join('\n\n')),publish=el('button','Utwórz gałąź i PR');
+    const states={prepared:'Gotowe do publikacji',published:'PR utworzony',publishing:'Trwa publikacja',outcome_unknown:'Sprawdź wynik',branch_only:'Gałąź istnieje, brak PR'};
+    const row=el('details'),title=el('summary',item.proposal.title+' · '+(states[item.state]||item.state)),content=el('pre',item.proposal.repository+'\n'+item.proposal.files.map(f=>f.diff||f.path+'\n'+f.content).join('\n\n')),publish=el('button','Utwórz gałąź i PR');
     publish.type='button';publish.disabled=item.state!=='prepared';publish.onclick=async()=>{const version=epoch;publish.disabled=true;try{const result=await api('/integrations/github/drafts/'+item.id+'/publish','POST');if(version===epoch)state.textContent='Utworzono PR: '+result.url;}catch(e){if(version===epoch)state.textContent=e.message;}finally{if(version===epoch)await refreshDrafts();}};
     row.append(title,content,publish);drafts.append(row);
+    if(['publishing','outcome_unknown','branch_only'].includes(item.state)){
+     const check=el('button','Sprawdź wynik w GitHub');check.type='button';check.onclick=async()=>{const version=epoch;check.disabled=true;try{const result=await api('/integrations/github/drafts/'+item.id+'/reconcile','POST');if(version===epoch)state.textContent=(result.state==='published'?'Potwierdzono PR: ':result.state==='branch_only'?'Potwierdzono gałąź, brak PR: ':'Nie potwierdzono gałęzi ani PR. Nie ponawiam zapisu: ')+result.url;}catch(e){if(version===epoch)state.textContent=e.message;}finally{if(version===epoch)await refreshDrafts();}};row.append(check);
+    }
    }
    if(!data.items.length)drafts.textContent='Brak propozycji. Włącz GitHub i poproś o zmianę małego pliku w kripusek/kripusek-autoexec.';
   }catch(e){state.textContent=e.message;}
