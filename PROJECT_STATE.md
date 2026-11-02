@@ -286,3 +286,22 @@ Aktualizację zastosowano lokalnie po kopii programu i danych oraz sprawdzeniu
 braku aktywnego generowania. Migracja 006 potwierdzona na rzeczywistej bazie
 właściciela; backend i model gotowe. Z zainstalowanej kopii wykonano odczyt
 docs/MCP.md; menu jest serwowane, katalog bez logowania zwraca 401.
+
+## 02.11.2026 — trafniejsze wyszukiwanie dokumentacji Pythona
+Odtworzono nietrafne odpowiedzi Bing RSS dla pathlib/site:docs.python.org.
+web_search sprawdza teraz oficjalny indeks modułów przy pytaniu o dokumentację
+Pythona: prawdziwe linki, dokładne nazwy/podmoduły i opcjonalna wersja 3.x.
+Jawny dostawca wyniku; brak dopasowania/awaria pozostawia Bing RSS, a kod awarii
+indeksu dociera do planera. Indeks nie jest udawanym odczytem treści dokumentu.
+Windows: 186 testów Python (185 OK, jeden symlink pominięty), Node 52/52 OK.
+Osobny rzeczywisty CUDA/Qwen3-8B wykonał wyszukanie i web_read oficjalnego pathlib,
+odpowiedź completed ze źródłem, 1284 znaki; cała karta 7453/8192 MiB VRAM.
+Kontekst 4096 i limity notatek zachowane. Bez migracji i nowych bibliotek.
+Kod: app/network.py, app/tools.py, test_web_search.py; start nadal START.cmd.
+Granice, dalsze zadania i raport: docs/DOKUMENTACJA_PYTHONA.md,
+docs/PYTHON_DOCS_TESTY.txt. Ogólne WWW nadal zależy od wyników Bing/blokad stron;
+zewnętrzni dostawcy MCP pozostają kolejnym osobnym zakresem.
+
+Aktualizacja zastosowana lokalnie po kopii danych/programu i kontroli braku
+aktywnego generowania. Backend i rzeczywisty model ponownie gotowe.
+Z zainstalowanej kopii: znalezienie oficjalnego pathlib i odczyt 61453 znaków OK.

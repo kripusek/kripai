@@ -114,3 +114,8 @@ Wcześniejsze zapisy „MCP nadal planem” opisują poprzednie paczki. Wbudowan
 serwer dokumentacji, klient stdio, read-only narzędzia, zgoda, źródła i test
 połączenia działają i przeszły rzeczywistą próbę CUDA. Nie jest to obsługa
 dowolnych serwerów MCP. Granice i kolejny konkretny zakres: ../../docs/MCP.md.
+
+## Oficjalna dokumentacja Pythona
+web_search sprawdza indeks modułów Pythona dla zapytań o ich dokumentację;
+nie zgaduje URL, rozróżnia link od odczytu i jawnie oznacza dostawcę/fallback.
+Kontrakt i odbiór: ../../docs/DOKUMENTACJA_PYTHONA.md.

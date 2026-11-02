@@ -223,3 +223,6 @@ Nowe MCP: w menu + wybierz „MCP: dokumentacja KripAI”, a następnie poproś 
 o odczyt docs/KOPIE_DZIENNIKA_GITHUB.md. Połączenia zawierają rzeczywisty test
 serwera. Działa lokalnie bez konta, wyłącznie do odczytu dokumentacji programu:
 [użycie, wyniki i granice MCP](docs/MCP.md). Zewnętrzne serwery MCP są dalszym etapem.
+
+Wyszukiwanie dokumentacji modułów Pythona korzysta również z oficjalnego indeksu;
+[zasady i wyniki](docs/DOKUMENTACJA_PYTHONA.md).

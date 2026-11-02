@@ -165,7 +165,39 @@ def page(result):
     return {'url':result['url'],'title':title,'text':text[:1200],'document':text,'excerpt':text[:1200],
         'truncated':bool(truncated),'document_characters':len(text),'summary':False}
 
+def python_documents(query):
+    # Indeks dostarcza prawdziwe linki; nie zgadujemy URL modułu z tekstu modelu.
+    if not (re.search(r'\bpython\w*\b',query,re.I) and re.search(r'doc(?:ument)?|dokument',query,re.I)):return None
+    version=re.search(r'\b3\.\d{1,2}\b',query)
+    base='https://docs.python.org/'+(version[0] if version else '3')+'/'
+    terms=re.sub(r'\bsite:\S+',' ',query,flags=re.I)
+    result=fetch(base+'py-modindex.html')
+    class Index(HTMLParser):
+        def __init__(self):super().__init__(convert_charrefs=True);self.link=None;self.label=[];self.items=[];self.seen=set()
+        def handle_starttag(self,tag,attrs):
+            if tag=='a':self.link=dict(attrs).get('href');self.label=[]
+        def handle_data(self,text):
+            if self.link is not None:self.label.append(text)
+        def handle_endtag(self,tag):
+            if tag!='a':return
+            link=self.link;label=''.join(self.label).strip();self.link=None
+            if not link or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.]*',label):return
+            if not re.search(r'(?<![\w.])'+re.escape(label)+r'(?![\w.])',terms,re.I):return
+            try:url=canonical(urljoin(base,link))
+            except ToolError:return
+            parsed=urlsplit(url)
+            if parsed.hostname!='docs.python.org' or parsed.query or not re.fullmatch(re.escape(urlsplit(base).path)+r'library/[A-Za-z0-9_.-]+\.html',parsed.path):return
+            if url in self.seen or len(self.items)>=5:return
+            self.seen.add(url);self.items.append({'url':url,'title':label+' — Python documentation','text':'Link znaleziony w oficjalnym indeksie modułów Pythona. Treść dokumentacji wymaga osobnego odczytu.','truncated':True,'content_kind':'search_snippet'})
+    parser=Index();parser.feed(result['data'].decode('utf-8',errors='replace'))
+    if parser.items:return {'provider':'Python Docs module index','query':query,'items':parser.items}
+
 def search(query):
+    warning=None
+    try:
+        official=python_documents(query)
+        if official:return official
+    except ToolError as exc:warning=exc.code
     # Publiczny kanał RSS Bing: bez konta, bez tokenów i bez cichej zmiany dostawcy.
     result=fetch('https://www.bing.com/search?'+urlencode({'format':'rss','q':query}))
     raw=result['data']
@@ -185,7 +217,9 @@ def search(query):
         seen.add(url);parser=Text();parser.feed(node.findtext('description') or '');snippet,_=parser.result()
         items.append({'url':url,'title':(node.findtext('title') or host)[:200],'text':re.sub(r'\s+',' ',snippet).strip()[:500],'truncated':True,'content_kind':'search_snippet'})
         if len(items)>=5:break
-    return {'provider':'Bing RSS','query':query,'items':items}
+    result={'provider':'Bing RSS','query':query,'items':items}
+    if warning:result['warnings']=[{'provider':'Python Docs module index','error':warning}]
+    return result
 
 def policy(text,web=False,github=False,mcp=False):
     urls=[];repos=set()

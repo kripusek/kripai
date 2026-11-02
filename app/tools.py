@@ -185,6 +185,7 @@ def plan(client,messages,scope,check,activity):
                         if not any(row.get('url')==url for row in results):results.append(source)
                         feedback.append({'url':url,'title':item['title'],'text':item.get('text','')[:350]})
                     feedback={'provider':raw.get('provider'),'items':feedback}
+                    if raw.get('warnings'):feedback['warnings']=raw['warnings']
                 else:
                     raw=summarize(client,raw,scope['request'],permitted,activity,budget,tool_name=name) if name in {'web_read','github_read','mcp_docs'} else raw
                     seen[signature]=dict(raw)

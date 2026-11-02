@@ -129,3 +129,7 @@ https://modelcontextprotocol.io/specification/2025-11-25/basic/transports
 https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
 https://modelcontextprotocol.io/specification/2025-11-25/server/tools
 https://pypi.org/project/mcp/2.3.0/ (SDK wyłącznie QA, brak nowej zależności runtime)
+
+## Wyszukiwanie modułów Pythona
+https://docs.python.org/3/py-modindex.html
+https://docs.python.org/3/library/pathlib.html

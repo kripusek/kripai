@@ -40,6 +40,38 @@ class LargePageTests(unittest.TestCase):
         self.assertTrue(result['truncated']);self.assertEqual(len(result['document']),network.MAX_TEXT)
 
 class SearchTests(unittest.TestCase):
+    INDEX=b'<a href="library/pathlib.html#module-pathlib"><code>pathlib</code></a><a href="library/json.html#module-json">json</a>'
+    def test_official_module_index_precedes_rss_and_does_not_guess_links(self):
+        with patch.object(network,'fetch',return_value={'data':self.INDEX}) as fetch:
+            result=network.search('Znajdz oficjalna dokumentacje Pythona pathlib')
+        self.assertEqual(fetch.call_count,1);self.assertEqual(fetch.call_args.args[0],'https://docs.python.org/3/py-modindex.html')
+        self.assertEqual(result['provider'],'Python Docs module index')
+        self.assertEqual([r['url'] for r in result['items']],['https://docs.python.org/3/library/pathlib.html'])
+        self.assertEqual(result['items'][0]['content_kind'],'search_snippet')
+    def test_official_index_version_exact_names_and_untrusted_links(self):
+        index=self.INDEX+b'<a href="https://evil.example/library/json.html">json</a><a href="https://127.0.0.1/">json</a><a href="../private.html">json</a><a href="library/json.html?secret=1">json</a>'
+        with patch.object(network,'fetch',return_value={'data':index}) as fetch:
+            result=network.python_documents('Python 3.13 json documentation')
+            self.assertEqual(fetch.call_args.args[0],'https://docs.python.org/3.13/py-modindex.html')
+            self.assertEqual([r['url'] for r in result['items']],['https://docs.python.org/3.13/library/json.html'])
+            self.assertIsNone(network.python_documents('Python jsonp documentation'))
+        with patch.object(network,'fetch',return_value={'data':self.INDEX+b'<a href="library/site.html">site</a>'}):
+            self.assertEqual(len(network.python_documents('site:docs.python.org pathlib')['items']),1)
+        with patch.object(network,'fetch',return_value={'data':b'<a href="library/collections.abc.html">collections.abc</a>'}):
+            self.assertEqual(network.python_documents('Python collections.abc documentation')['items'][0]['url'],'https://docs.python.org/3/library/collections.abc.html')
+    def test_official_index_failure_falls_back_with_explicit_warning(self):
+        feed=b'<rss><channel><item><title>Python</title><link>https://www.python.org/</link></item></channel></rss>'
+        with patch.object(network,'fetch',side_effect=[network.ToolError('tool_network_failed'),{'data':feed}]) as fetch:
+            result=network.search('Python pathlib documentation')
+        self.assertEqual(fetch.call_count,2);self.assertEqual(result['provider'],'Bing RSS')
+        self.assertEqual(result['warnings'][0]['error'],'tool_network_failed')
+        with patch.object(network,'fetch',return_value={'data':feed}) as fetch:
+            self.assertEqual(network.search('Python unknown_module documentation')['provider'],'Bing RSS')
+            self.assertEqual(fetch.call_count,2)
+    def test_generic_search_does_not_contact_official_python_index(self):
+        with patch.object(network,'fetch',return_value={'data':b'<rss><channel/></rss>'}) as fetch:
+            self.assertEqual(network.search('Warszawa pogoda')['items'],[])
+        self.assertEqual(fetch.call_count,1);self.assertIn('bing.com/search?',fetch.call_args.args[0])
     def test_real_rss_shape_parsed_without_executing_html_or_entities(self):
         feed=b'<rss><channel><item><title>Python</title><link>https://www.python.org/</link><description>Language documentation</description></item><item><title>Local</title><link>https://127.0.0.1/</link><description>bad</description></item></channel></rss>'
         with patch.object(network,'fetch',return_value={'data':feed}) as fetch:
@@ -60,12 +92,13 @@ class SearchTests(unittest.TestCase):
                 return Reply({'choices':[{'message':{'role':'assistant','tool_calls':[{'id':name,'type':'function','function':{'name':name,'arguments':jsonlib.dumps(args)}}]}}]})
         def read(name,args,scope,check):
             calls.append(name)
-            if name=='web_search':return {'provider':'Bing RSS','items':[{'url':'https://www.python.org/','title':'Python','text':'Search snippet','truncated':True}]}
+            if name=='web_search':return {'provider':'Bing RSS','warnings':[{'provider':'Python Docs module index','error':'tool_network_failed'}],'items':[{'url':'https://www.python.org/','title':'Python','text':'Search snippet','truncated':True}]}
             self.assertIn(args['url'],scope['urls']);return {'url':args['url'],'title':'Python','document':'Actual page text','text':'prefix','excerpt':'Actual page text','truncated':False}
         with patch.object(tools,'read',side_effect=read):result=tools.plan(Client(),[{'role':'user','content':'Znajdz dokumentacje Pythona'}],network.policy('Znajdz dokumentacje Pythona',True,False),lambda:None,lambda *args:None)
         self.assertEqual(calls,['web_search','web_read']);self.assertEqual(len(result),1);self.assertEqual(result[0]['text'],'Actual page text');self.assertEqual(result[0]['name'],'web_read')
         second=[body for path,body in requests if path.endswith('chat/completions')][-1]
         self.assertTrue(any(row['role']=='tool' for row in second['messages']))
+        self.assertIn('tool_network_failed',next(row['content'] for row in second['messages'] if row['role']=='tool'))
     def test_remote_result_cannot_trigger_new_search_query(self):
         count=[0]
         class Client:
