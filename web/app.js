@@ -1,0 +1,62 @@
+'use strict';
+const $=id=>document.getElementById(id);
+let current=null, activeRun=null, stream=null, running=false, modelReady=false, historyEpoch=0, olderCursor=null, submissionEpoch=0;
+const labels={vision_not_installed:'Model obrazu nie jest pobrany. Uruchom ponownie START.cmd.',chat_image_format:'Do wiadomości dodaj PNG lub JPEG.',vision_busy:'Trwa analiza obrazu. Poczekaj.',model_unavailable:'Model jeszcze nie jest gotowy. Poczekaj chwilę.',login_required:'Zaloguj się ponownie.',invalid_credentials:'Nieprawidłowy login lub hasło.',login_rate_limited:'Za dużo prób. Odczekaj minutę.',generation_busy:'Trwa inna odpowiedź. Poczekaj lub ją anuluj.',gaming_mode:'Wybrano tryb gamingowy. Przywróć model i tryb rozmowy.',database_unavailable:'Baza jest chwilowo niedostępna.',csrf_invalid:'Odśwież stronę i zaloguj się ponownie.'};
+function csrf(){return document.cookie.split('; ').find(x=>x.startsWith('assistant_csrf='))?.split('=').slice(1).join('=')||'';}
+async function api(path,method='GET',body,key){
+ const headers={};if(method!=='GET'){headers['X-CSRF-Token']=csrf();headers['Idempotency-Key']=key||crypto.randomUUID();}
+ if(body!==undefined)headers['Content-Type']='application/json';
+ const r=await fetch('/api/v1'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
+ if(!r.ok){let code='';try{code=(await r.json()).error?.code||'';}catch{}if(r.status===401&&path!='/auth/login')showLogin();throw Error(labels[code]||`Nie udało się wykonać operacji (${r.status}).`);}
+ return r.status===204?null:r.json();
+}
+function notice(message){$('notice').textContent=message;}
+function showLogin(){submissionEpoch++;historyEpoch++;current=null;KripAttachments.clear();KripVoice.stop();KripMedia.hide();if(stream)stream.close();$('login').hidden=false;$('workspace').hidden=true;$('messages').replaceChildren();$('prompt').value='';activeRun=null;busy(false);sessionStorage.removeItem('activeRun');}
+function busy(value){running=value;KripAttachments.setLocked(value);$('send').disabled=value||!modelReady;$('cancel').hidden=!value;$('newChat').disabled=value;}
+async function pages(path){let result=[],cursor=null;do{const p=await api(path+'?limit=100'+(cursor?'&cursor='+encodeURIComponent(cursor):''));result.push(...p.items);cursor=p.next_cursor;}while(cursor);return result;}
+async function list(){const rows=await pages('/conversations');$('conversations').replaceChildren();for(const row of rows){const b=document.createElement('button');b.textContent=row.title||'Nowa rozmowa';b.className=row.id===current?'active':'';b.onclick=()=>{if(!running)load(row.id);};$('conversations').append(b);}}
+function bubble(role,content,attachmentId=null){
+ const box=document.createElement('article');box.className='message '+role;
+ const who=document.createElement('span');who.className='who';who.textContent=role==='user'?'TY':'K · KRIPAI';box.append(who);
+ if(attachmentId){const image=document.createElement('img');image.className='chat-image';image.alt='Załączone zdjęcie';image.src='/api/v1/files/'+attachmentId+'/preview';box.append(image);}
+ const text=document.createElement('div');text._raw=content;if(role==='assistant')KripFormat.render(text,content);else text.textContent=content;box.append(text);
+ if(role==='assistant'){const read=document.createElement('button');read.className='readVoice';read.textContent='▷ Czytaj';read.type='button';read.onclick=()=>KripVoice.speak(text._raw);box.append(read);const more=document.createElement('button');more.className='readVoice';more.type='button';more.textContent='Kontynuuj';more.onclick=()=>{if(running)return;$('prompt').value='Kontynuuj poprzednią odpowiedź bez powtarzania. Zacznij dokładnie od miejsca przerwania. Końcowy fragment poprzedniej odpowiedzi:\n'+text._raw.slice(-2000);$('prompt').focus();notice('Prośba o kontynuację jest w polu wiadomości. Kliknij Wyślij.');};box.append(more);}
+ $('messages').append(box);return text;
+}
+
+function scroll(){ $('messages').scrollTop=$('messages').scrollHeight; }
+async function load(id){KripVoice.stop();if(current!==id)KripAttachments.clear();current=id;const epoch=++historyEpoch;try{const page=await api('/conversations/'+id+'/messages?limit=50');if(epoch!==historyEpoch)return;olderCursor=page.next_cursor;$('older').hidden=!olderCursor;$('messages').replaceChildren();for(const row of page.items)bubble(row.role,row.content,row.attachment_id);scroll();await list();}catch(e){notice(e.message);}}
+$('older').onclick=async()=>{if(!olderCursor||!current)return;const id=current,epoch=historyEpoch;$('older').disabled=true;try{const page=await api('/conversations/'+id+'/messages?limit=50&cursor='+encodeURIComponent(olderCursor));if(epoch!==historyEpoch)return;const fragment=document.createDocumentFragment();for(const row of page.items){const text=bubble(row.role,row.content,row.attachment_id);fragment.append(text.parentNode);}$('messages').prepend(fragment);olderCursor=page.next_cursor;$('older').hidden=!olderCursor;}catch(e){notice(e.message);}finally{$('older').disabled=false;}};
+async function refreshStatus(){try{const s=await api('/system/status');KripVoice.setBlocked(s.mode==='gaming');KripMedia.setBlocked(s.mode==='gaming');const labels={ready:'Rozmowy · model gotowy',starting:'Uruchamiam model…',stopping:'Wyłączam model…',stopped:'Gaming · model wyłączony',error:'Nie udało się przełączyć modelu. Sprawdź sterownik NVIDIA i wolną pamięć GPU. Sterownik ponowi próbę.',offline:'Model jest wyłączony. Uruchom ponownie START.cmd.'};const text=s.profile==='vision'?'Analizuję obraz · rozmowy chwilowo wstrzymane':labels[s.controller]||'Sprawdzam stan…';$('status').textContent=text;$('gpuReport').textContent=text+(s.backup==='error'?' Kopia zapasowa nie powiodła się — uruchom BACKUP.cmd.':'');modelReady=s.controller==='ready'&&s.profile!=='vision';$('send').disabled=running||!modelReady;}catch(e){KripVoice.stop();$('status').textContent='Połączenie niedostępne';$('gpuReport').textContent=e.message;}}
+async function enter(){await api('/me');$('login').hidden=true;$('workspace').hidden=false;await list();await refreshStatus();const saved=sessionStorage.getItem('activeRun');if(saved){try{const data=JSON.parse(saved);await load(data.cid);watch(data.rid);}catch{sessionStorage.removeItem('activeRun');}}}
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await api('/auth/login','POST',{username:$('username').value,password:$('password').value});$('password').value='';await enter();}catch(e){$('loginError').textContent=e.message;}};
+$('logout').onclick=async()=>{try{await api('/auth/logout','POST');showLogin();}catch(e){notice(e.message);}};
+$('newChat').onclick=async()=>{try{const c=await api('/conversations','POST',{});await load(c.id);$('prompt').focus();}catch(e){notice(e.message);}};
+function watch(rid){const epoch=historyEpoch;activeRun=rid;busy(true);sessionStorage.setItem('activeRun',JSON.stringify({rid,cid:current}));const text=bubble('assistant','');let last=0;stream=new EventSource('/api/v1/runs/'+rid+'/events');
+ stream.addEventListener('context.info',e=>{if(epoch!==historyEpoch)return;const info=JSON.parse(e.data);if(info.omitted_messages)notice(`Historia jest zapisana. Model widzi ostatni fragment; pominięto ${info.omitted_messages} starszych wiadomości.`);});
+ stream.addEventListener('assistant.text.delta',e=>{if(epoch!==historyEpoch)return;const seq=Number(e.lastEventId);if(seq<=last)return;last=seq;text._raw+=JSON.parse(e.data).text;if(!text._renderTimer)text._renderTimer=setTimeout(()=>{text._renderTimer=null;KripFormat.render(text,text._raw);scroll();},80);});
+ stream.addEventListener('run.status',async e=>{if(epoch!==historyEpoch)return;const seq=Number(e.lastEventId);if(seq<=last)return;last=seq;const state=JSON.parse(e.data).state;if(['completed','cancelled','failed','expired','outcome_unknown'].includes(state)){stream.close();activeRun=null;busy(false);sessionStorage.removeItem('activeRun');if(state==='completed'&&JSON.parse(e.data).error_code==='output_limit')notice('Osiągnięto limit długości. Odpowiedź jest niepełna — kliknij Kontynuuj pod odpowiedzią.');if(state!=='completed')notice(state==='failed'?(JSON.parse(e.data).error_code==='context_too_large'?'Wiadomość przekracza kontekst modelu. Podziel ją na mniejsze części.':'Odpowiedź przerwana. Sprawdź stan modelu i spróbuj ponownie.'):'Generowanie zatrzymane.');await load(current);}});
+ stream.onerror=async()=>{if(epoch!==historyEpoch)return;try{const r=await api('/runs/'+rid);if(['completed','cancelled','failed','expired','outcome_unknown'].includes(r.status)){stream.close();busy(false);activeRun=null;sessionStorage.removeItem('activeRun');await load(current);notice(r.error_code==='output_limit'?'Odpowiedź jest niepełna — kliknij Kontynuuj.':r.status==='failed'?'Odpowiedź została przerwana.':'');}else notice('Wznawiam połączenie z odpowiedzią…');}catch(e){stream.close();busy(false);notice(e.message);}};
+}
+$('composer').onsubmit=async e=>{
+ e.preventDefault();if(running||!modelReady)return;KripVoice.stop();
+ const text=$('prompt').value.trim()||(KripAttachments.has()?'Opisz to zdjęcie.':'');if(!text)return;
+ notice('');busy(true);const submission=++submissionEpoch,key=crypto.randomUUID(),body={text,client_message_id:crypto.randomUUID()};
+ try{
+  const attachmentId=await KripAttachments.upload();if(submission!==submissionEpoch)return;if(attachmentId)body.attachment_id=attachmentId;
+  if(!current){const c=await api('/conversations','POST',{});if(submission!==submissionEpoch)return;current=c.id;$('messages').replaceChildren();}
+  let r;try{r=await api('/conversations/'+current+'/messages','POST',body,key);}catch(e){if(e instanceof TypeError)r=await api('/conversations/'+current+'/messages','POST',body,key);else throw e;}
+  if(submission!==submissionEpoch){await api('/runs/'+r.run_id+'/cancel','POST');return;}
+  $('prompt').value='';KripAttachments.clear();bubble('user',text,attachmentId);watch(r.run_id);await list();scroll();
+ }catch(e){if(submission===submissionEpoch){busy(false);notice(e.message);}}
+};
+$('prompt').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();$('composer').requestSubmit();}};
+$('cancel').onclick=async()=>{if(!activeRun){submissionEpoch++;KripAttachments.clear();busy(false);notice('Anuluję wysyłanie. Jeśli wiadomość została przyjęta, zatrzymam odpowiedź.');return;}if(activeRun)try{await api('/runs/'+activeRun+'/cancel','POST');notice('Zatrzymuję odpowiedź…');}catch(e){notice(e.message);}};
+document.querySelectorAll('[data-prompt]').forEach(b=>b.onclick=()=>{$('prompt').value=b.dataset.prompt;$('prompt').focus();});
+$('settingsButton').onclick=()=>{$('settings').showModal();refreshStatus();};
+$('closeSettings').onclick=()=>$('settings').close();
+for(const mode of ['gaming','normal'])$(mode).onclick=async()=>{try{$('gaming').disabled=true;$('normal').disabled=true;KripVoice.stop();KripMedia.stop();await api('/system/mode','POST',{mode});await refreshStatus();}catch(e){$('gpuReport').textContent=e.message;}finally{$('gaming').disabled=false;$('normal').disabled=false;}};
+KripAttachments.configure({csrf,notice});
+KripVoice.configure({csrf,notice});
+KripMedia.configure({csrf,notice,refresh:refreshStatus});
+enter().catch(showLogin);setInterval(()=>{if(!$('workspace').hidden)refreshStatus();},3000);

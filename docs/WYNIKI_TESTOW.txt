@@ -1,0 +1,283 @@
+KRIPAI — PRZYGOTOWANIE README I REPOZYTORIUM, 02.11.2026
+
+=== tests-latest.txt ===
+Python 3.12.14 / linux / SQLite 3.53.1
+test_cancel_first_token_and_deleted_image_no_text_fallback (test_chat_images.ChatImageTests.test_cancel_first_token_and_deleted_image_no_text_fallback) ... ok
+test_image_message_idempotency_history_and_backup (test_chat_images.ChatImageTests.test_image_message_idempotency_history_and_backup) ... ok
+test_missing_model_other_owner_pdf_no_partial_message (test_chat_images.ChatImageTests.test_missing_model_other_owner_pdf_no_partial_message) ... ok
+test_stream_before_completion_then_history (test_chat_images.ChatImageTests.test_stream_before_completion_then_history) ... ok
+test_v2_upgrade_backup_failure_then_success_preserves_images (test_chat_images.ChatImageTests.test_v2_upgrade_backup_failure_then_success_preserves_images) ... ok
+test_broken_stream_not_falsely_completed (test_cutoff.CutoffTests.test_broken_stream_not_falsely_completed) ... ok
+test_context_reserves_full_output_budget (test_cutoff.CutoffTests.test_context_reserves_full_output_budget) ... ok
+test_limit_preserves_answer_and_reports_limit_in_run_and_sse (test_cutoff.CutoffTests.test_limit_preserves_answer_and_reports_limit_in_run_and_sse) ... ok
+test_normal_stop_not_reported_as_cutoff (test_cutoff.CutoffTests.test_normal_stop_not_reported_as_cutoff) ... ok
+test_vision_distinguishes_length_from_stop (test_cutoff.CutoffTests.test_vision_distinguishes_length_from_stop) ... ok
+test_upgrade_aborts_before_schema_change_if_backup_fails (test_media.MediaMigrationTests.test_upgrade_aborts_before_schema_change_if_backup_fails) ... ok
+test_upgrade_backup_and_old_restore (test_media.MediaMigrationTests.test_upgrade_backup_and_old_restore) ... ok
+test_auth_csrf_origin_and_other_owner (test_media.MediaTests.test_auth_csrf_origin_and_other_owner) ... ok
+test_backup_restore_delete_and_copy_failure (test_media.MediaTests.test_backup_restore_delete_and_copy_failure) ... ok
+test_blank_pdf_and_oversized_pixel_image (test_media.MediaTests.test_blank_pdf_and_oversized_pixel_image) ... ok
+test_cancel_and_gaming_during_vision (test_media.MediaTests.test_cancel_and_gaming_during_vision) ... ok
+test_decoder_real_process_timeout_no_partial_file (test_media.MediaTests.test_decoder_real_process_timeout_no_partial_file) ... ok
+test_jpeg_rotation_and_pdf_page_text (test_media.MediaTests.test_jpeg_rotation_and_pdf_page_text) ... ok
+test_malformed_empty_oversize_pages_and_cleanup (test_media.MediaTests.test_malformed_empty_oversize_pages_and_cleanup) ... ok
+test_png_sanitized_private_original_download_and_no_auto_send (test_media.MediaTests.test_png_sanitized_private_original_download_and_no_auto_send) ... ok
+test_process_profiles_do_not_overlap_and_gaming_stops (test_media.MediaTests.test_process_profiles_do_not_overlap_and_gaming_stops) ... ok
+test_quota_cancel_gaming_and_missing_model (test_media.MediaTests.test_quota_cancel_gaming_and_missing_model) ... ok
+test_vision_real_http_request_and_failure_returns_text_profile (test_media.MediaTests.test_vision_real_http_request_and_failure_returns_text_profile) ... ok
+test_concurrent_idempotency_is_atomic (test_native.APITests.test_concurrent_idempotency_is_atomic) ... ok
+test_failure_and_gaming_cancel_then_recovery (test_native.APITests.test_failure_and_gaming_cancel_then_recovery) ... ok
+test_host_origin_proxy_and_chunked_body_denied (test_native.APITests.test_host_origin_proxy_and_chunked_body_denied) ... ok
+test_incomplete_run_marked_failed_on_restart (test_native.APITests.test_incomplete_run_marked_failed_on_restart) ... ok
+test_login_csrf_logout_and_cookie_flags (test_native.APITests.test_login_csrf_logout_and_cookie_flags) ... ok
+test_owner_isolation (test_native.APITests.test_owner_isolation) ... ok
+test_pagination_latest_first_and_no_duplicates (test_native.APITests.test_pagination_latest_first_and_no_duplicates) ... ok
+test_real_http_stream_delivers_delta_before_completion (test_native.APITests.test_real_http_stream_delivers_delta_before_completion) ... ok
+test_reset_invalidates_logged_in_session (test_native.APITests.test_reset_invalidates_logged_in_session) ... ok
+test_stream_history_idempotency_and_replay (test_native.APITests.test_stream_history_idempotency_and_replay) ... ok
+test_long_history_trims_whole_turns_and_preserves_input (test_native.ContextTests.test_long_history_trims_whole_turns_and_preserves_input) ... ok
+test_oversized_latest_message_fails_explicitly (test_native.ContextTests.test_oversized_latest_message_fails_explicitly) ... ok
+test_tokenizer_failure_not_silent_character_fallback (test_native.ContextTests.test_tokenizer_failure_not_silent_character_fallback) ... ok
+test_backup_restore_preserves_history_and_revokes_sessions (test_native.DatabaseTests.test_backup_restore_preserves_history_and_revokes_sessions) ... ok
+test_backup_verification_failure_leaves_live_data_and_no_partial_copy (test_native.DatabaseTests.test_backup_verification_failure_leaves_live_data_and_no_partial_copy) ... ok
+test_bad_backup_does_not_replace_live_database (test_native.DatabaseTests.test_bad_backup_does_not_replace_live_database) ... ok
+test_changed_schema_rejected (test_native.DatabaseTests.test_changed_schema_rejected) ... ok
+test_foreign_key_rejects_cross_conversation_run (test_native.DatabaseTests.test_foreign_key_rejects_cross_conversation_run) ... ok
+test_migration_repeat_and_unknown_version (test_native.DatabaseTests.test_migration_repeat_and_unknown_version) ... ok
+test_password_reset_rejects_short_and_revokes_tokens (test_native.DatabaseTests.test_password_reset_rejects_short_and_revokes_tokens) ... ok
+test_single_instance_lock (test_native.DatabaseTests.test_single_instance_lock) ... ok
+test_transaction_rolls_back_on_error (test_native.DatabaseTests.test_transaction_rolls_back_on_error) ... ok
+test_wal_and_foreign_keys (test_native.DatabaseTests.test_wal_and_foreign_keys) ... ok
+test_corrupt_download_never_renamed_to_model (test_operations.DownloadTests.test_corrupt_download_never_renamed_to_model) ... model: 0 MiB
+ok
+test_existing_verified_file_no_network_and_corrupt_rejected (test_operations.DownloadTests.test_existing_verified_file_no_network_and_corrupt_rejected) ... ok
+test_extract_and_traversal_rejection (test_operations.DownloadTests.test_extract_and_traversal_rejection) ... ok
+test_resumed_download_checks_content_range (test_operations.DownloadTests.test_resumed_download_checks_content_range) ... ok
+test_conflict_rolls_back_all_changes (test_operations.ImportTests.test_conflict_rolls_back_all_changes) ... ok
+test_import_and_retry_preserve_history (test_operations.ImportTests.test_import_and_retry_preserve_history) ... ok
+test_invalid_role_not_imported (test_operations.ImportTests.test_invalid_role_not_imported) ... ok
+test_crash_detected_and_backoff_applied (test_operations.ProcessTests.test_crash_detected_and_backoff_applied) ... ok
+test_loading_timeout_kills_child_and_reports_error (test_operations.ProcessTests.test_loading_timeout_kills_child_and_reports_error) ... ok
+test_missing_binary_reports_error_without_success (test_operations.ProcessTests.test_missing_binary_reports_error_without_success) ... ok
+test_real_child_stops_and_restarts_on_toggle (test_operations.ProcessTests.test_real_child_stops_and_restarts_on_toggle) ... ok
+test_unknown_mode_cannot_become_shell_command (test_operations.ProcessTests.test_unknown_mode_cannot_become_shell_command) ... ok
+test_busy_and_other_session_cannot_cancel_job (test_voice.VoiceTests.test_busy_and_other_session_cannot_cancel_job) ... ok
+test_cancel_before_start_prevents_execution_and_retry (test_voice.VoiceTests.test_cancel_before_start_prevents_execution_and_retry) ... ok
+test_cancel_kills_real_child_cleans_files_and_recovers (test_voice.VoiceTests.test_cancel_kills_real_child_cleans_files_and_recovers) ... ok
+test_download_installs_pinned_layout_and_rejects_missing_executable (test_voice.VoiceTests.test_download_installs_pinned_layout_and_rejects_missing_executable) ... Przygotowuję lokalny głos: Whisper small, około 488 MB, CPU.
+ok
+test_gaming_logout_and_shutdown_interrupt_real_process (test_voice.VoiceTests.test_gaming_logout_and_shutdown_interrupt_real_process) ... ok
+test_missing_engine_and_bad_output_do_not_look_like_success (test_voice.VoiceTests.test_missing_engine_and_bad_output_do_not_look_like_success) ... ok
+test_missing_voice_and_invalid_language_and_text (test_voice.VoiceTests.test_missing_voice_and_invalid_language_and_text) ... ok
+test_pcm_accepts_boundary_and_rejects_truncation_format_and_duration (test_voice.VoiceTests.test_pcm_accepts_boundary_and_rejects_truncation_format_and_duration) ... ok
+test_restart_removes_orphaned_audio_without_touching_database (test_voice.VoiceTests.test_restart_removes_orphaned_audio_without_touching_database) ... ok
+test_small_model_selected_without_silent_base_fallback (test_voice.VoiceTests.test_small_model_selected_without_silent_base_fallback) ... ok
+test_speech_wav_and_plain_text_not_shell (test_voice.VoiceTests.test_speech_wav_and_plain_text_not_shell) ... ok
+test_timeout_and_engine_failure_are_explicit (test_voice.VoiceTests.test_timeout_and_engine_failure_are_explicit) ... ok
+test_transcript_real_process_unicode_cleanup_and_no_auto_send (test_voice.VoiceTests.test_transcript_real_process_unicode_cleanup_and_no_auto_send) ... ok
+test_upload_auth_csrf_origin_size_and_content_type (test_voice.VoiceTests.test_upload_auth_csrf_origin_size_and_content_type) ... ok
+test_decoder_job_enforces_memory_limit (test_windows.WindowsTests.test_decoder_job_enforces_memory_limit) ... skipped 'NIE URUCHOMIONO: wymaga natywnego Windows'
+test_job_close_really_kills_child (test_windows.WindowsTests.test_job_close_really_kills_child) ... skipped 'NIE URUCHOMIONO: wymaga natywnego Windows'
+test_powershell_scripts_parse (test_windows.WindowsTests.test_powershell_scripts_parse) ... skipped 'NIE URUCHOMIONO: wymaga natywnego Windows'
+test_system_speech_generates_local_wav_when_voice_installed (test_windows.WindowsTests.test_system_speech_generates_local_wav_when_voice_installed) ... skipped 'NIE URUCHOMIONO: wymaga natywnego Windows'
+
+----------------------------------------------------------------------
+Ran 76 tests in 23.909s
+
+OK (skipped=4)
+Modele HTTP/STT/TTS/VLM: atrapy w testach przenosnych; dekodery PNG/JPEG/PDF: prawdziwe; baza: prawdziwy SQLite; procesy: prawdziwe procesy potomne.
+NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, instalacja/odinstalowanie Windows, mikrofon i wizualny test przegladarki. Test System.Speech jest pomijany poza Windows lub przy braku glosow.
+
+=== ui-latest.txt ===
+✔ Ctrl+V lokalnie, następnie jedno zdjęcie i pytanie w wiadomości oraz Markdown w streamie (110.391341ms)
+✔ samo zdjęcie ma pytanie domyślne, logout usuwa historię i ignoruje późny stream (103.164903ms)
+✔ anulowany upload nie wysyła wiadomości po spóźnionej odpowiedzi (2.54326ms)
+✔ anulowanie zaakceptowanej wiadomości zatrzymuje run po otrzymaniu ID (2.719044ms)
+✔ błąd uploadu zachowuje miniaturę do ponowienia (1.575266ms)
+✔ zły format, zbyt duży plik i wiele zdjęć nie zastępują istniejącego (1.173523ms)
+✔ przeciąganie i usunięcie miniatury; ponowny upload używa tego samego ID (1.523848ms)
+✔ Kontynuuj przenosi końcówkę do edycji, bez automatycznego wysyłania (3.6081ms)
+✔ zakończenie przez limit wyświetla ostrzeżenie o niepełnej odpowiedzi (2.016729ms)
+✔ Markdown: nagłówki, pogrubienie, lista, cytat i tabela (23.748901ms)
+✔ kod HTML jest tekstem, kopiowanie zachowuje zawartość (1.241865ms)
+✔ częściowy blok w streamie nie dubluje się po domknięciu (1.723098ms)
+✔ XSS, zdalne obrazy i aktywne URL zablokowane (1.062906ms)
+✔ wzory ze zrzutu i ułamki renderują MathML (1.535687ms)
+✔ TeX wewnątrz kodu i nieznane polecenia nie są wykonywane (1.051369ms)
+✔ odmowa schowka pokazuje ręczne kopiowanie (0.973131ms)
+✔ lista po zakończeniu operacji pozwala wybrać plik; wstawianie nie wysyła wiadomości (4.81366ms)
+✔ za duży upload nie jest wysyłany; Gaming blokuje przetwarzanie (1.732192ms)
+✔ wylogowanie usuwa prywatny podgląd i ignoruje spóźnioną odpowiedź (2.997973ms)
+✔ anulowanie analizy nie wstawia późnego wyniku (1.663999ms)
+✔ błąd API odblokowuje panel i pokazuje opis (1.285161ms)
+✔ PCM ma właściwy nagłówek, długość, clipping i brak NaN (1.755647ms)
+✔ anulowanie podczas zgody na mikrofon zamyka spóźniony strumień (2.158863ms)
+✔ odmowa dostępu do mikrofonu daje czytelny błąd i pozwala spróbować ponownie (0.903507ms)
+✔ błąd uruchomienia AudioContext nie pozostawia otwartego mikrofonu (0.695825ms)
+✔ anulowanie opóźnionego TTS wysyła cancel i nie odtwarza wyniku (1.316768ms)
+✔ odczyt całego długiego tekstu jest porcjowany, bez cichego ucięcia (1.677399ms)
+✔ Gaming blokuje nagrywanie i odczyt (0.709606ms)
+✔ worklet kończy nagrywanie dokładnie po limicie i nie kopiuje dalszych próbek (11.683343ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 320.106286
+
+PASS: linki README, przyciski i dosłowne zachowanie poprzedniej instrukcji.
+PASS: lista 112 plików bez prywatnych danych, modeli, runtime i plików powyżej 100 MiB.
+NIE URUCHOMIONO: natywny Windows/CUDA/VRAM i wizualna przeglądarka (brak środowiska).
+NIE WYKONANO: push — brak repo KripAI udostępnionego integracji, narzędzie nie tworzy repozytoriów.
+
+
+=== ODZYSKANIE 02.11.2026 — BIEŻĄCY PRZEBIEG ===
+Pierwszy start QA: brak FastAPI, błędy importu; naprawiono środowisko testowe, nie aplikację.
+QA Linux używa Pydantic 2.14.1 i Pillow 12.3.0 z runtime; Windows lock bez zmian.
+Bazowo: 76 Python (72 OK, 4 Windows pominięte), 29 JS OK.
+Po zmianach:
+Python 3.12.14 / linux / SQLite 3.53.1
+test_corrupt_existing_vendor_is_preserved_and_rejected_without_network (test_bootstrap.BootstrapTests.test_corrupt_existing_vendor_is_preserved_and_rejected_without_network) ... ok
+test_failed_or_corrupt_transfer_can_retry_without_installing_partial_wheel (test_bootstrap.BootstrapTests.test_failed_or_corrupt_transfer_can_retry_without_installing_partial_wheel) ... fake-1.0-py3-none-any.whl: 0 MiB
+fake-1.0-py3-none-any.whl: 0 MiB
+ok
+test_hash_mismatch_metadata_and_untrusted_host_never_install (test_bootstrap.BootstrapTests.test_hash_mismatch_metadata_and_untrusted_host_never_install) ... ok
+test_invalid_lock_filename_rejected_before_network (test_bootstrap.BootstrapTests.test_invalid_lock_filename_rejected_before_network) ... ok
+test_source_install_downloads_exact_wheel_and_next_start_is_offline (test_bootstrap.BootstrapTests.test_source_install_downloads_exact_wheel_and_next_start_is_offline) ... fake-1.0-py3-none-any.whl: 0 MiB
+ok
+test_cancel_first_token_and_deleted_image_no_text_fallback (test_chat_images.ChatImageTests.test_cancel_first_token_and_deleted_image_no_text_fallback) ... ok
+test_image_message_idempotency_history_and_backup (test_chat_images.ChatImageTests.test_image_message_idempotency_history_and_backup) ... ok
+test_missing_model_other_owner_pdf_no_partial_message (test_chat_images.ChatImageTests.test_missing_model_other_owner_pdf_no_partial_message) ... ok
+test_stream_before_completion_then_history (test_chat_images.ChatImageTests.test_stream_before_completion_then_history) ... ok
+test_v2_upgrade_backup_failure_then_success_preserves_images (test_chat_images.ChatImageTests.test_v2_upgrade_backup_failure_then_success_preserves_images) ... ok
+test_broken_stream_not_falsely_completed (test_cutoff.CutoffTests.test_broken_stream_not_falsely_completed) ... ok
+test_context_reserves_full_output_budget (test_cutoff.CutoffTests.test_context_reserves_full_output_budget) ... ok
+test_limit_preserves_answer_and_reports_limit_in_run_and_sse (test_cutoff.CutoffTests.test_limit_preserves_answer_and_reports_limit_in_run_and_sse) ... ok
+test_normal_stop_not_reported_as_cutoff (test_cutoff.CutoffTests.test_normal_stop_not_reported_as_cutoff) ... ok
+test_vision_distinguishes_length_from_stop (test_cutoff.CutoffTests.test_vision_distinguishes_length_from_stop) ... ok
+test_upgrade_aborts_before_schema_change_if_backup_fails (test_media.MediaMigrationTests.test_upgrade_aborts_before_schema_change_if_backup_fails) ... ok
+test_upgrade_backup_and_old_restore (test_media.MediaMigrationTests.test_upgrade_backup_and_old_restore) ... ok
+test_auth_csrf_origin_and_other_owner (test_media.MediaTests.test_auth_csrf_origin_and_other_owner) ... ok
+test_backup_restore_delete_and_copy_failure (test_media.MediaTests.test_backup_restore_delete_and_copy_failure) ... ok
+test_blank_pdf_and_oversized_pixel_image (test_media.MediaTests.test_blank_pdf_and_oversized_pixel_image) ... ok
+test_cancel_and_gaming_during_vision (test_media.MediaTests.test_cancel_and_gaming_during_vision) ... ok
+test_decoder_real_process_timeout_no_partial_file (test_media.MediaTests.test_decoder_real_process_timeout_no_partial_file) ... ok
+test_jpeg_rotation_and_pdf_page_text (test_media.MediaTests.test_jpeg_rotation_and_pdf_page_text) ... ok
+test_malformed_empty_oversize_pages_and_cleanup (test_media.MediaTests.test_malformed_empty_oversize_pages_and_cleanup) ... ok
+test_png_sanitized_private_original_download_and_no_auto_send (test_media.MediaTests.test_png_sanitized_private_original_download_and_no_auto_send) ... ok
+test_process_profiles_do_not_overlap_and_gaming_stops (test_media.MediaTests.test_process_profiles_do_not_overlap_and_gaming_stops) ... ok
+test_quota_cancel_gaming_and_missing_model (test_media.MediaTests.test_quota_cancel_gaming_and_missing_model) ... ok
+test_vision_real_http_request_and_failure_returns_text_profile (test_media.MediaTests.test_vision_real_http_request_and_failure_returns_text_profile) ... ok
+test_concurrent_idempotency_is_atomic (test_native.APITests.test_concurrent_idempotency_is_atomic) ... ok
+test_failure_and_gaming_cancel_then_recovery (test_native.APITests.test_failure_and_gaming_cancel_then_recovery) ... ok
+test_host_origin_proxy_and_chunked_body_denied (test_native.APITests.test_host_origin_proxy_and_chunked_body_denied) ... ok
+test_incomplete_run_marked_failed_on_restart (test_native.APITests.test_incomplete_run_marked_failed_on_restart) ... ok
+test_login_csrf_logout_and_cookie_flags (test_native.APITests.test_login_csrf_logout_and_cookie_flags) ... ok
+test_owner_isolation (test_native.APITests.test_owner_isolation) ... ok
+test_pagination_latest_first_and_no_duplicates (test_native.APITests.test_pagination_latest_first_and_no_duplicates) ... ok
+test_real_http_stream_delivers_delta_before_completion (test_native.APITests.test_real_http_stream_delivers_delta_before_completion) ... ok
+test_reset_invalidates_logged_in_session (test_native.APITests.test_reset_invalidates_logged_in_session) ... ok
+test_stream_history_idempotency_and_replay (test_native.APITests.test_stream_history_idempotency_and_replay) ... ok
+test_long_history_trims_whole_turns_and_preserves_input (test_native.ContextTests.test_long_history_trims_whole_turns_and_preserves_input) ... ok
+test_oversized_latest_message_fails_explicitly (test_native.ContextTests.test_oversized_latest_message_fails_explicitly) ... ok
+test_tokenizer_failure_not_silent_character_fallback (test_native.ContextTests.test_tokenizer_failure_not_silent_character_fallback) ... ok
+test_backup_restore_preserves_history_and_revokes_sessions (test_native.DatabaseTests.test_backup_restore_preserves_history_and_revokes_sessions) ... ok
+test_backup_verification_failure_leaves_live_data_and_no_partial_copy (test_native.DatabaseTests.test_backup_verification_failure_leaves_live_data_and_no_partial_copy) ... ok
+test_bad_backup_does_not_replace_live_database (test_native.DatabaseTests.test_bad_backup_does_not_replace_live_database) ... ok
+test_changed_schema_rejected (test_native.DatabaseTests.test_changed_schema_rejected) ... ok
+test_foreign_key_rejects_cross_conversation_run (test_native.DatabaseTests.test_foreign_key_rejects_cross_conversation_run) ... ok
+test_migration_repeat_and_unknown_version (test_native.DatabaseTests.test_migration_repeat_and_unknown_version) ... ok
+test_password_reset_rejects_short_and_revokes_tokens (test_native.DatabaseTests.test_password_reset_rejects_short_and_revokes_tokens) ... ok
+test_single_instance_lock (test_native.DatabaseTests.test_single_instance_lock) ... ok
+test_transaction_rolls_back_on_error (test_native.DatabaseTests.test_transaction_rolls_back_on_error) ... ok
+test_wal_and_foreign_keys (test_native.DatabaseTests.test_wal_and_foreign_keys) ... ok
+test_corrupt_download_never_renamed_to_model (test_operations.DownloadTests.test_corrupt_download_never_renamed_to_model) ... model: 0 MiB
+ok
+test_existing_verified_file_no_network_and_corrupt_rejected (test_operations.DownloadTests.test_existing_verified_file_no_network_and_corrupt_rejected) ... ok
+test_extract_and_traversal_rejection (test_operations.DownloadTests.test_extract_and_traversal_rejection) ... ok
+test_resumed_download_checks_content_range (test_operations.DownloadTests.test_resumed_download_checks_content_range) ... ok
+test_conflict_rolls_back_all_changes (test_operations.ImportTests.test_conflict_rolls_back_all_changes) ... ok
+test_import_and_retry_preserve_history (test_operations.ImportTests.test_import_and_retry_preserve_history) ... ok
+test_invalid_role_not_imported (test_operations.ImportTests.test_invalid_role_not_imported) ... ok
+test_crash_detected_and_backoff_applied (test_operations.ProcessTests.test_crash_detected_and_backoff_applied) ... ok
+test_loading_timeout_kills_child_and_reports_error (test_operations.ProcessTests.test_loading_timeout_kills_child_and_reports_error) ... ok
+test_missing_binary_reports_error_without_success (test_operations.ProcessTests.test_missing_binary_reports_error_without_success) ... ok
+test_real_child_stops_and_restarts_on_toggle (test_operations.ProcessTests.test_real_child_stops_and_restarts_on_toggle) ... ok
+test_unknown_mode_cannot_become_shell_command (test_operations.ProcessTests.test_unknown_mode_cannot_become_shell_command) ... ok
+test_busy_and_other_session_cannot_cancel_job (test_voice.VoiceTests.test_busy_and_other_session_cannot_cancel_job) ... ok
+test_cancel_before_start_prevents_execution_and_retry (test_voice.VoiceTests.test_cancel_before_start_prevents_execution_and_retry) ... ok
+test_cancel_kills_real_child_cleans_files_and_recovers (test_voice.VoiceTests.test_cancel_kills_real_child_cleans_files_and_recovers) ... ok
+test_download_installs_pinned_layout_and_rejects_missing_executable (test_voice.VoiceTests.test_download_installs_pinned_layout_and_rejects_missing_executable) ... Przygotowuję lokalny głos: Whisper small, około 488 MB, CPU.
+ok
+test_gaming_logout_and_shutdown_interrupt_real_process (test_voice.VoiceTests.test_gaming_logout_and_shutdown_interrupt_real_process) ... ok
+test_missing_engine_and_bad_output_do_not_look_like_success (test_voice.VoiceTests.test_missing_engine_and_bad_output_do_not_look_like_success) ... ok
+test_missing_voice_and_invalid_language_and_text (test_voice.VoiceTests.test_missing_voice_and_invalid_language_and_text) ... ok
+test_pcm_accepts_boundary_and_rejects_truncation_format_and_duration (test_voice.VoiceTests.test_pcm_accepts_boundary_and_rejects_truncation_format_and_duration) ... ok
+test_restart_removes_orphaned_audio_without_touching_database (test_voice.VoiceTests.test_restart_removes_orphaned_audio_without_touching_database) ... ok
+test_small_model_selected_without_silent_base_fallback (test_voice.VoiceTests.test_small_model_selected_without_silent_base_fallback) ... ok
+test_speech_wav_and_plain_text_not_shell (test_voice.VoiceTests.test_speech_wav_and_plain_text_not_shell) ... ok
+test_timeout_and_engine_failure_are_explicit (test_voice.VoiceTests.test_timeout_and_engine_failure_are_explicit) ... ok
+test_transcript_real_process_unicode_cleanup_and_no_auto_send (test_voice.VoiceTests.test_transcript_real_process_unicode_cleanup_and_no_auto_send) ... ok
+test_upload_auth_csrf_origin_size_and_content_type (test_voice.VoiceTests.test_upload_auth_csrf_origin_size_and_content_type) ... ok
+test_decoder_job_enforces_memory_limit (test_windows.WindowsTests.test_decoder_job_enforces_memory_limit) ... skipped 'NIE URUCHOMIONO: wymaga natywnego Windows'
+test_job_close_really_kills_child (test_windows.WindowsTests.test_job_close_really_kills_child) ... skipped 'NIE URUCHOMIONO: wymaga natywnego Windows'
+test_powershell_scripts_parse (test_windows.WindowsTests.test_powershell_scripts_parse) ... skipped 'NIE URUCHOMIONO: wymaga natywnego Windows'
+test_system_speech_generates_local_wav_when_voice_installed (test_windows.WindowsTests.test_system_speech_generates_local_wav_when_voice_installed) ... skipped 'NIE URUCHOMIONO: wymaga natywnego Windows'
+
+----------------------------------------------------------------------
+Ran 81 tests in 24.408s
+
+OK (skipped=4)
+Modele HTTP/STT/TTS/VLM: atrapy w testach przenosnych; dekodery PNG/JPEG/PDF: prawdziwe; baza: prawdziwy SQLite; procesy: prawdziwe procesy potomne.
+NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, instalacja/odinstalowanie Windows, mikrofon i wizualny test przegladarki. Test System.Speech jest pomijany poza Windows lub przy braku glosow.
+
+✔ Ctrl+V lokalnie, następnie jedno zdjęcie i pytanie w wiadomości oraz Markdown w streamie (111.057405ms)
+✔ samo zdjęcie ma pytanie domyślne, logout usuwa historię i ignoruje późny stream (103.416036ms)
+✔ anulowany upload nie wysyła wiadomości po spóźnionej odpowiedzi (2.712326ms)
+✔ anulowanie zaakceptowanej wiadomości zatrzymuje run po otrzymaniu ID (3.07471ms)
+✔ błąd uploadu zachowuje miniaturę do ponowienia (1.886485ms)
+✔ zły format, zbyt duży plik i wiele zdjęć nie zastępują istniejącego (1.731352ms)
+✔ przeciąganie i usunięcie miniatury; ponowny upload używa tego samego ID (2.085139ms)
+✔ Kontynuuj przenosi końcówkę do edycji, bez automatycznego wysyłania (4.131839ms)
+✔ zakończenie przez limit wyświetla ostrzeżenie o niepełnej odpowiedzi (2.251513ms)
+✔ Markdown: nagłówki, pogrubienie, lista, cytat i tabela (24.537275ms)
+✔ kod HTML jest tekstem, kopiowanie zachowuje zawartość (3.071455ms)
+✔ częściowy blok w streamie nie dubluje się po domknięciu (1.622298ms)
+✔ XSS, zdalne obrazy i aktywne URL zablokowane (2.765061ms)
+✔ wzory ze zrzutu i ułamki renderują MathML (2.736357ms)
+✔ TeX wewnątrz kodu i nieznane polecenia nie są wykonywane (1.478983ms)
+✔ odmowa schowka pokazuje ręczne kopiowanie (1.459423ms)
+✔ kolory słów, napisów i komentarzy nie zmieniają źródła JS/Python/CSS/JSON/SQL/shell/PS/HTML (10.558337ms)
+✔ napisy i komentarze pozostają pojedynczym tokenem; stream odzyskuje kolorowanie (1.362798ms)
+✔ nieznany język, duży blok i nadmiar tokenów mają bezpieczny zwykły tekst (18.535886ms)
+✔ awaria lub brak kolorowania pozostawia kod i działający schowek (2.538845ms)
+✔ lista po zakończeniu operacji pozwala wybrać plik; wstawianie nie wysyła wiadomości (6.709623ms)
+✔ za duży upload nie jest wysyłany; Gaming blokuje przetwarzanie (1.405432ms)
+✔ wylogowanie usuwa prywatny podgląd i ignoruje spóźnioną odpowiedź (3.453139ms)
+✔ anulowanie analizy nie wstawia późnego wyniku (1.998323ms)
+✔ błąd API odblokowuje panel i pokazuje opis (1.353975ms)
+✔ PCM ma właściwy nagłówek, długość, clipping i brak NaN (1.620776ms)
+✔ anulowanie podczas zgody na mikrofon zamyka spóźniony strumień (2.052584ms)
+✔ odmowa dostępu do mikrofonu daje czytelny błąd i pozwala spróbować ponownie (0.779362ms)
+✔ błąd uruchomienia AudioContext nie pozostawia otwartego mikrofonu (1.545472ms)
+✔ anulowanie opóźnionego TTS wysyła cancel i nie odtwarza wyniku (1.023979ms)
+✔ odczyt całego długiego tekstu jest porcjowany, bez cichego ucięcia (2.073606ms)
+✔ Gaming blokuje nagrywanie i odczyt (0.839301ms)
+✔ worklet kończy nagrywanie dokładnie po limicie i nie kopiuje dalszych próbek (12.280305ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 334.731738
+
+SHA: 19/19 vendor i 2/2 Marked zgodne.
+PyPI: kontrolowane HTTP w testach, nie rzeczywiste pobranie wszystkich wheels.
+NIE URUCHOMIONO: Windows, CUDA, VRAM, instalator (w tym nowy bootstrap),
+Job Object, mikrofon, System.Speech i uninstall na docelowym systemie.
+Próba Playwright nie wystartowała: brak chromium_headless_shell-1234.
+NIE WYKONANO: push main, oczekuje zatwierdzenia zakresu przez właściciela.

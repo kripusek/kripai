@@ -1,0 +1,353 @@
+[
+  {
+    "v": 2,
+    "type": "session.hello",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "firmware": "1.0.0",
+      "capabilities": [
+        "text",
+        "audio_in",
+        "audio_out",
+        "approvals"
+      ]
+    }
+  },
+  {
+    "v": 2,
+    "type": "session.ready",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "session_id": "11111111-1111-4111-8111-111111111111",
+      "heartbeat_s": 30,
+      "max_json_bytes": 8192,
+      "capabilities": [
+        "text",
+        "audio_in",
+        "audio_out",
+        "approvals",
+        "media_text",
+        "media_status"
+      ]
+    }
+  },
+  {
+    "v": 2,
+    "type": "heartbeat",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "kind": "ping",
+      "nonce": "42"
+    }
+  },
+  {
+    "v": 2,
+    "type": "device.state",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "firmware": "1.0.0",
+      "rssi_dbm": -55,
+      "free_heap_bytes": 100000,
+      "uptime_s": 120,
+      "battery_pct": 75
+    }
+  },
+  {
+    "v": 2,
+    "type": "user.message",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "conversation_id": "11111111-1111-4111-8111-111111111111",
+      "text": "Cześć",
+      "idempotency_key": "11111111-1111-4111-8111-111111111111"
+    }
+  },
+  {
+    "v": 2,
+    "type": "keyboard.input",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "conversation_id": "11111111-1111-4111-8111-111111111111",
+      "key": "escape"
+    }
+  },
+  {
+    "v": 2,
+    "type": "assistant.text.delta",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "text": "Cześć!"
+    },
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "seq": 1
+  },
+  {
+    "v": 2,
+    "type": "assistant.text.completed",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "message_id": "11111111-1111-4111-8111-111111111111"
+    },
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "seq": 1
+  },
+  {
+    "v": 2,
+    "type": "run.status",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "state": "generating"
+    },
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "seq": 1
+  },
+  {
+    "v": 2,
+    "type": "run.cancel",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "idempotency_key": "11111111-1111-4111-8111-111111111111"
+    },
+    "run_id": "22222222-2222-4222-8222-222222222222"
+  },
+  {
+    "v": 2,
+    "type": "run.completed",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "status": "completed",
+      "message_id": "11111111-1111-4111-8111-111111111111"
+    },
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "seq": 1
+  },
+  {
+    "v": 2,
+    "type": "audio.input.start",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "stream_id": 7,
+      "format": "pcm_s16le",
+      "sample_rate": 16000,
+      "channels": 1,
+      "frame_ms": 20,
+      "conversation_id": "11111111-1111-4111-8111-111111111111",
+      "language_hint": "auto"
+    }
+  },
+  {
+    "v": 2,
+    "type": "audio.input.stop",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "stream_id": 7,
+      "last_chunk_seq": 1
+    }
+  },
+  {
+    "v": 2,
+    "type": "audio.output.start",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "stream_id": 8,
+      "format": "pcm_s16le",
+      "sample_rate": 16000,
+      "channels": 1,
+      "frame_ms": 20
+    }
+  },
+  {
+    "v": 2,
+    "type": "audio.output.stop",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "stream_id": 8,
+      "last_chunk_seq": 1,
+      "status": "completed"
+    }
+  },
+  {
+    "v": 2,
+    "type": "audio.output.interrupt",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "stream_id": 8,
+      "idempotency_key": "11111111-1111-4111-8111-111111111111"
+    }
+  },
+  {
+    "v": 2,
+    "type": "audio.transcript.partial",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "text": "Włącz"
+    },
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "seq": 1
+  },
+  {
+    "v": 2,
+    "type": "audio.transcript.final",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "text": "Włącz tryb gamingowy"
+    },
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "seq": 1
+  },
+  {
+    "v": 2,
+    "type": "command.request",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "command_id": "11111111-1111-4111-8111-111111111111",
+      "command": "set_volume",
+      "args": {
+        "volume": 50
+      },
+      "expires_in_s": 300
+    }
+  },
+  {
+    "v": 2,
+    "type": "command.result",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "command_id": "11111111-1111-4111-8111-111111111111",
+      "status": "completed"
+    }
+  },
+  {
+    "v": 2,
+    "type": "approval.required",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "approval_id": "11111111-1111-4111-8111-111111111111",
+      "proposal_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "summary": "Zmień rekord DNS",
+      "details_ref": "/api/v1/approvals/11111111-1111-4111-8111-111111111111",
+      "reauth_required": true,
+      "proposal_version": 1,
+      "expires_in_s": 300
+    },
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "seq": 1
+  },
+  {
+    "v": 2,
+    "type": "approval.decision",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "approval_id": "11111111-1111-4111-8111-111111111111",
+      "proposal_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "decision": "approve",
+      "idempotency_key": "11111111-1111-4111-8111-111111111111",
+      "reauth_proof": "temporary-proof"
+    }
+  },
+  {
+    "v": 2,
+    "type": "notification.created",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "notification_id": "11111111-1111-4111-8111-111111111111",
+      "title": "Gotowe",
+      "body": "Zadanie zakończone",
+      "job_id": "22222222-2222-4222-8222-222222222222"
+    }
+  },
+  {
+    "v": 2,
+    "type": "notification.ack",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "notification_id": "11111111-1111-4111-8111-111111111111"
+    }
+  },
+  {
+    "v": 2,
+    "type": "error",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "code": "MODEL_UNAVAILABLE",
+      "message": "Tryb gamingowy",
+      "retryable": true,
+      "retry_after_s": 60
+    }
+  },
+  {
+    "v": 2,
+    "type": "audio.ready",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "stream_id": 7,
+      "direction": "input"
+    }
+  },
+  {
+    "v": 2,
+    "type": "media.state",
+    "id": "33333333-3333-4333-8333-333333333333",
+    "ts": "2026-10-29T21:00:00Z",
+    "payload": {
+      "asset_id": "22222222-2222-4222-8222-222222222222",
+      "state": "ready"
+    }
+  },
+  {
+    "v": 2,
+    "type": "approval.expired",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "seq": 4,
+    "payload": {
+      "approval_id": "11111111-1111-4111-8111-111111111111"
+    }
+  },
+  {
+    "v": 2,
+    "type": "command.request",
+    "id": "11111111-1111-4111-8111-111111111111",
+    "ts": "2026-10-29T20:00:00Z",
+    "payload": {
+      "command_id": "11111111-1111-4111-8111-111111111111",
+      "command": "ota",
+      "args": {
+        "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "manifest_signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "signature_algorithm": "Ed25519",
+        "key_id": "ota-v1",
+        "version_counter": 4,
+        "source": "local-lan"
+      },
+      "expires_in_s": 300
+    }
+  }
+]

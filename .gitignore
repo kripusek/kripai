@@ -1,0 +1,35 @@
+__pycache__/
+*.pyc
+runtime/
+reports/
+.env
+*.sqlite3*
+*.key
+*.gguf
+*.part
+
+# Dane i pobrania nigdy nie trafiają do repozytorium.
+.env.*
+!.env.example
+*.partial
+models/
+backups/
+voice-tmp/
+media-tmp/
+KripAI-data/
+KripAI-backups/
+
+# Paczka instalacyjna może zawierać vendor, repo tylko manifesty i kod.
+/vendor/
+*.whl
+*.zip
+*.exe
+*.dll
+*.bin
+*.db
+*.db-*
+*.pem
+*.pfx
+*.log
+node_modules/
+.venv/

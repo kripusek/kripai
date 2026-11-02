@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "asset_id",
+    "state"
+  ],
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "state": {
+      "enum": [
+        "uploaded",
+        "quarantined",
+        "validating",
+        "processing",
+        "ready",
+        "failed",
+        "deleting",
+        "deleted"
+      ]
+    },
+    "job_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "error_code": {
+      "type": "string",
+      "maxLength": 64
+    }
+  }
+}

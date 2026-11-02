@@ -1,0 +1,1498 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assistant.invalid/schemas/cardputer-v2.json",
+  "title": "Cardputer control v2 — projekt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "v",
+    "type",
+    "id",
+    "ts",
+    "payload"
+  ],
+  "properties": {
+    "v": {
+      "const": 2
+    },
+    "type": {
+      "enum": [
+        "session.hello",
+        "session.ready",
+        "heartbeat",
+        "device.state",
+        "user.message",
+        "keyboard.input",
+        "assistant.text.delta",
+        "assistant.text.completed",
+        "run.status",
+        "run.cancel",
+        "run.completed",
+        "audio.input.start",
+        "audio.input.stop",
+        "audio.output.start",
+        "audio.output.stop",
+        "audio.output.interrupt",
+        "audio.transcript.partial",
+        "audio.transcript.final",
+        "command.request",
+        "command.result",
+        "approval.required",
+        "approval.decision",
+        "notification.created",
+        "notification.ack",
+        "error",
+        "audio.ready",
+        "media.state",
+        "approval.expired"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "session.hello"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firmware": {
+                "type": "string",
+                "maxLength": 32,
+                "x-maxUtf8Bytes": 256
+              },
+              "capabilities": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "text",
+                    "audio_in",
+                    "audio_out",
+                    "approvals",
+                    "notifications",
+                    "media_text",
+                    "thumbnail_jpeg",
+                    "media_status"
+                  ]
+                },
+                "uniqueItems": true,
+                "maxItems": 5
+              },
+              "resume": {
+                "type": "array",
+                "maxItems": 4,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "run_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "last_seq": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    }
+                  },
+                  "required": [
+                    "run_id",
+                    "last_seq"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "firmware",
+              "capabilities"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "session.ready"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "session_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "heartbeat_s": {
+                "type": "integer",
+                "minimum": 10,
+                "maximum": 120
+              },
+              "max_json_bytes": {
+                "type": "integer",
+                "minimum": 512,
+                "maximum": 8192
+              },
+              "capabilities": {
+                "type": "array",
+                "maxItems": 8,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "text",
+                    "audio_in",
+                    "audio_out",
+                    "approvals",
+                    "notifications",
+                    "media_text",
+                    "thumbnail_jpeg",
+                    "media_status"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "session_id",
+              "heartbeat_s",
+              "max_json_bytes",
+              "capabilities"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "heartbeat"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "ping",
+                  "pong"
+                ]
+              },
+              "nonce": {
+                "type": "string",
+                "maxLength": 40
+              }
+            },
+            "required": [
+              "kind",
+              "nonce"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "device.state"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firmware": {
+                "type": "string",
+                "maxLength": 32,
+                "x-maxUtf8Bytes": 256
+              },
+              "rssi_dbm": {
+                "type": "integer",
+                "minimum": -120,
+                "maximum": 0
+              },
+              "free_heap_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "uptime_s": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "battery_pct": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "firmware",
+              "rssi_dbm",
+              "free_heap_bytes",
+              "uptime_s"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "user.message"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversation_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1,
+                "x-maxUtf8Bytes": 512
+              },
+              "idempotency_key": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "conversation_id",
+              "text",
+              "idempotency_key"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "keyboard.input"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversation_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "key": {
+                "enum": [
+                  "enter",
+                  "escape",
+                  "up",
+                  "down",
+                  "left",
+                  "right",
+                  "backspace"
+                ]
+              }
+            },
+            "required": [
+              "conversation_id",
+              "key"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "assistant.text.delta"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1,
+                "x-maxUtf8Bytes": 512
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "seq"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "assistant.text.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "message_id"
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "seq"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "run.status"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "enum": [
+                  "created",
+                  "queued",
+                  "preparing_context",
+                  "generating",
+                  "validating_tool",
+                  "waiting_approval",
+                  "executing_tool",
+                  "cancelling"
+                ]
+              },
+              "detail": {
+                "type": "string",
+                "maxLength": 128,
+                "x-maxUtf8Bytes": 256
+              }
+            },
+            "required": [
+              "state"
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "seq"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "run.cancel"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "idempotency_key": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "idempotency_key"
+            ]
+          }
+        },
+        "required": [
+          "run_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "run.completed"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "enum": [
+                  "completed",
+                  "cancelled",
+                  "failed",
+                  "expired",
+                  "outcome_unknown"
+                ]
+              },
+              "message_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "seq"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "audio.input.start"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4294967295
+              },
+              "format": {
+                "const": "pcm_s16le"
+              },
+              "sample_rate": {
+                "const": 16000
+              },
+              "channels": {
+                "const": 1
+              },
+              "frame_ms": {
+                "const": 20
+              },
+              "conversation_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "language_hint": {
+                "enum": [
+                  "auto",
+                  "pl",
+                  "en"
+                ]
+              }
+            },
+            "required": [
+              "stream_id",
+              "format",
+              "sample_rate",
+              "channels",
+              "frame_ms",
+              "conversation_id",
+              "language_hint"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "audio.input.stop"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4294967295
+              },
+              "last_chunk_seq": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4294967295
+              }
+            },
+            "required": [
+              "stream_id",
+              "last_chunk_seq"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "audio.output.start"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4294967295
+              },
+              "format": {
+                "const": "pcm_s16le"
+              },
+              "sample_rate": {
+                "const": 16000
+              },
+              "channels": {
+                "const": 1
+              },
+              "frame_ms": {
+                "const": 20
+              }
+            },
+            "required": [
+              "stream_id",
+              "format",
+              "sample_rate",
+              "channels",
+              "frame_ms"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "audio.output.stop"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4294967295
+              },
+              "last_chunk_seq": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4294967295
+              },
+              "status": {
+                "enum": [
+                  "completed",
+                  "interrupted",
+                  "failed"
+                ]
+              }
+            },
+            "required": [
+              "stream_id",
+              "last_chunk_seq",
+              "status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "audio.output.interrupt"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4294967295
+              },
+              "idempotency_key": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "stream_id",
+              "idempotency_key"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "audio.transcript.partial"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 256,
+                "x-maxUtf8Bytes": 512
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "seq"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "audio.transcript.final"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 256,
+                "x-maxUtf8Bytes": 512
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "seq"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "command.request"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "command": {
+                "enum": [
+                  "restart",
+                  "ota",
+                  "set_volume",
+                  "set_brightness",
+                  "set_settings"
+                ]
+              },
+              "args": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "volume": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      }
+                    },
+                    "required": [
+                      "volume"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "brightness": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      }
+                    },
+                    "required": [
+                      "brightness"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "wifi_power_save": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "wifi_power_save"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {},
+                    "required": []
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "manifest_sha256",
+                      "manifest_signature",
+                      "signature_algorithm",
+                      "key_id",
+                      "version_counter",
+                      "source"
+                    ],
+                    "properties": {
+                      "manifest_sha256": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      },
+                      "manifest_signature": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{86}$"
+                      },
+                      "signature_algorithm": {
+                        "const": "Ed25519"
+                      },
+                      "key_id": {
+                        "const": "ota-v1"
+                      },
+                      "version_counter": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "source": {
+                        "const": "local-lan"
+                      }
+                    }
+                  }
+                ]
+              },
+              "expires_in_s": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 3600
+              }
+            },
+            "required": [
+              "command_id",
+              "command",
+              "args",
+              "expires_in_s"
+            ],
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "command": {
+                      "const": "set_volume"
+                    }
+                  },
+                  "required": [
+                    "command"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "args": {
+                      "required": [
+                        "volume"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "command": {
+                      "const": "set_brightness"
+                    }
+                  },
+                  "required": [
+                    "command"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "args": {
+                      "required": [
+                        "brightness"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "command": {
+                      "const": "set_settings"
+                    }
+                  },
+                  "required": [
+                    "command"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "args": {
+                      "required": [
+                        "wifi_power_save"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "command": {
+                      "const": "ota"
+                    }
+                  },
+                  "required": [
+                    "command"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "args": {
+                      "required": [
+                        "manifest_sha256",
+                        "manifest_signature",
+                        "signature_algorithm",
+                        "key_id",
+                        "version_counter",
+                        "source"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "command": {
+                      "const": "restart"
+                    }
+                  },
+                  "required": [
+                    "command"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "args": {
+                      "maxProperties": 0
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "command.result"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "enum": [
+                  "completed",
+                  "rejected",
+                  "expired",
+                  "failed"
+                ]
+              },
+              "detail": {
+                "type": "string",
+                "maxLength": 128,
+                "x-maxUtf8Bytes": 256
+              }
+            },
+            "required": [
+              "command_id",
+              "status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "approval.required"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "approval_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "proposal_hash": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "summary": {
+                "type": "string",
+                "maxLength": 256,
+                "x-maxUtf8Bytes": 512,
+                "description": "Deterministyczny render z kanonicznej akcji, bez generowania przez LLM; egzekwuje serwer."
+              },
+              "details_ref": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "reauth_required": {
+                "type": "boolean"
+              },
+              "proposal_version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "expires_in_s": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 3600
+              }
+            },
+            "required": [
+              "approval_id",
+              "proposal_hash",
+              "summary",
+              "details_ref",
+              "reauth_required",
+              "proposal_version",
+              "expires_in_s"
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "seq"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "approval.decision"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "approval_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "proposal_hash": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "decision": {
+                "enum": [
+                  "approve",
+                  "reject"
+                ]
+              },
+              "idempotency_key": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "reauth_proof": {
+                "type": "string",
+                "maxLength": 512
+              }
+            },
+            "required": [
+              "approval_id",
+              "proposal_hash",
+              "decision",
+              "idempotency_key"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "notification.created"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "notification_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 80,
+                "x-maxUtf8Bytes": 256
+              },
+              "body": {
+                "type": "string",
+                "maxLength": 128,
+                "x-maxUtf8Bytes": 256
+              },
+              "job_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "notification_id",
+              "title",
+              "body"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "notification.ack"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "notification_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "notification_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "error"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "enum": [
+                  "INVALID_MESSAGE",
+                  "UNAUTHORIZED",
+                  "FORBIDDEN",
+                  "VERSION_UNSUPPORTED",
+                  "RATE_LIMITED",
+                  "FRAME_TOO_LARGE",
+                  "MODEL_UNAVAILABLE",
+                  "AUDIO_INVALID",
+                  "CURSOR_EXPIRED",
+                  "APPROVAL_EXPIRED",
+                  "INTERNAL_ERROR"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "maxLength": 128,
+                "x-maxUtf8Bytes": 256
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "retry_after_s": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3600
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "retryable"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "audio.ready"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4294967295
+              },
+              "direction": {
+                "enum": [
+                  "input",
+                  "output"
+                ]
+              }
+            },
+            "required": [
+              "stream_id",
+              "direction"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "media.state"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "asset_id",
+              "state"
+            ],
+            "properties": {
+              "asset_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "state": {
+                "enum": [
+                  "uploaded",
+                  "quarantined",
+                  "validating",
+                  "processing",
+                  "ready",
+                  "failed",
+                  "deleting",
+                  "deleted"
+                ]
+              },
+              "job_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "error_code": {
+                "type": "string",
+                "maxLength": 64
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "approval.expired"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "required": [
+          "run_id",
+          "seq"
+        ],
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "approval_id"
+            ],
+            "properties": {
+              "approval_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

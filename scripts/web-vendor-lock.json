@@ -1,0 +1,14 @@
+{
+  "name": "marked",
+  "version": "17.0.5",
+  "files": [
+    {
+      "path": "web/vendor/marked/LICENSE.md",
+      "sha256": "8e3a3f82f59a60958f56ca08f445647c32a4733dc7ca6c2c46f6eb898471ab9c"
+    },
+    {
+      "path": "web/vendor/marked/marked.umd.js",
+      "sha256": "0db7abc826b5ac76f6ed11951ae34074ba50438ce6ea8d52889203779e5cbbad"
+    }
+  ]
+}

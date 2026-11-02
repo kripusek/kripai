@@ -41,6 +41,7 @@ nie ma wymaganego runtime. Nie jest instalowany globalny CUDA Toolkit ani Python
 - [x] Panel PNG/JPEG/PDF: podgląd, wybór strony, warstwa tekstowa, OCR i pytania o obraz.
 - [x] Automatyczne przełączanie modelu tekstowego i VLM bez ich równoległego uruchamiania.
 - [x] Markdown: nagłówki, listy, cytaty, tabele, pogrubienie i bloki kodu z kopiowaniem.
+- [x] Lokalne kolorowanie oznaczonych bloków JS/TS, Python, HTML, CSS, JSON, SQL, shell i PowerShell.
 - [x] Podstawowe wzory matematyczne jako MathML; nieznany zapis pozostaje tekstem.
 - [x] Nagrywanie do 30 sekund, lokalna transkrypcja Whisper do pola korekty.
 - [x] Odczyt tekstu lokalnym System.Speech, PL/EN zależnie od zainstalowanych głosów.
@@ -70,7 +71,7 @@ Pozostałe ograniczenia wymagające dalszej pracy:
 - [ ] Pomiar jakości polskiego STT i OCR na rzeczywistych nagraniach/zdjęciach.
 - [ ] Pełna pamięć multimodalna: kolejne pytanie bez załącznika nie analizuje dawnych pikseli.
 - [ ] Wiele zdjęć w jednej wiadomości i analiza całego dokumentu zamiast pojedynczej strony.
-- [ ] Pełny LaTeX, kolorowanie składni oraz dokładniejsze wznawianie długiego kodu.
+- [ ] Pełny LaTeX oraz dokładniejsze wznawianie długiego kodu.
 - [ ] Automatyczne streszczanie rozmów i trwała pamięć wiedzy.
 
 Szczegółowe kryteria odbioru: [plan etapów](spec/06-rollout.md).
@@ -113,12 +114,13 @@ wymazanie nośnika. Anulowany upload może wymagać usunięcia pliku w panelu.
 
 ## Testy i stopień weryfikacji
 
-Ostatni pełny przebieg: **76 testów Python — 72 OK, 4 pominięte Windows;
-29 testów JavaScript OK. Razem 101 zaliczonych i 4 pominięte.**
+Ostatni pełny przebieg: **81 testów Python — 77 OK, 4 pominięte Windows;
+33 testy JavaScript OK. Razem 110 zaliczonych i 4 pominięte.**
 
 SQLite, dekodery, HTTP/SSE i procesy potomne są rzeczywiste. Inference w testach
 regresji zastępują kontrolowane atrapy. Testy UI używają modelu DOM, nie testują
-wyglądu przeglądarki. Linux QA miał Pillow 12.3.0 i pypdfium2 5.14.0;
+wyglądu przeglądarki. Bieżące Linux QA: Python 3.12.14, SQLite 3.53.1, Pydantic 2.14.1,
+Pillow 12.3.0 i pypdfium2 5.14.0;
 paczka Windows zawiera Pillow 13.0.0, którego natywnego wykonania nie potwierdzono.
 
 **NIE URUCHOMIONO w QA:** pełna instalacja i odinstalowanie Windows, CUDA/VRAM,
@@ -138,7 +140,11 @@ niezaimplementowanym etapem. Tekst z obrazów, plików i odpowiedzi modelu jest
 niezaufany: nie nadaje uprawnień, nie zatwierdza działań i nie wykonuje kodu.
 Dekoder ma limit pamięci/czasu; Windows Job Object nie jest pełnym sandboxem.
 
-Repo obejmuje kod, testy, dokumentację i przypięte zależności instalatora.
+Repo obejmuje kod, testy, dokumentację i manifesty zależności instalatora.
+Binarne `vendor/` jest wykluczone z Gita. START pobiera brakujący prywatny Python
+z python.org, a koła z PyPI (dokładna nazwa i SHA-256 z locka, bez wyboru latest).
+Pełna paczka ZIP nadal zawiera `vendor/`; sprawne lokalne pliki nie wymagają
+ponownego pobierania bibliotek. Nowa ścieżka START z samego repo wymaga testu Windows.
 Nie dodawaj `.env`, kluczy, bazy, rozmów, zdjęć, nagrań, kopii, runtime ani modeli.
 Duże modele są pobierane przez START, nie przechowywane w Git.
 Licencje komponentów: [THIRD_PARTY.md](docs/THIRD_PARTY.md).
@@ -151,7 +157,10 @@ sama nie nadaje mu licencji open source.
 - `web/` — interfejs przeglądarkowy i lokalne formatowanie.
 - `scripts/` — instalator, zarządzanie, pobieranie i manifesty wersji/SHA.
 - `tests/` — zachowania, awarie, izolacja użytkowników i regresje UI.
-- `vendor/` — prywatny Python i wheels z zachowanymi licencjami.
+- `vendor/` — prywatny Python i wheels z licencjami, w ZIP lub pobierane, poza Gitem.
 - `spec/` — decyzje i plan etapów; źródło prawdy: [INDEX.md](spec/INDEX.md).
 - `docs/` — instrukcja, źródła i wyniki testów.
 - [STATUS.md](STATUS.md) — historia wykonanych modułów i techniczny dług.
+
+Bieżący stan i dalsze kroki: [PROJECT_STATE.md](PROJECT_STATE.md).
+Audyt odzyskania: [docs/AUDYT_2026-11-02.md](docs/AUDYT_2026-11-02.md).

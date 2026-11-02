@@ -1,0 +1,1169 @@
+openapi: 3.1.0
+info:
+  title: KripAI native Windows — etap 1 i wstępny głos etapu 2
+  version: 1.3.1
+  description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
+    jako Unix seconds.
+servers:
+- url: http://localhost:8765/api/v1
+security:
+- sessionCookie: []
+paths:
+  /auth/login:
+    post:
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - username
+              - password
+              properties:
+                username:
+                  type: string
+                  minLength: 1
+                  maxLength: 128
+                password:
+                  type: string
+                  minLength: 1
+                  maxLength: 1024
+                  writeOnly: true
+      responses:
+        '204':
+          description: Sesja HttpOnly, SameSite=Strict; Secure=False wyłącznie na
+            lokalnym HTTP
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /auth/logout:
+    post:
+      parameters:
+      - $ref: '#/components/parameters/CSRF'
+      responses:
+        '204':
+          description: Sesja unieważniona
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me:
+    get:
+      responses:
+        '200':
+          description: Bieżący użytkownik
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /conversations:
+    post:
+      parameters:
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationCreate'
+      responses:
+        '201':
+          description: Utworzona rozmowa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/Invalid'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Strona rozmów
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                - next_cursor
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conversation'
+                  next_cursor:
+                    type:
+                    - string
+                    - 'null'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /conversations/{conversation_id}:
+    parameters:
+    - $ref: '#/components/parameters/ConversationId'
+    get:
+      responses:
+        '200':
+          description: Rozmowa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /conversations/{conversation_id}/messages:
+    parameters:
+    - $ref: '#/components/parameters/ConversationId'
+    get:
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Strona historii
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                - next_cursor
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  next_cursor:
+                    type:
+                    - string
+                    - 'null'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      description: Ostatnia strona historii w kolejności chronologicznej; next_cursor
+        wskazuje seq do pobrania starszych wiadomości.
+    post:
+      parameters:
+      - $ref: '#/components/parameters/CSRF'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '202':
+          description: Utworzony run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunCreated'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Invalid'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: Tekst i opcjonalne attachment_id istniejącego PNG/JPEG właściciela.
+        Odpowiedź VLM w zwykłym run/SSE i historii. Idempotencja obejmuje obraz.
+  /runs/{run_id}:
+    parameters:
+    - $ref: '#/components/parameters/RunId'
+    get:
+      responses:
+        '200':
+          description: Snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /runs/{run_id}/cancel:
+    parameters:
+    - $ref: '#/components/parameters/RunId'
+    post:
+      parameters:
+      - $ref: '#/components/parameters/CSRF'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          description: Żądanie anulowania przyjęte
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /runs/{run_id}/events:
+    parameters:
+    - $ref: '#/components/parameters/RunId'
+    get:
+      parameters:
+      - in: header
+        name: Last-Event-ID
+        required: false
+        schema:
+          type: string
+          maxLength: 128
+      responses:
+        '200':
+          description: SSE; id sequence, event type, data JSON
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '410':
+          description: Kursor wygasł, pobierz snapshot
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /system/status:
+    get:
+      responses:
+        '200':
+          description: Status zależności i trybu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /system/mode:
+    post:
+      parameters:
+      - $ref: '#/components/parameters/CSRF'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - mode
+              properties:
+                mode:
+                  enum:
+                  - normal
+                  - gaming
+      responses:
+        '202':
+          description: Zapisano wyłącznie żądany tryb; właściciel wykonuje przełączenie
+            ręcznie
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /health/live:
+    get:
+      security: []
+      responses:
+        '200':
+          description: Lokalny stan procesu/bazy
+  /health/ready:
+    get:
+      security: []
+      responses:
+        '200':
+          description: Lokalny stan procesu/bazy
+  /voice/jobs/{job_id}/transcribe:
+    post:
+      summary: Lokalny STT; zwraca tekst do korekty, nie wysyła wiadomości
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/CSRF'
+      - name: language
+        in: query
+        schema:
+          type: string
+          enum:
+          - pl
+          - en
+          default: pl
+      requestBody:
+        required: true
+        content:
+          audio/wav:
+            schema:
+              type: string
+              format: binary
+              description: Dokładny WAV PCM16 mono 16 kHz, 0.25–30 s, 960044 B maks.
+      responses:
+        '200':
+          description: Transkrypcja
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - text
+                - language
+                properties:
+                  text:
+                    type: string
+                    maxLength: 4000
+                  language:
+                    type: string
+                    enum:
+                    - pl
+                    - en
+        '415':
+          description: Wymagany Content-Type audio/wav
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin lub CSRF niedozwolony
+        '409':
+          description: Gaming, głos zajęty albo UUID anulowany/zużyty
+        '413':
+          description: Przekroczony limit body
+        '422':
+          description: Nieprawidłowy WAV, tekst albo język
+        '429':
+          description: Limit 256 UUID/10 minut
+        '503':
+          description: Silnik lub głos niedostępny
+        '504':
+          description: Timeout silnika
+  /voice/jobs/{job_id}/speak:
+    post:
+      summary: Lokalny TTS System.Speech, jedna porcja tekstu
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - text
+              properties:
+                text:
+                  type: string
+                  minLength: 1
+                  maxLength: 1200
+                language:
+                  type: string
+                  enum:
+                  - pl
+                  - en
+                  default: pl
+      responses:
+        '200':
+          description: WAV do lokalnego odtworzenia
+          content:
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin lub CSRF niedozwolony
+        '409':
+          description: Gaming, głos zajęty albo UUID anulowany/zużyty
+        '413':
+          description: Przekroczony limit body
+        '422':
+          description: Nieprawidłowy WAV, tekst albo język
+        '429':
+          description: Limit 256 UUID/10 minut
+        '503':
+          description: Silnik lub głos niedostępny
+        '504':
+          description: Timeout silnika
+  /voice/jobs/{job_id}/cancel:
+    post:
+      summary: Anuluj UUID wyłącznie w bieżącej sesji; działa także przed rozpoczęciem
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/CSRF'
+      responses:
+        '204':
+          description: Anulowanie przyjęte
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin lub CSRF niedozwolony
+        '429':
+          description: Limit 256 UUID/10 minut
+  /api/v1/files:
+    get:
+      summary: Files
+      operationId: files_api_v1_files_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Attachment'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+  /api/v1/media/jobs/{job_id}/files:
+    post:
+      summary: Upload File
+      operationId: upload_file_api_v1_media_jobs__job_id__files_post
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Job Id
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 180
+          title: Name
+      - in: header
+        name: X-CSRF-Token
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+      requestBody:
+        required: true
+        description: Surowy PNG/JPEG/PDF do 8 MiB; faktyczny format sprawdzany przez
+          dekoder.
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+  /api/v1/files/{aid}:
+    get:
+      summary: File Metadata
+      operationId: file_metadata_api_v1_files__aid__get
+      parameters:
+      - name: aid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+    delete:
+      summary: Delete File
+      operationId: delete_file_api_v1_files__aid__delete
+      parameters:
+      - name: aid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      - in: header
+        name: X-CSRF-Token
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+  /api/v1/files/{aid}/preview:
+    get:
+      summary: File Preview
+      operationId: file_preview_api_v1_files__aid__preview_get
+      parameters:
+      - name: aid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+  /api/v1/files/{aid}/download:
+    get:
+      summary: File Download
+      operationId: file_download_api_v1_files__aid__download_get
+      parameters:
+      - name: aid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+  /api/v1/media/jobs/{job_id}/files/{aid}/page:
+    post:
+      summary: File Page
+      operationId: file_page_api_v1_media_jobs__job_id__files__aid__page_post
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Job Id
+      - name: aid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      - in: header
+        name: X-CSRF-Token
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaPage'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+  /api/v1/media/jobs/{job_id}/files/{aid}/analyze:
+    post:
+      summary: File Analyze
+      operationId: file_analyze_api_v1_media_jobs__job_id__files__aid__analyze_post
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Job Id
+      - name: aid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      - in: header
+        name: X-CSRF-Token
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageQuestion'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text:
+                    type: string
+                    maxLength: 12000
+                  source:
+                    type: string
+                    enum:
+                    - pdf_text
+                    - vision
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+  /api/v1/media/jobs/{job_id}/cancel:
+    post:
+      summary: Cancel Media
+      operationId: cancel_media_api_v1_media_jobs__job_id__cancel_post
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Job Id
+      - in: header
+        name: X-CSRF-Token
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '401':
+          description: Sesja wymagana
+        '403':
+          description: Origin/CSRF odrzucone
+        '404':
+          description: Brak pliku właściciela
+        '409':
+          description: Anulowano, Gaming, zajęty model lub limit plików
+        '413':
+          description: Upload przekracza 8 MiB
+        '503':
+          description: Błąd dekodera, modelu, kopii lub bazy
+        '504':
+          description: Timeout
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: assistant_session
+  parameters:
+    CSRF:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 256
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ConversationId:
+      name: conversation_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RunId:
+      name: run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+        maxLength: 256
+  schemas:
+    User:
+      type: object
+      required:
+      - id
+      - username
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+    ConversationCreate:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          maxLength: 200
+    Conversation:
+      type: object
+      required:
+      - id
+      - title
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        created_at:
+          type: number
+          description: Unix seconds UTC
+    MessageCreate:
+      properties:
+        text:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Text
+        client_message_id:
+          type: string
+          format: uuid
+          title: Client Message Id
+        attachment_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attachment Id
+      additionalProperties: false
+      type: object
+      required:
+      - text
+      - client_message_id
+      title: MessageCreate
+    Message:
+      type: object
+      required:
+      - id
+      - role
+      - content
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          enum:
+          - user
+          - assistant
+        content:
+          type: string
+        created_at:
+          type: number
+          description: Unix seconds UTC
+        attachment_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+    RunCreated:
+      type: object
+      required:
+      - message_id
+      - run_id
+      - status
+      properties:
+        message_id:
+          type: string
+          format: uuid
+        run_id:
+          type: string
+          format: uuid
+        status:
+          const: queued
+    Run:
+      type: object
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          enum:
+          - created
+          - queued
+          - preparing_context
+          - generating
+          - validating_tool
+          - waiting_approval
+          - executing_tool
+          - cancelling
+          - completed
+          - cancelled
+          - failed
+          - expired
+          - outcome_unknown
+    SystemStatus:
+      type: object
+      required:
+      - mode
+      - database
+      - model
+      - controller
+      - backup
+      properties:
+        controller:
+          description: Stan lokalnego sterownika, nie pomiar wolnej pamięci.
+          enum:
+          - offline
+          - starting
+          - ready
+          - stopping
+          - stopped
+          - error
+        mode:
+          enum:
+          - normal
+          - gaming
+        database:
+          enum:
+          - ready
+          - unavailable
+        model:
+          enum:
+          - ready
+          - loading
+          - unloaded
+          - unavailable
+        backup:
+          enum:
+          - ready
+          - error
+        profile:
+          type: string
+          enum:
+          - text
+          - vision
+    Error:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          - request_id
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+              format: uuid
+            retryable:
+              type: boolean
+    MediaPage:
+      properties:
+        page:
+          type: integer
+          maximum: 50.0
+          minimum: 1.0
+          title: Page
+      additionalProperties: false
+      type: object
+      required:
+      - page
+      title: MediaPage
+    ImageQuestion:
+      properties:
+        mode:
+          type: string
+          enum:
+          - ocr
+          - question
+          title: Mode
+          default: question
+        question:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Question
+          default: Opisz ten obraz.
+      additionalProperties: false
+      type: object
+      title: ImageQuestion
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+        filename:
+          type: string
+        media_type:
+          type: string
+        pages:
+          type: integer
+        current_page:
+          type: integer
+        text_layer:
+          type: string
+        analysis:
+          type: string
+        created_at:
+          type: number
+  responses:
+    Unauthorized:
+      description: Brak sesji
+    Forbidden:
+      description: Brak uprawnienia
+    NotFound:
+      description: Nie znaleziono lub brak dostępu
+    Conflict:
+      description: Konflikt stanu lub idempotencji
+    Invalid:
+      description: Nieprawidłowe dane
+    RateLimited:
+      description: Limit żądań
+    Unavailable:
+      description: Usługa niedostępna
