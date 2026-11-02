@@ -215,3 +215,20 @@ Szczegóły i dług: docs/UZGADNIANIE_PR.md. Struktura github_changes.py/API/pan
 bez nowych modeli, zależności i migracji. Start nadal START.cmd/Ctrl+F5.
 Dalszy zakres: kopie dziennika, szersze edycje, OAuth z własną aplikacją, MCP
 i trafniejszy dostawca WWW. Kreator lokalnego tokenu działa już bez PowerShella.
+
+## 02.11.2026 — audyt działającej aplikacji na polecenie właściciela
+Zweryfikowano aktualną lokalną instalację i rzeczywisty Chrome po lokalnym
+logowaniu właściciela: menu +, Escape, połączenia i odpowiedź 391 działają.
+Istniejące konto i dozwolone repo GitHuba: rzeczywiste GET OK. Zapis wyłączony.
+Dodatkowo na odizolowanym SQLite/API z prawdziwym modelem: 391 przy włączonych
+narzędziach, README ze źródłem, lokalny draft PR oraz pełne numery 1–50
+w odpowiedzi 5245 znaków. Anulowanie po delta: cancelled, model nadal ready.
+Domknięto wcześniejszą nieukończoną próbę pełnej listy 50 punktów.
+Regresja Windows: 153/153 Python, Node 50/50 OK. Poprawiono niejasny status
+read-only oraz stary komunikat odsyłający do PowerShella zamiast kreatora UI.
+Dwa pliki UI wgrano też lokalnie po sprawdzeniu head i wykonaniu kopii; Ctrl+F5.
+Nie zmieniono konta, haseł ani uprawnień. Nie publikowano PR; fizyczny głos,
+VLM/RAG/uninstall i realny Gaming nie zostały ponownie odebrane w tej sesji.
+Pełny raport i ograniczenia: docs/AUDYT_DZIALAJACEJ_APLIKACJI.md.
+Rutynowe dostępne testy wykonuje agent samodzielnie; dalej PR po lokalnym
+włączeniu zapisu, odbiór pozostałych modułów, kopie dziennika/MCP/WWW.

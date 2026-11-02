@@ -42,3 +42,11 @@ test('niepewna publikacja daje tylko sprawdzenie wyniku zamiast ponowienia zapis
  await walk(panel).find(n=>n.textContent==='Sprawdź wynik w GitHub').onclick();
  assert.deepEqual(calls.filter(([,m])=>m==='POST').map(([u])=>u),['/integrations/github/drafts/id/reconcile']);
 });
+
+test('połączone konto z samym odczytem wyjaśnia ograniczenie publikacji PR',async()=>{
+ const doc=document(),events={};doc.addEventListener=(name,fn)=>events[name]=fn;
+ const ctx={document:doc,window:{},URLSearchParams,api:async()=>({items:[{name:'github',configured:true,login:'fixture',repositories:['owner/repo'],write_repositories:[]}]})};
+ vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/integrations.js'),'utf8'),ctx);events.DOMContentLoaded();await ctx.window.KripIntegrations.refresh();
+ const text=doc.getElementById('integrationsPanel').textContent;assert.match(text,/tylko odczyt/);assert.match(text,/publikacja PR wymaga/);
+ assert.equal(walk(doc.getElementById('integrationsPanel')).find(n=>n.type==='password').value,'');
+});

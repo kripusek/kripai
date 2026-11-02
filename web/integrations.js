@@ -15,7 +15,7 @@ window.KripIntegrations=(()=>{
  async function refresh(){
   const version=epoch;
   try{const data=await api('/integrations');if(version!==epoch)return;const github=data.items.find(x=>x.name==='github');
-   state.textContent=github?.configured?'Połączono'+(github.login?' jako '+github.login:'')+' · '+github.repositories.join(', '):'Publiczny GitHub działa bez konta. Połącz konto do prywatnych repozytoriów i PR.';
+   state.textContent=github?.configured?'Połączono'+(github.login?' jako '+github.login:'')+' · '+github.repositories.join(', ')+((github.write_repositories||[]).length?' · tworzenie PR włączone':' · tylko odczyt. Propozycje zmian działają; publikacja PR wymaga włączenia zapisu poniżej i tokenu z uprawnieniami Contents/Pull requests: write.'):'Publiczny GitHub działa bez konta. Połącz konto do prywatnych repozytoriów i PR.';
    disconnectButton.disabled=!github?.configured;
    if(github?.configured){repo.value=github.repositories.join(', ');write.checked=!!github.write_repositories?.length;write.onchange?.();}
   }catch(e){state.textContent=e.message;}

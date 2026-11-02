@@ -47,3 +47,8 @@ ograniczone propozycje oraz nowe gałęzie i PR w kripusek/kripusek-autoexec.
 Zapis wymaga lokalnej listy repo/tokenu KripAI; brak merge/delete/force push.
 Długie odpowiedzi tekstowe mają automatyczne kontynuacje bez zmiany kontekstu GPU.
 Szczegóły bieżącego zakresu: docs/PR_I_DLUGIE_ODPOWIEDZI.md.
+
+Właściciel następnie polecił agentowi samodzielnie wykonywać dostępne testy
+i sprawdzać działającą aplikację, zamiast przekazywać mu rutynowe checklisty.
+Gdy potrzebne logowanie, właściciel wpisuje dane lokalnie; nie zapisuj haseł
+w repo, skryptach ani logach. Nie omijaj sesji ani nie zmieniaj hasła do testów.
