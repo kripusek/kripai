@@ -81,3 +81,26 @@ input[type=checkbox]{accent-color:var(--accent)}
 @media(max-width:700px){header{height:60px}.welcome{padding-top:2vh}.welcome h1{font-size:38px}.suggestions{flex-direction:column}.login form{padding:28px}}
 @media(max-width:460px){.brand{letter-spacing:-.4px}.welcome h1{font-size:32px}.welcome .mark{width:48px;height:48px;font-size:32px;margin-bottom:18px}.suggestions button{padding:12px}.login h1{font-size:34px}.login form{padding:24px}#send{min-width:0}}
 @media(prefers-reduced-motion:reduce){button{transition:none}}
+
+/* Na telefonie historia jest wysuwana; rozmowa wykorzystuje pełną szerokość. */
+.sidebar-toggle,.sidebar-close,#sidebarBackdrop{display:none}
+@media(max-width:700px){
+ #sidebar{display:none;position:fixed;inset:0 auto 0 0;z-index:61;width:min(84vw,290px);height:100dvh;padding:24px 18px;box-shadow:14px 0 50px #0008}
+ #workspace[data-sidebar-open="true"] #sidebar{display:flex}
+ #workspace[data-sidebar-open="true"] #sidebarBackdrop{display:block;position:fixed;inset:0;z-index:60;background:#000a;backdrop-filter:blur(3px);border:0;border-radius:0;padding:0}
+ .sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;font-size:21px;flex-shrink:0}
+ #sidebar .sidebar-close{display:inline-flex;position:absolute;right:14px;top:24px;width:32px;height:32px;padding:0;align-items:center;justify-content:center}
+ #sidebar .brand{font-size:22px;gap:10px;letter-spacing:-.7px}
+ #sidebar .brand>span{width:36px;height:36px;font-size:25px}
+ #sidebar .brand small{display:inline}
+ #sidebar button{font-size:14px}
+ #sidebar .new{margin:26px 0 20px;padding:12px;text-align:left}
+ #sidebar .eyebrow{font-size:10px;letter-spacing:1.5px}
+ #sidebar .asideBottom button{padding:9px 8px}
+ header{height:auto;min-height:60px;flex-shrink:0;gap:12px;padding-top:10px;padding-bottom:10px}
+ header>div{flex:1;min-width:0}
+ #composer>.composer-menu{max-width:calc(100vw - 32px)}
+ #messages{padding:24px 20px}
+ .message.user{margin-left:6%}
+ .welcome h1{font-size:38px}
+}

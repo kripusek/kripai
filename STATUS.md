@@ -542,3 +542,15 @@ To cała karta, nie tylko model ani gwarantowany budżet WDDM. Inference regresj
 kontrolowane; konto fixture, bez użycia hasła owner. Start START.cmd, brak deps/
 migracji. Kod app/gpu.py/main.py i web/gpu.js. Kontrakt/raport docs/PANEL_GPU.md
 oraz PANEL_GPU_TESTY.txt. Dalej: mobilna nawigacja i zewnętrzny MCP.
+
+## 03.11.2026 — pełna szerokość rozmowy na telefonie i stan sesji
+Historia do 700 px wysuwana spod menu; Escape/tło, Tab i przywracanie fokusu,
+inert tła, reset po resize/logout. Komputer zachowuje stałą historię.
+Lista rozmów i wiadomości czyszczone po logout; stare me/lista/401 nie
+odtwarzają starego widoku i nie wylogowują nowej sesji. Bez zmiany serwerowej
+autoryzacji i przechowywania sekretów. Wyślij czeka na aktualny stan modelu.
+Windows: 217 Python (216 OK, 1 symlink pominięty), Node 65/65. Chrome desktop/
+390 px: main 390/390, role/fokus/Shift+Tab/Escape, ustawienia i brak overflow.
+API podglądu kontrolowane, bez hasła owner. Kod sidebar.js/app.js/HTML/CSS,
+bez deps/migracji; start START.cmd i Ctrl+F5. Szczegóły/raport:
+docs/MOBILNA_NAWIGACJA.md i MOBILNA_NAWIGACJA_TESTY.txt. Dalej: zewnętrzny MCP.

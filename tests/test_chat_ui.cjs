@@ -19,6 +19,29 @@ test('kontynuacja zastępuje niepełną linię i ignoruje powtórzony snapshot S
  await new Promise(r=>setTimeout(r,100));
  const text=walk(h.doc.getElementById('messages')).find(n=>n._raw==='1. Gotowe.\n2. Gotowe.');assert(text);
 });
+test('spóźniona lista rozmów nie wraca do DOM po wylogowaniu',async()=>{
+ const h=await harness(),original=h.ctx.fetch;let resolve;
+ h.ctx.fetch=(url,options)=>url.startsWith('/api/v1/conversations?')?new Promise(r=>resolve=r):original(url,options);
+ const pending=vm.runInContext('list()',h.ctx);await h.doc.getElementById('logout').onclick();
+ resolve({ok:true,status:200,json:async()=>({items:[{id:'old',title:'Prywatny tytuł fixture'}],next_cursor:null})});await pending;
+ assert.equal(h.doc.getElementById('conversations').children.length,0);assert.equal(h.doc.getElementById('workspace').hidden,true);
+});
+test('spóźnione me nie otwiera wylogowanej aplikacji',async()=>{
+ const h=await harness(),original=h.ctx.fetch;let resolve;
+ h.ctx.fetch=(url,options)=>url==='/api/v1/me'?new Promise(r=>resolve=r):original(url,options);
+ const pending=vm.runInContext('enter()',h.ctx);await h.doc.getElementById('logout').onclick();
+ resolve({ok:true,status:200,json:async()=>({id:'owner'})});await pending;
+ assert.equal(h.doc.getElementById('workspace').hidden,true);assert.equal(h.doc.getElementById('login').hidden,false);
+ assert.equal(h.doc.getElementById('send').disabled,true);assert.equal(h.doc.getElementById('older').hidden,true);
+});
+test('stare 401 nie wylogowuje ponownie zalogowanej sesji',async()=>{
+ const h=await harness(),original=h.ctx.fetch;let resolve,first=true;
+ h.ctx.fetch=(url,options)=>{if(url==='/api/v1/me'&&first){first=false;return new Promise(r=>resolve=r);}return original(url,options);};
+ const oldEntry=vm.runInContext('enter()',h.ctx);await h.doc.getElementById('logout').onclick();await vm.runInContext('enter()',h.ctx);
+ assert.equal(h.doc.getElementById('workspace').hidden,false);
+ resolve({ok:false,status:401,json:async()=>({error:{code:'login_required'}})});await oldEntry;
+ assert.equal(h.doc.getElementById('workspace').hidden,false);assert.equal(h.doc.getElementById('login').hidden,true);
+});
 async function harness(){
  const doc=document(),calls=[],streams=[],saved=new Map(),revoked=[];doc.cookie='assistant_csrf=token';doc.querySelectorAll=()=>[];
  const ctx={document:doc,window:{addEventListener(){}},marked,URL:{createObjectURL:()=> 'blob:preview',revokeObjectURL:u=>revoked.push(u)},crypto:{randomUUID:()=>Math.random().toString(36)},AbortController,setTimeout,clearTimeout,setInterval(){},navigator:{clipboard:{writeText:async()=>{}}},sessionStorage:{getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v),removeItem:k=>saved.delete(k)},KripVoice:{stop(){},configure(){},setBlocked(){},speak(){}},KripMedia:{hide(){},stop(){},configure(){},setBlocked(){}},EventSource:function(){this.events={};this.addEventListener=(k,fn)=>this.events[k]=fn;this.close=()=>{};streams.push(this);},fetch:async(url,options={})=>{
