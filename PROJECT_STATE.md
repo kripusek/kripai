@@ -246,3 +246,20 @@ Windows: 156/156 Python i Node 50/50 OK. Rzeczywistej publikacji PR NIE ZALICZON
 Szczegóły: docs/TEST_ZAPISU_GITHUB.md; dalej lokalne połączenie z Contents/Pull
 requests write tylko dla autoexec i ponowny test. Kopie dziennika/MCP/WWW nadal
 pozostają kolejnym zakresem. Start nadal START.cmd; bez nowych zależności/modeli.
+
+## 02.11.2026 — kopie dziennika GitHuba i zachowawczy odzysk
+BACKUP/start/kopia dobowa dołączają migawkę github-changes.sqlite3 oraz SHA
+do kopii rozmów. Online Backup API z aktywnym WAL, samodzielne pliki DELETE,
+walidacja schematu/danych/checksum, limit czasu/rozmiaru i retencja zestawów.
+Restore scala dziennik: zachowuje nowsze rekordy i published, brakujące
+nieopublikowane odzyskuje jako outcome_unknown bez zgody na ponowienie zapisu.
+Stare kopie pozostawiają bieżący dziennik. Awaria/konflikt blokują zastąpienie
+bazy. Wykryto i usunięto pozostawianie plików WAL/SHM kopii tymczasowej.
+Windows: 167/167 Python i Node 50/50 OK. Rzeczywista kopia danych właściciela
+z dziennikiem i SHA wykonana/zweryfikowana; danych właściciela NIE PRZYWRACANO.
+Aktualizację zastosowano lokalnie po kopii plików programu i sprawdzeniu braku
+aktywnego generowania. Backend oraz rzeczywisty model ponownie gotowe.
+Struktura/start/limity: docs/KOPIE_DZIENNIKA_GITHUB.md, app/github_backups.py,
+maintenance.py i test_github_backups.py. Bez nowych zależności/modeli/migracji.
+Dalej: rzeczywisty PR po lokalnym udostępnieniu zapisu, MCP i trafniejszy WWW.
+Klucza z rozmowy nie kopiowano do kodu/komend/logów; konfiguracja konta bez zmian.

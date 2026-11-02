@@ -58,8 +58,9 @@ w prywatnym folderze danych. Dane są przypisane do owner. Po stanie published
 ponowne kliknięcie zwraca ten sam wynik. Po publishing/outcome_unknown nie
 ponawiamy ślepo POST; sprawdź wskazaną gałąź i PR w GitHub. Awaria może zostawić
 gałąź bez PR lub obiekty Git bez gałęzi. Nie usuwamy ich automatycznie.
-Plik ten nie jest objęty dotychczasowym backupem głównej bazy rozmów;
-obsługa spójnej kopii dziennika i automatyczne uzgadnianie z GitHub to dalszy zakres.
+BACKUP.cmd dołącza teraz migawkę tego dziennika do kopii rozmów. Przywracanie
+zachowuje nowsze wyniki i blokuje ponowienie niepewnych zapisów. Szczegóły:
+KOPIE_DZIENNIKA_GITHUB.md. Odczytowe uzgadnianie wyniku jest dostępne w panelu.
 POST publikacji wymaga sesji/CSRF/Origin/Host, model nie otrzymuje tego narzędzia.
 
 ## Weryfikacja

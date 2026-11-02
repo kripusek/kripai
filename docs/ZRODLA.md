@@ -119,3 +119,7 @@ https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectd
 
 ## Odmowy i limity GitHub REST
 https://docs.github.com/en/rest/using-the-rest-api/troubleshooting-the-rest-api
+
+## Kopie dziennika SQLite
+https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.backup
+https://www.sqlite.org/backup.html

@@ -104,3 +104,7 @@ Kontrakt i ograniczenia: ../../docs/PR_I_DLUGIE_ODPOWIEDZI.md. MCP nadal planem.
 Menu +, lokalny kreator DPAPI w UI i odczytowe sprawdzanie niepewnego PR:
 docs/MENU_I_POLACZENIE_GITHUB.md i docs/UZGADNIANIE_PR.md w katalogu głównym.
 MCP/OAuth z własną aplikacją nadal planem; istnieje działający kreator tokenu.
+
+## Kopie dziennika 4d
+Kopie i monotoniczny odzysk lokalnego dziennika opisuje docs/KOPIE_DZIENNIKA_GITHUB.md
+w katalogu głównym. Przywrócenie danych nie zatwierdza ponownego zapisu do GitHuba.

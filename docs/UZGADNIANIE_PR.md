@@ -24,7 +24,8 @@ i brak ponawiania mutacji. Interfejs sprawdzony testem DOM.
 Rzeczywistego niepewnego PR właściciela NIE TESTOWANO — nie wywoływano celowo
 awarii ani nie publikowano zmian w jego repozytorium. Nie użyto jego poświadczeń.
 
-Nadal do wykonania: spójne kopie dziennika github-changes.sqlite3, szersze edycje,
+Kopie dziennika i zachowawczy odzysk opisuje KOPIE_DZIENNIKA_GITHUB.md.
+Nadal do wykonania: szersze edycje,
 OAuth po rejestracji własnej aplikacji GitHub, MCP i trafniejsza wyszukiwarka.
 Struktura: app/github_changes.py, endpoint POST /integrations/github/drafts/{id}/reconcile,
 web/integrations.js. Start nadal START.cmd, bez nowych zależności i modeli.

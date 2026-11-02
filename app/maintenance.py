@@ -48,26 +48,46 @@ def backup():
     source=open_db();destination=sqlite3.connect(temporary)
     try:
         source.backup(destination)
+        # Samodzielny plik kopii nie może zależeć od pomocniczego WAL.
+        destination.execute('PRAGMA journal_mode=DELETE')
         destination.close();source.close()
         validate(temporary)
+        from . import github_backups
+        github_backups.snapshot(target)
         temporary.replace(target)
     except BaseException:
-        destination.close();source.close();temporary.unlink(missing_ok=True);raise
+        destination.close();source.close();temporary.unlink(missing_ok=True)
+        for suffix in ('-wal','-shm'):Path(str(temporary)+suffix).unlink(missing_ok=True)
+        from . import github_backups
+        github_backups.remove(target)
+        raise
     # Zachowujemy 14 ostatnich kompletnych kopii; obcych plików nie ruszamy.
-    for old in sorted(config.BACKUPS.glob('kripai-*.sqlite3'),key=lambda p:p.stat().st_mtime,reverse=True)[14:]:old.unlink()
+    for old in sorted(config.BACKUPS.glob('kripai-*.sqlite3'),key=lambda p:p.stat().st_mtime,reverse=True)[14:]:
+        old.unlink();github_backups.remove(old)
     (config.DATA/'backup.error').unlink(missing_ok=True)
     return target
 
 
 def restore(path):
     validate(path)
+    from . import github_backups
+    journal=github_backups.load(path)
     if (config.DATA/'kripai.sqlite3').exists():backup()
+    elif (config.DATA/'github-changes.sqlite3').exists():
+        config.BACKUPS.mkdir(parents=True,exist_ok=True)
+        github_backups.snapshot(config.BACKUPS/('github-before-restore-'+uuid4().hex+'.sqlite3'))
     temporary=config.DATA/'restore.partial'
     source=sqlite3.connect(f'{Path(path).resolve().as_uri()}?mode=ro',uri=True)
     destination=sqlite3.connect(temporary)
-    try:source.backup(destination)
+    try:
+        source.backup(destination)
+        destination.execute('PRAGMA journal_mode=DELETE')
     finally:source.close();destination.close()
     validate(temporary)
+    # Scalanie jest transakcyjne i nie usuwa nowszych rekordów dziennika.
+    # Najpierw sprawdzamy konflikty, zanim zastąpimy bazę rozmów.
+    try:github_backups.merge(journal)
+    except BaseException:temporary.unlink(missing_ok=True);raise
     # Wywołujący musi posiadać blokadę aplikacji, więc nie ma aktywnych połączeń.
     for suffix in ('-wal','-shm'):(config.DATA/('kripai.sqlite3'+suffix)).unlink(missing_ok=True)
     temporary.replace(config.DATA/'kripai.sqlite3')

@@ -215,3 +215,6 @@ z publikacją na nowej gałęzi i PR w ograniczonym repo. [Konfiguracja i limity
 
 Opcje rozmowy są teraz pod przyciskiem +. GitHub połączysz w oknie Połączenia,
 bez PowerShella: [kreator i zasady](docs/MENU_I_POLACZENIE_GITHUB.md).
+
+Kopie obejmują również propozycje i dziennik GitHuba. Przenoś cały zestaw
+SQLite + .github + .github.sha256: [zasady i odzysk](docs/KOPIE_DZIENNIKA_GITHUB.md).
