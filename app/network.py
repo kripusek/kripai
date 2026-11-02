@@ -165,9 +165,28 @@ def page(result):
     return {'url':result['url'],'title':title,'text':text[:1200],'document':text,'excerpt':text[:1200],
         'truncated':bool(truncated),'document_characters':len(text),'summary':False}
 
-def python_documents(query):
+def search_sites(*texts):
+    sites=[]
+    for text in texts:
+        for match in re.finditer(r'''(?<![\w:])(-?)site:([^\s<>"'()]+)''',text,re.I):
+            try:
+                domain=match[2].rstrip('.,;!')
+                if any(c in domain for c in '/:@?#\\%'):raise ToolError('tool_url_invalid')
+                url=canonical('https://'+domain+'/');parsed=urlsplit(url)
+                if parsed.path!='/' or parsed.query:raise ToolError('tool_url_invalid')
+            except ToolError:raise ToolError('tool_search_filter_invalid') from None
+            sites.append((bool(match[1]),parsed.hostname))
+    return sites
+
+def search_host_allowed(host,sites):
+    # Granica etykiety DNS: example.org nie dopuszcza example.org.evil ani notexample.org.
+    return all((host==domain or host.endswith('.'+domain))!=excluded for excluded,domain in sites)
+
+def python_documents(query,sites=None):
     # Indeks dostarcza prawdziwe linki; nie zgadujemy URL modułu z tekstu modelu.
     if not (re.search(r'\bpython\w*\b',query,re.I) and re.search(r'doc(?:ument)?|dokument',query,re.I)):return None
+    sites=search_sites(query) if sites is None else sites
+    if not search_host_allowed('docs.python.org',sites):return None
     version=re.search(r'\b3\.\d{1,2}\b',query)
     base='https://docs.python.org/'+(version[0] if version else '3')+'/'
     terms=re.sub(r'\bsite:\S+',' ',query,flags=re.I)
@@ -192,10 +211,11 @@ def python_documents(query):
     parser=Index();parser.feed(result['data'].decode('utf-8',errors='replace'))
     if parser.items:return {'provider':'Python Docs module index','query':query,'items':parser.items}
 
-def search(query):
+def search(query,request=''):
+    sites=search_sites(query,request)
     warning=None
     try:
-        official=python_documents(query)
+        official=python_documents(query,sites)
         if official:return official
     except ToolError as exc:warning=exc.code
     # Publiczny kanał RSS Bing: bez konta, bez tokenów i bez cichej zmiany dostawcy.
@@ -205,7 +225,7 @@ def search(query):
     try:root=ET.fromstring(raw)
     except ET.ParseError:raise ToolError('tool_search_unavailable') from None
     if root.tag!='rss':raise ToolError('tool_search_unavailable')
-    items=[];seen=set()
+    items=[];seen=set();discarded=0
     for node in root.findall('./channel/item'):
         try:
             url=canonical((node.findtext('link') or '').strip());host=urlsplit(url).hostname
@@ -213,11 +233,13 @@ def search(query):
                 if not public_ip(str(ipaddress.ip_address(host))):continue
             except ValueError:pass
         except ToolError:continue
+        if not search_host_allowed(host,sites):discarded+=1;continue
         if url in seen:continue
         seen.add(url);parser=Text();parser.feed(node.findtext('description') or '');snippet,_=parser.result()
         items.append({'url':url,'title':(node.findtext('title') or host)[:200],'text':re.sub(r'\s+',' ',snippet).strip()[:500],'truncated':True,'content_kind':'search_snippet'})
         if len(items)>=5:break
     result={'provider':'Bing RSS','query':query,'items':items}
+    if sites:result['site_filter']={'active':True,'discarded':discarded}
     if warning:result['warnings']=[{'provider':'Python Docs module index','error':warning}]
     return result
 
@@ -251,7 +273,7 @@ def execute(name,args,scope):
     if name=='web_search':
         if not scope['web']:raise ToolError('tool_permission_denied')
         if set(args)!={'query'} or not isinstance(args['query'],str) or not 3<=len(args['query'])<=160:raise ToolError('tool_arguments_invalid')
-        return search(args['query'])
+        return search(args['query'],scope.get('request',''))
     if name not in {'github_read','github_find'}:raise ToolError('tool_not_allowed')
     if not scope['github']:raise ToolError('tool_permission_denied')
     if name=='github_find':

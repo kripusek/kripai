@@ -119,3 +119,8 @@ dowolnych serwerów MCP. Granice i kolejny konkretny zakres: ../../docs/MCP.md.
 web_search sprawdza indeks modułów Pythona dla zapytań o ich dokumentację;
 nie zgaduje URL, rozróżnia link od odczytu i jawnie oznacza dostawcę/fallback.
 Kontrakt i odbiór: ../../docs/DOKUMENTACJA_PYTHONA.md.
+
+## Filtr site: egzekwowany przez backend
+Zakres domen bieżącej prośby oraz query modelu ogranicza wyniki RSS i wybór
+indeksu Pythona. Brak zgodnych wyników nie jest zastępowany obcymi stronami.
+Kontrakt i testy: ../../docs/FILTR_DOMEN_WWW.md.

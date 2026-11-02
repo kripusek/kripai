@@ -305,3 +305,26 @@ zewnętrzni dostawcy MCP pozostają kolejnym osobnym zakresem.
 Aktualizacja zastosowana lokalnie po kopii danych/programu i kontroli braku
 aktywnego generowania. Backend i rzeczywisty model ponownie gotowe.
 Z zainstalowanej kopii: znalezienie oficjalnego pathlib i odczyt 61453 znaków OK.
+
+## 02.11.2026 — lokalne egzekwowanie site: w wyszukiwaniu WWW
+Filtrowanie rzeczywistych hostów wyników: domena/poddomeny, -site:, IDNA,
+granice DNS i przecięcie ograniczeń. Zakres z bieżącej prośby obowiązuje także
+po pominięciu operatora przez model. Indeks Pythona respektuje domenę.
+Puste wyniki pozostają puste; metadane liczby odrzuconych trafiają do planera.
+Niepoprawny filtr ma czytelny błąd przed połączeniem. Bez migracji/zależności.
+Windows: 190 testów Python (189 OK, 1 symlink pominięty); Node 53/53 OK.
+Rzeczywisty transport znalazł pathlib w docs.python.org; przy example.org
+odrzucił wszystkie 10 obcych wyników RSS mimo braku site: w query modelu.
+Kod: app/network.py, app/tools.py, web/tools.js; start nadal START.cmd.
+Kontrakt, ograniczenia i odbiór: docs/FILTR_DOMEN_WWW.md, docs/SITE_FILTER_TESTY.txt.
+Dalej: jakość ogólnego WWW i zewnętrzny dostawca MCP; nie zaliczono wszystkich
+stron, instalatora i mikrofonu PL/EN. Brak zmian uprawnień kont/GitHuba.
+
+Osobny rzeczywisty CUDA/Qwen3-8B wykonał wyszukiwanie z site:docs.python.org,
+odczytał pathlib i zakończył odpowiedź ze źródłem (614 znaków). Cała karta
+7575/8192 MiB VRAM; kontekst nadal 4096.
+
+Aktualizacja zastosowana lokalnie po kopii danych/programu i kontroli braku
+aktywnego generowania. Backend i rzeczywisty model ponownie gotowe.
+Zainstalowana kopia: oficjalny wynik poprawny, 10 obcych wyników odrzuconych
+przy zakresie example.org, health/live 200. Bieżący schemat 6 bez migracji.

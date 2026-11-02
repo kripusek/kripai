@@ -226,3 +226,6 @@ serwera. Działa lokalnie bez konta, wyłącznie do odczytu dokumentacji program
 
 Wyszukiwanie dokumentacji modułów Pythona korzysta również z oficjalnego indeksu;
 [zasady i wyniki](docs/DOKUMENTACJA_PYTHONA.md).
+
+Wyszukiwanie respektuje site:domena i -site:domena z bieżącej wiadomości:
+[filtr domen](docs/FILTR_DOMEN_WWW.md).

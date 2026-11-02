@@ -41,6 +41,30 @@ class LargePageTests(unittest.TestCase):
 
 class SearchTests(unittest.TestCase):
     INDEX=b'<a href="library/pathlib.html#module-pathlib"><code>pathlib</code></a><a href="library/json.html#module-json">json</a>'
+    def test_site_filters_dns_boundary_subdomains_and_exclusions(self):
+        urls=['https://example.org/a','https://docs.example.org/b','https://example.org.evil.test/c','https://notexample.org/d','https://blocked.example.org/e']
+        feed=('<rss><channel>'+''.join('<item><link>'+url+'</link></item>' for url in urls)+'</channel></rss>').encode()
+        with patch.object(network,'fetch',return_value={'data':feed}):
+            result=network.search('site:EXAMPLE.ORG -site:blocked.example.org dokumentacja')
+        self.assertEqual([r['url'] for r in result['items']],urls[:2]);self.assertEqual(result['site_filter']['discarded'],3)
+    def test_current_request_site_cannot_be_relaxed_by_model_query(self):
+        feed=b'<rss><channel><item><link>https://other.example/</link></item></channel></rss>'
+        with patch.object(network,'fetch',return_value={'data':feed}) as fetch:
+            result=network.execute('web_search',{'query':'Python pathlib documentation'},network.policy('Znajdz Python pathlib site:example.org',web=True))
+        self.assertEqual(fetch.call_count,1);self.assertIn('bing.com/search?',fetch.call_args.args[0])
+        self.assertEqual(result['items'],[]);self.assertEqual(result['site_filter']['discarded'],1)
+    def test_python_index_respects_positive_and_negative_site(self):
+        with patch.object(network,'fetch',side_effect=AssertionError('not permitted provider')):
+            self.assertIsNone(network.python_documents('Python pathlib documentation site:example.org'))
+            self.assertIsNone(network.python_documents('Python pathlib documentation -site:docs.python.org'))
+        with patch.object(network,'fetch',return_value={'data':self.INDEX}):
+            self.assertEqual(network.search('Python pathlib documentation site:python.org')['provider'],'Python Docs module index')
+    def test_invalid_site_filter_fails_before_network_and_idna_matches(self):
+        with patch.object(network,'fetch',side_effect=AssertionError('no network')):
+            for suffix in ['localhost','example.org/private','user@example.org','example.org#x','example.org:80']:
+                with self.subTest(suffix=suffix),self.assertRaises(network.ToolError) as exc:network.search('site:'+suffix+' query')
+                self.assertEqual(exc.exception.code,'tool_search_filter_invalid')
+        self.assertTrue(network.search_host_allowed('xn--bcher-kva.example',network.search_sites('site:bücher.example')))
     def test_official_module_index_precedes_rss_and_does_not_guess_links(self):
         with patch.object(network,'fetch',return_value={'data':self.INDEX}) as fetch:
             result=network.search('Znajdz oficjalna dokumentacje Pythona pathlib')
