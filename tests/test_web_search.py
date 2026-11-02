@@ -41,6 +41,23 @@ class LargePageTests(unittest.TestCase):
 
 class SearchTests(unittest.TestCase):
     INDEX=b'<a href="library/pathlib.html#module-pathlib"><code>pathlib</code></a><a href="library/json.html#module-json">json</a>'
+    def test_site_redirect_checked_before_dns_and_allowed_subdomain_read(self):
+        for target,denied in [('https://other.example/content',True),('https://blocked.example.org/content',True),('https://docs.example.org/content',False)]:
+            Connection.responses=[Response(status=302,headers={'Location':target}),Response(b'Allowed document content')]
+            before=len(Connection.requests)
+            with patch.object(network,'resolve',return_value='93.184.216.34') as resolve,patch.object(network,'PinnedHTTPS',Connection):
+                if denied:
+                    with self.assertRaises(network.ToolError) as exc:network.fetch('https://example.org/',sites=network.search_sites('site:example.org -site:blocked.example.org'))
+                    self.assertEqual(exc.exception.code,'tool_search_domain_denied');self.assertEqual(resolve.call_count,1)
+                else:self.assertEqual(network.fetch('https://example.org/',sites=network.search_sites('site:example.org'))['url'],target)
+            self.assertEqual(len(Connection.requests)-before,1 if denied else 2)
+    def test_read_carries_search_scope_and_explicit_url_keeps_independent_permission(self):
+        url='https://example.org/';scope=network.policy('Przeczytaj '+url,web=True)
+        response={'url':url,'kind':'text/plain','data':b'Document'}
+        with patch.object(network,'fetch',return_value=response) as fetch:
+            network.execute('web_read',{'url':url},scope);self.assertNotIn('sites',fetch.call_args.kwargs)
+            scope['search_sites']={url:network.search_sites('site:example.org')}
+            network.execute('web_read',{'url':url},scope);self.assertEqual(fetch.call_args.kwargs['sites'],scope['search_sites'][url])
     def test_site_filters_dns_boundary_subdomains_and_exclusions(self):
         urls=['https://example.org/a','https://docs.example.org/b','https://example.org.evil.test/c','https://notexample.org/d','https://blocked.example.org/e']
         feed=('<rss><channel>'+''.join('<item><link>'+url+'</link></item>' for url in urls)+'</channel></rss>').encode()
@@ -117,7 +134,7 @@ class SearchTests(unittest.TestCase):
         def read(name,args,scope,check):
             calls.append(name)
             if name=='web_search':return {'provider':'Bing RSS','warnings':[{'provider':'Python Docs module index','error':'tool_network_failed'}],'items':[{'url':'https://www.python.org/','title':'Python','text':'Search snippet','truncated':True}]}
-            self.assertIn(args['url'],scope['urls']);return {'url':args['url'],'title':'Python','document':'Actual page text','text':'prefix','excerpt':'Actual page text','truncated':False}
+            self.assertIn(args['url'],scope['urls']);self.assertIn(args['url'],scope['search_sites']);return {'url':args['url'],'title':'Python','document':'Actual page text','text':'prefix','excerpt':'Actual page text','truncated':False}
         with patch.object(tools,'read',side_effect=read):result=tools.plan(Client(),[{'role':'user','content':'Znajdz dokumentacje Pythona'}],network.policy('Znajdz dokumentacje Pythona',True,False),lambda:None,lambda *args:None)
         self.assertEqual(calls,['web_search','web_read']);self.assertEqual(len(result),1);self.assertEqual(result[0]['text'],'Actual page text');self.assertEqual(result[0]['name'],'web_read')
         second=[body for path,body in requests if path.endswith('chat/completions')][-1]

@@ -1,0 +1,83 @@
+/* Motyw kripusek. Wszystkie zasoby są lokalne; bez fontów i śledzenia z CDN. */
+:root{
+ color-scheme:dark;
+ --paper:#0c0c0f;--ink:#f0f0f3;--muted:#a1a1ac;--line:#303037;
+ --soft:#222228;--accent:#dc263d;--green:var(--accent);--panel:#151519;
+ accent-color:var(--accent);scrollbar-color:#48404a var(--paper);
+}
+::selection{background:#8c2035;color:#fff}
+body{background:var(--paper);font-family:Inter,"Segoe UI",system-ui,sans-serif}
+button,input,select{background:var(--panel);border-color:var(--line);border-radius:9px}
+button{transition:background .15s,border-color .15s}
+button:hover{background:#27232a;border-color:#69505a}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #ff657b;outline-offset:3px}
+button:disabled{opacity:.55}
+.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:650}
+.primary:hover{background:#b91e35;border-color:#b91e35}
+a,.formatted a,.rag-sources a{color:#ff8a9b}
+a:hover{color:#ffb7c1}
+h1,h2,.brand{font-family:Inter,"Segoe UI",system-ui,sans-serif}
+h1{font-weight:750;letter-spacing:-.055em}
+h2{font-weight:650;letter-spacing:-.035em;font-size:30px}
+.eyebrow{color:#c4a6ae;font:650 10px/1.5 Consolas,monospace;letter-spacing:2px}
+.mark,.brand>span{background:var(--accent);color:#fff;border-radius:10px;box-shadow:0 0 32px #dc263d20}
+.brand{font-weight:750;letter-spacing:-.7px}
+.brand small{color:#d7a3ae;border-color:#5d2a37;background:#27131b}
+aside{background:#101013;border-right-color:#28242c}
+.new{border-color:#65303d;background:#24131b;font-weight:600;color:#ffdde3}
+.new:hover{background:#381b25;border-color:#a33c54}
+nav button{color:var(--muted);border-radius:8px}
+nav button.active{background:#2a1922;color:#ffe2e7;box-shadow:inset 2px 0 var(--accent)}
+nav button:hover,.asideBottom button:hover{color:#fff;background:#211d24}
+.asideBottom{border-color:#2b252e}
+.asideBottom button{width:100%;text-align:left;padding:8px;border-radius:6px}
+header{background:#0f0f13;border-color:#28242c;height:72px}
+.badge{color:#bfb4be;background:#19151c;font:11px Consolas,monospace;border-radius:6px}
+main{background:radial-gradient(ellipse at 65% 0,#6d14231a,transparent 55%)}
+.welcome{max-width:680px;padding:5vh 0 3vh}
+.welcome .mark{width:64px;height:64px;font-size:40px;margin-bottom:28px;border-radius:14px;transform:rotate(-5deg)}
+.welcome h1{font-size:clamp(36px,4.4vw,58px);line-height:1.04;max-width:600px;margin:18px 0}
+.welcome p:not(.eyebrow){font-size:16px;line-height:1.75}
+.suggestions{flex-wrap:wrap;gap:10px;margin-top:30px}
+.suggestions button{background:#15151a;border-color:#352631;padding:16px 18px;color:#e0d5df}
+.suggestions button:hover{background:#261821;border-color:#9d354b}
+.message .who{color:#b3a5b1;font-family:Consolas,monospace;letter-spacing:1.8px}
+.message.user{background:#24171e;border:1px solid #442430;border-radius:12px}
+.message.assistant{padding:12px 0}
+#composer{background:#18181e;border-color:#49313c;border-radius:16px;box-shadow:0 10px 45px #0005}
+#composer:focus-within{border-color:#9e3d51;box-shadow:0 0 0 1px #7a2b4026,0 10px 45px #0005}
+textarea::placeholder{color:#8e8794}
+#composerPlus{color:#f1c2cb}
+#composerPlus:hover,#composerPlus[aria-expanded="true"]{background:#3d202d}
+#send{min-width:94px}
+#cancel{background:#38202b;border-color:#7b3148;color:#ffdce4}
+.footnote{color:#96909f}
+#notice,#loginError{color:#ffa1af}
+dialog{background:#141418;border-color:#4b2b39;box-shadow:0 24px 100px #0009;border-radius:16px}
+dialog::backdrop{background:#050508b8;backdrop-filter:blur(5px)}
+dialog .close{background:#201a23;color:#e7c9d3}
+dialog input,dialog select,dialog textarea{background:#1c1b22;border:1px solid #40323f;color:var(--ink)}
+dialog textarea{border-radius:8px;padding:12px}
+input[type=checkbox]{accent-color:var(--accent)}
+.login{background:radial-gradient(ellipse at 50% 25%,#71142c30,transparent 60%),#0b0b0e}
+.login form{background:#141418;border:1px solid #462331;border-radius:18px;box-shadow:0 30px 100px #0008}
+.login .mark{margin-bottom:24px}
+.login h1{font-size:40px}
+#composer>.composer-menu{background:#19181f;border-color:#55303f;box-shadow:0 14px 50px #0009}
+.composer-menu>button:hover{background:#30202a}
+.tools-bar small{color:var(--muted)}
+.formatted blockquote{border-color:#a43850;color:#c6b7c3}
+.formatted code{background:#2c222c;color:#ffc7d2}
+.formatted th,.formatted td{border-color:#41323f}
+.formatted th{background:#211a24}
+.code-block{background:#111116;border-color:#3e303b}
+.code-bar{background:#221b25;color:#cbb7c8}
+.code-bar button{background:#3a2634;color:#fff;border-color:#604052}
+.code-block pre code{background:none;color:inherit}
+.rag-document,.rag-sources details{border-color:#44313e}
+.rag-sources details{background:#18141c}
+.rag-sources summary{color:#edc1cc;cursor:pointer}
+#filePreview{background:#222127}
+@media(max-width:700px){header{height:60px}.welcome{padding-top:2vh}.welcome h1{font-size:38px}.suggestions{flex-direction:column}.login form{padding:28px}}
+@media(max-width:460px){.brand{letter-spacing:-.4px}.welcome h1{font-size:32px}.welcome .mark{width:48px;height:48px;font-size:32px;margin-bottom:18px}.suggestions button{padding:12px}.login h1{font-size:34px}.login form{padding:24px}#send{min-width:0}}
+@media(prefers-reduced-motion:reduce){button{transition:none}}

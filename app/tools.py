@@ -10,7 +10,7 @@ from typing import Literal
 from pydantic import Field,ValidationError
 from . import config
 from .models import Strict
-from .network import policy,ToolError,canonical
+from .network import policy,ToolError,canonical,search_sites
 from .processes import ModelJob
 
 class WebRead(Strict):
@@ -119,7 +119,8 @@ def summarize(client,result,question,check,activity,budget,tool_name='web_read')
 def plan(client,messages,scope,check,activity):
     definitions=schemas(scope)
     if not definitions:return []
-    results=[];scope=dict(scope,urls=list(scope['urls']),documents=list(scope.get('documents',[])),github_files={});conversation=[dict(m) for m in messages]
+    results=[];scope=dict(scope,urls=list(scope['urls']),documents=list(scope.get('documents',[])),github_files={},search_sites={});conversation=[dict(m) for m in messages]
+    explicit_urls=set(scope['urls'])
     budget={'summaries':8};calls_used=0;searches=0;seen={};deadline=time.monotonic()+150
     def permitted():
         check()
@@ -181,6 +182,9 @@ def plan(client,messages,scope,check,activity):
                         try:url=canonical(item['url'])
                         except (ToolError,KeyError):continue
                         if url not in scope['urls']:scope['urls'].append(url)
+                        # Filtr wyniku obowiązuje również przy kolejnych przekierowaniach.
+                        # Osobny URL podany przez właściciela zachowuje własną zgodę.
+                        if url not in explicit_urls:scope['search_sites'][url]=search_sites(scope['request'],arguments['query'])
                         source=dict(item,url=url,name=name)
                         if not any(row.get('url')==url for row in results):results.append(source)
                         feedback.append({'url':url,'title':item['title'],'text':item.get('text','')[:350]})

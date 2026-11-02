@@ -328,3 +328,38 @@ Aktualizacja zastosowana lokalnie po kopii danych/programu i kontroli braku
 aktywnego generowania. Backend i rzeczywisty model ponownie gotowe.
 Zainstalowana kopia: oficjalny wynik poprawny, 10 obcych wyników odrzuconych
 przy zakresie example.org, health/live 200. Bieżący schemat 6 bez migracji.
+
+## 02.11.2026 — czarno-czerwony motyw i przekierowania site:
+Motyw na polecenie właściciela: grafitowe tło, czerwone akcenty/monogram,
+bezszeryfowe nagłówki, ciemne logowanie/dialogi/menu +, źródła i kod.
+Lokalny theme.css ładowany po bazowym CSS, bez fontów/CDN i nowych zależności.
+Inspiracje sprawdzone w publicznym profilu/repo kripusek; paleta wynika
+z bieżącego polecenia właściciela, nie z deklaracji identyczności starej strony.
+Filtr site: wyniku wyszukania obejmuje każdy redirect, z odmową przed DNS
+i połączeniem poza domenę. Osobny URL właściciela zachowuje własną zgodę.
+Windows: 192 testy Python (191 OK, 1 symlink pominięty), Node 53/53 OK.
+Chrome headless: desktop/390px, logowanie, menu, dialog i odpowiedź; bez
+poziomego przepełnienia. API tego podglądu kontrolowane; nie test konta owner.
+Lokalnie po kopii programu/danych przywrócono gotowość backendu/modelu;
+schemat 6 bez nowych migracji. Wcześniejsza próba CUDA przerwana z
+inference_interrupted przy modelu offline; nie została zaliczona jako sukces.
+Start nadal START.cmd. Dalej: zewnętrzny MCP i odbiór pozostałych modułów.
+Szczegóły i dosłowna regresja: docs/MOTYW_KRIPUSEK.md i docs/MOTYW_TESTY.txt.
+
+## 02.11.2026 — trwały start backendu z launchera Windows
+Ustalono przyczynę znikania aplikacji po poleceniach agenta: backend dziedziczył
+nadrzędny Windows Job i był zamykany wraz z sesją narzędzia. manage.py uruchamia
+teraz backend z CREATE_BREAKAWAY_FROM_JOB. Przy odmowie Windows (winerror 5)
+zachowuje zwykły start; inne błędy nie są maskowane. Job modelu i ograniczenia
+procesów narzędzi pozostają w backendzie. Bez nowych usług/zależności/migracji.
+Windows: 196 testów Python (195 OK, 1 symlink pominięty), Node 53/53 OK.
+Osobny rzeczywisty proces backendu przeżył koniec polecenia uruchamiającego;
+CUDA/Qwen3-8B zakończył wyszukanie/odczyt pathlib ze źródłem (1107 znaków),
+cała karta 7359/8192 MiB VRAM. Kontekst 4096. Wcześniejsze przerwane próby
+zachowano jako niezaliczone. Weryfikacja zwykłego manage.py: raport końcowy.
+Motyw czarno-czerwony działa lokalnie; start nadal START.cmd, Ctrl+F5 odświeża UI.
+Pełny raport: docs/MOTYW_TESTY.txt. Dalej: poprawa zwykłego startu oraz MCP.
+
+Zwykłe zainstalowane manage.py stop/start przeszło po kopii kodu i danych.
+W osobnym kolejnym poleceniu health/live oraz chronione v1/models dały 200;
+backend i model przeżyły zakończenie launchera. Nie trzeba skryptu pomocniczego.

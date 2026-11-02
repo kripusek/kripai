@@ -133,3 +133,6 @@ https://pypi.org/project/mcp/2.3.0/ (SDK wyłącznie QA, brak nowej zależności
 ## Wyszukiwanie modułów Pythona
 https://docs.python.org/3/py-modindex.html
 https://docs.python.org/3/library/pathlib.html
+
+## Trwały start backendu Windows
+https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags

@@ -18,6 +18,19 @@ def running():
     except RuntimeError:return True
 
 
+def launch_background(command,**kwargs):
+    if sys.platform!='win32':return subprocess.Popen(command,start_new_session=True,**kwargs)
+    # Backend ma przeżyć zamknięcie terminala/agenta. Job modelu nadal należy
+    # do backendu; nie odłączamy llama-server ani procesów narzędzi od ich limitów.
+    flags=subprocess.CREATE_NO_WINDOW
+    try:return subprocess.Popen(command,creationflags=flags|subprocess.CREATE_BREAKAWAY_FROM_JOB,**kwargs)
+    except OSError as exc:
+        # Nie każdy nadrzędny Job zezwala na breakaway. Zwykły launcher nadal
+        # działa; inne błędy uruchomienia zachowujemy zamiast je maskować.
+        if getattr(exc,'winerror',None)!=5:raise
+        return subprocess.Popen(command,creationflags=flags,**kwargs)
+
+
 def stop():
     config.DATA.mkdir(parents=True,exist_ok=True)
     (config.DATA/'stop.request').touch()
@@ -50,9 +63,8 @@ def main(action):
         python=Path(sys.executable)
         if os.name=='nt':python=python.with_name('pythonw.exe')
         with (config.DATA/'startup.log').open('w') as log:
-            process=subprocess.Popen([str(python),str(config.ROOT/'scripts/run.py')],cwd=config.ROOT,
-                stdin=subprocess.DEVNULL,stdout=log,stderr=log,
-                creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0,start_new_session=os.name!='nt')
+            process=launch_background([str(python),str(config.ROOT/'scripts/run.py')],cwd=config.ROOT,
+                stdin=subprocess.DEVNULL,stdout=log,stderr=log)
         import httpx
         for _ in range(60):
             if process.poll() is not None:raise RuntimeError('Backend zakończył się podczas startu. Sprawdź startup.log.')

@@ -82,11 +82,13 @@ def body(response,partial=False):
     if truncated and not partial:raise ToolError('tool_response_too_large')
     return bytes(output),truncated
 
-def fetch(url,partial=False,token=None):
+def fetch(url,partial=False,token=None,sites=None):
     current=canonical(url)
     if token and urlsplit(current).hostname!='api.github.com':raise ToolError('tool_permission_denied')
     for _ in range(4):
-        p=urlsplit(current);ip=resolve(p.hostname);conn=PinnedHTTPS(p.hostname,ip)
+        p=urlsplit(current)
+        if sites and not search_host_allowed(p.hostname,sites):raise ToolError('tool_search_domain_denied')
+        ip=resolve(p.hostname);conn=PinnedHTTPS(p.hostname,ip)
         try:
             headers={'User-Agent':'KripAI/1.0 read-only','Accept':'text/html,text/plain,application/json,application/rss+xml,application/xml','Accept-Encoding':'gzip, deflate'}
             if token:headers['Authorization']='Bearer '+token
@@ -269,7 +271,8 @@ def execute(name,args,scope):
         if set(args)!={'url'}:raise ToolError('tool_arguments_invalid')
         url=canonical(args['url'])
         if url not in scope['urls']:raise ToolError('tool_resource_not_authorized')
-        return page(fetch(url,partial=True))
+        sites=scope.get('search_sites',{}).get(url)
+        return page(fetch(url,partial=True,sites=sites) if sites else fetch(url,partial=True))
     if name=='web_search':
         if not scope['web']:raise ToolError('tool_permission_denied')
         if set(args)!={'query'} or not isinstance(args['query'],str) or not 3<=len(args['query'])<=160:raise ToolError('tool_arguments_invalid')
