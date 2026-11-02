@@ -77,3 +77,7 @@ Wcześniejsza sekcja „kolejny konkretny zakres” jest historyczna. Działa lo
 serwer dokumentacji stdio, klient, tools/list/call, zgoda, źródła i test połączenia.
 Nie udostępniamy jeszcze konfiguracji dowolnego programu dostawcy. Pełny kontrakt,
 rzeczywisty test CUDA i następny zewnętrzny dostawca: [MCP.md](MCP.md).
+
+03.11.2026: gałęzie i ref dla README/file/tree wdrożone. Wcześniejszy
+zakres „tylko domyślna gałąź” jest historyczny. Kontrakt: docs/GITHUB_REWIZJE.md
+w katalogu głównym projektu.

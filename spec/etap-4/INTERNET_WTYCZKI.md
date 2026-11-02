@@ -124,3 +124,7 @@ Kontrakt i odbiór: ../../docs/DOKUMENTACJA_PYTHONA.md.
 Zakres domen bieżącej prośby oraz query modelu ogranicza wyniki RSS i wybór
 indeksu Pythona. Brak zgodnych wyników nie jest zastępowany obcymi stronami.
 Kontrakt i testy: ../../docs/FILTR_DOMEN_WWW.md.
+
+03.11.2026: gałęzie i ref dla README/file/tree wdrożone. Wcześniejszy
+zakres „tylko domyślna gałąź” jest historyczny. Kontrakt: docs/GITHUB_REWIZJE.md
+w katalogu głównym projektu.

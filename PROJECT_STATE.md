@@ -381,3 +381,27 @@ Start nadal START.cmd. Dalej: zimny start i zewnętrzni dostawcy MCP.
 CUDA po starcie zwróciła poprawne 391 na 17×23 (asercja w QA), bez narzędzi.
 Backend/model nadal dostępne w kolejnym poleceniu; nie deklarujemy czasu
 inference jako benchmarku. Kopie kodu/danych wykonano przed aktualizacją.
+
+## 03.11.2026 — GitHub: gałęzie i odczyt wskazanej rewizji
+github_read obsługuje branches (20 wyników + jawny limit) oraz opcjonalny ref
+dla README/pliku/katalogu. Źródła zachowują gałąź/tag/SHA zamiast wskazywać HEAD.
+Plik z jawnego ref nie daje editable ani zgody na draft bieżącej gałęzi.
+Repo nadal musi być w bieżącej prośbie; brak nowych uprawnień/tokenów/zapisu.
+Windows: 206 Python (205 OK, 1 symlink pominięty), Node 53/53. Rzeczywisty
+anonimowy proces: lista gałęzi, README i app przy SHA 60c504b poprawne.
+Kod: app/tools.py, app/network.py, test_github_refs.py; brak migracji/deps.
+Start START.cmd. Szczegóły/raport: docs/GITHUB_REWIZJE.md i plik TESTY obok.
+Dalej: przegląd PR tylko do odczytu oraz zewnętrzni dostawcy MCP.
+
+Natywna próba wykryła 30-sekundowy ReadTimeout planera w profilu f16.
+Profil tekstowy używa teraz Flash Attention on oraz KV K/V q8_0 (bez zmiany
+GGUF/kontekstu 4096/wyjścia 2048). Flagi sprawdzone w lokalnym b12000 --help.
+Po zmianie rzeczywisty CUDA/Qwen3-8B odczytał wskazany commit i zakończył
+odpowiedź ze źródłem (452 znaki). Start modelu w próbie 5.248 s, cała karta
+7322/8192 MiB po odpowiedzi. Nie jest to benchmark jakości ani dowód przyczyny
+każdego timeoutu. Model VLM zachowuje własny dotychczasowy profil.
+
+Dodatkowo prawdziwy Qwen3-8B z q8 KV: poprawne 391 na 17×23; generacja
+przerwana po rzeczywistej delcie, run=cancelled, model pozostał gotowy.
+Kontroler trybu i konto w tych próbach były odizolowanymi fixture, inference
+i CUDA rzeczywiste. Nie zatrzymywano modelu właściciela przez Gaming.

@@ -19,8 +19,9 @@ class WebSearch(Strict):
     query:str=Field(min_length=3,max_length=160)
 class GithubRead(Strict):
     repository:str=Field(min_length=3,max_length=201)
-    section:Literal['readme','issues','file','tree']
+    section:Literal['readme','issues','file','tree','branches']
     path:str=Field(default='',max_length=1024)
+    ref:str=Field(default='',max_length=200)
 class GithubFind(Strict):
     query:str=Field(min_length=3,max_length=120)
 class McpDocs(Strict):
@@ -37,7 +38,7 @@ class GithubDraft(Strict):
 REGISTRY={
  'web_read':(WebRead,'Read a public HTTPS URL from the current request or an actual web_search result. Large pages are extracted and summarized locally; no JavaScript.'),
  'web_search':(WebSearch,'Search the public web using Bing RSS. Formulate a concise query from the current user request, then read relevant result URLs.'),
- 'github_read':(GithubRead,'Read README, issues, file or directory tree of owner/repo explicitly present in the current user request. path selects a file/directory on the default branch; empty tree path lists root.'),
+ 'github_read':(GithubRead,'Read README, issues, file, directory tree or branches of owner/repo explicitly present in the current request. path selects a file/directory; empty tree path lists root. Optional ref selects a branch, tag or commit for readme/file/tree; empty ref uses the default branch. Explicit-ref files cannot be used for edit proposals.'),
  'github_find':(GithubFind,'Search public GitHub repositories. Query must be a verbatim fragment of the current user request.')
 }
 
@@ -173,7 +174,7 @@ def plan(client,messages,scope,check,activity):
                     if name=='mcp_docs' and arguments.get('action')=='list':
                         for path in raw.pop('paths',[]):
                             if path not in scope['documents']:scope['documents'].append(path)
-                    if name=='github_read' and arguments.get('section')=='file' and raw.get('sha') and len(raw.get('document',''))<=3000 and not raw.get('truncated'):
+                    if name=='github_read' and arguments.get('section')=='file' and not arguments.get('ref') and raw.get('sha') and len(raw.get('document',''))<=3000 and not raw.get('truncated'):
                         scope['github_files'][arguments['repository'].lower()+'/'+arguments.get('path','')]=raw['sha']
                         raw['editable']=True
                 if name=='web_search':

@@ -18,6 +18,15 @@ from app.db import connect
 from app.model_process import ModelProcess
 
 class ProcessTests(unittest.TestCase):
+    def test_text_profile_uses_same_bounded_cache_after_vision_switch(self):
+        manager=ModelProcess()
+        try:
+            self.assertEqual(manager.command,manager.command_for('text'))
+            for option,value in [('--ctx-size','4096'),('--flash-attn','on'),('--cache-type-k','q8_0'),('--cache-type-v','q8_0')]:
+                self.assertEqual(manager.command[manager.command.index(option)+1],value)
+            self.assertNotIn('--cache-type-v',manager.command_for('vision'))
+            self.assertEqual(manager.command[manager.command.index('--parallel')+1],'1')
+        finally:manager.close()
     def test_real_child_stops_and_restarts_on_toggle(self):
         manager=ModelProcess(command=[sys.executable,'-c','import time;time.sleep(60)'],health=lambda:True)
         try:

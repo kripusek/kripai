@@ -287,22 +287,35 @@ def execute(name,args,scope):
         data=json.loads(result['data']);items=data['items'][:3]
         text=json.dumps([{'repository':r['full_name'],'description':r.get('description'),'url':r['html_url']} for r in items],ensure_ascii=False)
         return {'url':'https://github.com/search?'+urlencode({'q':query,'type':'repositories'}),'title':'GitHub — repozytoria','text':text[:1200],'truncated':len(text)>1200 or data.get('incomplete_results',False) or data.get('total_count',len(items))>len(items)}
-    if not {'repository','section'}<=set(args) or set(args)-{'repository','section','path'} or not valid_repo(args['repository']) or args['section'] not in {'readme','issues','file','tree'}:raise ToolError('tool_arguments_invalid')
+    if not {'repository','section'}<=set(args) or set(args)-{'repository','section','path','ref'} or not valid_repo(args['repository']) or args['section'] not in {'readme','issues','file','tree','branches'}:raise ToolError('tool_arguments_invalid')
     repo=args['repository']
     if repo.lower() not in scope['repositories']:raise ToolError('tool_resource_not_authorized')
     path=args.get('path','')
     if not isinstance(path,str) or len(path)>1024 or any(p in {'.','..'} for p in path.split('/')) or path.startswith('/') or any(ord(c)<32 for c in path) or '\\' in path:raise ToolError('tool_arguments_invalid')
-    suffix={'readme':'readme','issues':'issues?state=open&per_page=3','file':'contents/'+quote(path,safe='/'),'tree':'contents/'+quote(path,safe='/')}[args['section']]
+    ref=args.get('ref','')
+    if not isinstance(ref,str) or len(ref)>200 or any(c.isspace() or ord(c)<32 or ord(c)==127 or c in '~^:?*[\\' for c in ref) or '..' in ref or '@{' in ref or ref.startswith('/') or ref.endswith('/') or '//' in ref:raise ToolError('tool_arguments_invalid')
+    if ref and args['section'] not in {'readme','file','tree'}:raise ToolError('tool_arguments_invalid')
+    if args['section']=='branches' and path:raise ToolError('tool_arguments_invalid')
+    suffix={'readme':'readme','issues':'issues?state=open&per_page=3','file':'contents/'+quote(path,safe='/'),'tree':'contents/'+quote(path,safe='/'),'branches':'branches?per_page=21'}[args['section']]
+    if ref:suffix+='?'+urlencode({'ref':ref})
     from .integrations import ADAPTERS
     token=ADAPTERS['github'].token(repo)
     url='https://api.github.com/repos/'+repo+'/'+suffix
     result=fetch(url,token=token) if token else fetch(url)
     data=json.loads(result['data'])
+    if args['section']=='branches':
+        if not isinstance(data,list):raise ToolError('tool_format_denied')
+        rows=[]
+        for row in data[:20]:
+            if not isinstance(row,dict) or not isinstance(row.get('name'),str) or not isinstance(row.get('commit'),dict) or not re.fullmatch(r'(?:[a-fA-F0-9]{40}|[a-fA-F0-9]{64})',str(row['commit'].get('sha',''))):raise ToolError('tool_format_denied')
+            rows.append(row['name'][:200]+' @ '+row['commit']['sha'])
+        text='\n'.join(rows)
+        return {'url':'https://github.com/'+repo+'/branches','title':repo+' · gałęzie','text':text,'excerpt':text[:1200],'content_kind':'branches','truncated':len(data)>20,'count':len(rows),'limit':20}
     if args['section']=='tree':
         if not isinstance(data,list):raise ToolError('tool_format_denied')
         # Lista katalogu jest wynikiem API, nie prozą do streszczenia przez LLM.
         text='\n'.join(r['type']+' '+r['path'] for r in data[:200])
-        return {'url':'https://github.com/'+repo+'/tree/HEAD'+('/'+quote(path,safe='/') if path else ''),'title':repo+' · katalog '+(path or '/'),'text':text[:12000],'excerpt':text[:1200],'content_kind':'directory','truncated':len(data)>200 or len(text)>12000}
+        return {'url':'https://github.com/'+repo+'/tree/'+quote(ref or 'HEAD',safe='')+('/'+quote(path,safe='/') if path else ''),'title':repo+' · katalog '+(path or '/')+(' · '+ref if ref else ''),'text':text[:12000],'excerpt':text[:1200],'content_kind':'directory','truncated':len(data)>200 or len(text)>12000,'ref':ref}
     if args['section'] in {'readme','file'}:
         if data.get('encoding')!='base64':raise ToolError('tool_format_denied')
         raw=base64.b64decode(data['content'],validate=False)
@@ -310,5 +323,9 @@ def execute(name,args,scope):
         except UnicodeError:raise ToolError('tool_format_denied') from None
         if '\x00' in text:raise ToolError('tool_format_denied')
     else:text=json.dumps([{'title':r['title'],'body':(r.get('body') or '')[:500],'url':r['html_url']} for r in data[:3]],ensure_ascii=False)
-    source_path='/issues' if args['section']=='issues' else '/blob/HEAD/'+quote(path,safe='/') if args['section']=='file' else '#readme'
-    return {'url':'https://github.com/'+repo+source_path,'title':repo+' · '+args['section']+(' · '+path if path else ''),'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(text)>MAX_TEXT,'sha':data.get('sha') if isinstance(data,dict) else None}
+    source_path='/issues' if args['section']=='issues' else '/blob/'+quote(ref or 'HEAD',safe='')+'/'+quote(path,safe='/') if args['section']=='file' else '#readme'
+    if ref and args['section']=='readme':
+        name=data.get('path','README.md')
+        if not isinstance(name,str):raise ToolError('tool_format_denied')
+        source_path='/blob/'+quote(ref,safe='')+'/'+quote(name,safe='/')
+    return {'url':'https://github.com/'+repo+source_path,'title':repo+' · '+args['section']+(' · '+path if path else '')+(' · '+ref if ref else ''),'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(text)>MAX_TEXT,'sha':data.get('sha') if isinstance(data,dict) else None,'ref':ref}

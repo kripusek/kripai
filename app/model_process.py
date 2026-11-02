@@ -6,6 +6,10 @@ from . import config
 from .db import connect
 from .processes import ModelJob
 
+# Cache KV q8 oszczędza VRAM na karcie 8 GB; kontekst i wagi modelu bez zmian.
+TEXT_OPTIONS=['--jinja','--chat-template-kwargs','{"enable_thinking":false}',
+    '--flash-attn','on','--cache-type-k','q8_0','--cache-type-v','q8_0']
+
 class ModelProcess:
     def __init__(self,command=None,launch=subprocess.Popen,health=None,clock=time.monotonic):
         self.custom_command=command
@@ -13,8 +17,7 @@ class ModelProcess:
         self.command=command or [str(config.ROOT/'runtime/llama/llama-server.exe'),
             '--model',str(config.DATA/'models/model.gguf'),'--host','127.0.0.1','--port','8766',
             '--ctx-size',str(config.CONTEXT),'--n-gpu-layers','99','--parallel','1',
-            '--api-key-file',str(config.DATA/'llm.key'),'--log-disable',
-            '--jinja','--chat-template-kwargs','{"enable_thinking":false}']
+            '--api-key-file',str(config.DATA/'llm.key'),'--log-disable']+TEXT_OPTIONS
         self.launch=launch;self.health=health or self.probe;self.clock=clock
         self.process=None;self.started=0;self.state='offline';self.retry_at=0
         self.job=ModelJob()
@@ -24,7 +27,7 @@ class ModelProcess:
             '--model',str(config.DATA/'models'/('model.gguf' if profile=='text' else 'vision-model.gguf')),
             '--host','127.0.0.1','--port','8766','--ctx-size',str(config.CONTEXT),
             '--n-gpu-layers','99','--parallel','1','--api-key-file',str(config.DATA/'llm.key'),'--log-disable']
-        if profile=='text':command+=['--jinja','--chat-template-kwargs','{"enable_thinking":false}']
+        if profile=='text':command+=TEXT_OPTIONS
         else:command+=['--mmproj',str(config.DATA/'models/vision-mmproj.gguf'),'--no-mmproj-offload','--image-max-tokens','1024']
         return command
     def probe(self):

@@ -136,3 +136,12 @@ https://docs.python.org/3/library/pathlib.html
 
 ## Trwały start backendu Windows
 https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
+
+## Gałęzie i rewizje GitHuba
+https://docs.github.com/en/rest/repos/contents
+https://docs.github.com/en/rest/branches/branches
+
+## Profil KV dla 8 GB
+Lokalny przypięty runtime llama-server.exe b12000 --help: --flash-attn on,
+--cache-type-k q8_0, --cache-type-v q8_0; pomoc odczytana natywnie w QA.
+https://github.com/ggml-org/llama.cpp/tree/master/examples/server

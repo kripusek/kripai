@@ -1,0 +1,315 @@
+GitHub rewizje + profil tekstowy 8 GB — Windows 03.11.2026
+206 Python: 205 OK, 1 symlink pominięty. Node 53/53.
+Modele w regresji kontrolowane, procesy/SQLite rzeczywiste.
+Osobno publiczny GitHub i rzeczywisty CUDA/Qwen3-8B z KV q8_0.
+NIE URUCHOMIONO: nowe prywatne konto, mikrofon PL/EN, reinstall/uninstall.
+Pierwsze dwie próby rzeczywistego planera: ReadTimeout po 30 s; niezaliczone.
+Windows przed zmianą: dedicated 5484175360 B, shared 178257920 B procesu.
+To obserwacja pamięci współdzielonej, nie samodzielny dowód paging/thrashing.
+
+reports/tests-latest.txt
+Python 3.13.17 / win32 / SQLite 3.50.4
+test_corrupt_existing_vendor_is_preserved_and_rejected_without_network (test_bootstrap.BootstrapTests.test_corrupt_existing_vendor_is_preserved_and_rejected_without_network) ... ok
+test_failed_or_corrupt_transfer_can_retry_without_installing_partial_wheel (test_bootstrap.BootstrapTests.test_failed_or_corrupt_transfer_can_retry_without_installing_partial_wheel) ... fake-1.0-py3-none-any.whl: 0 MiB
+fake-1.0-py3-none-any.whl: 0 MiB
+ok
+test_hash_mismatch_metadata_and_untrusted_host_never_install (test_bootstrap.BootstrapTests.test_hash_mismatch_metadata_and_untrusted_host_never_install) ... ok
+test_invalid_lock_filename_rejected_before_network (test_bootstrap.BootstrapTests.test_invalid_lock_filename_rejected_before_network) ... ok
+test_source_install_downloads_exact_wheel_and_next_start_is_offline (test_bootstrap.BootstrapTests.test_source_install_downloads_exact_wheel_and_next_start_is_offline) ... fake-1.0-py3-none-any.whl: 0 MiB
+ok
+test_cancel_first_token_and_deleted_image_no_text_fallback (test_chat_images.ChatImageTests.test_cancel_first_token_and_deleted_image_no_text_fallback) ... ok
+test_image_message_idempotency_history_and_backup (test_chat_images.ChatImageTests.test_image_message_idempotency_history_and_backup) ... ok
+test_missing_model_other_owner_pdf_no_partial_message (test_chat_images.ChatImageTests.test_missing_model_other_owner_pdf_no_partial_message) ... ok
+test_stream_before_completion_then_history (test_chat_images.ChatImageTests.test_stream_before_completion_then_history) ... ok
+test_v2_upgrade_backup_failure_then_success_preserves_images (test_chat_images.ChatImageTests.test_v2_upgrade_backup_failure_then_success_preserves_images) ... ok
+test_broken_stream_not_falsely_completed (test_cutoff.CutoffTests.test_broken_stream_not_falsely_completed) ... ok
+test_context_reserves_full_output_budget (test_cutoff.CutoffTests.test_context_reserves_full_output_budget) ... ok
+test_limit_preserves_answer_and_reports_limit_in_run_and_sse (test_cutoff.CutoffTests.test_limit_preserves_answer_and_reports_limit_in_run_and_sse) ... ok
+test_normal_stop_not_reported_as_cutoff (test_cutoff.CutoffTests.test_normal_stop_not_reported_as_cutoff) ... ok
+test_partial_text_survives_broken_stream (test_cutoff.CutoffTests.test_partial_text_survives_broken_stream) ... ok
+test_vision_distinguishes_length_from_stop (test_cutoff.CutoffTests.test_vision_distinguishes_length_from_stop) ... ok
+test_broken_continuation_retains_prior_text (test_generation.GenerationTests.test_broken_continuation_retains_prior_text) ... ok
+test_context_tail_shrinks_and_output_budget_is_dynamic (test_generation.GenerationTests.test_context_tail_shrinks_and_output_budget_is_dynamic) ... ok
+test_incomplete_last_line_is_regenerated_without_broken_word (test_generation.GenerationTests.test_incomplete_last_line_is_regenerated_without_broken_word) ... ok
+test_limit_and_cancel_between_segments (test_generation.GenerationTests.test_limit_and_cancel_between_segments) ... ok
+test_multiple_segments_keep_entire_code_and_original_request (test_generation.GenerationTests.test_multiple_segments_keep_entire_code_and_original_request) ... ok
+test_backup_live_wal_and_merge_does_not_roll_back_published_or_newer_rows (test_github_backups.GithubBackupTests.test_backup_live_wal_and_merge_does_not_roll_back_published_or_newer_rows) ... ok
+test_checksum_disk_failure_does_not_publish_incomplete_main_backup (test_github_backups.GithubBackupTests.test_checksum_disk_failure_does_not_publish_incomplete_main_backup) ... ok
+test_conflicting_draft_rolls_back_merge_and_preserves_main (test_github_backups.GithubBackupTests.test_conflicting_draft_rolls_back_merge_and_preserves_main) ... ok
+test_corrupt_or_incomplete_companion_does_not_replace_main (test_github_backups.GithubBackupTests.test_corrupt_or_incomplete_companion_does_not_replace_main) ... ok
+test_legacy_backup_keeps_current_journal (test_github_backups.GithubBackupTests.test_legacy_backup_keeps_current_journal) ... ok
+test_lost_journal_restores_without_permission_to_replay_writes (test_github_backups.GithubBackupTests.test_lost_journal_restores_without_permission_to_replay_writes) ... ok
+test_published_proof_from_backup_dominates_rolled_back_prepared_state (test_github_backups.GithubBackupTests.test_published_proof_from_backup_dominates_rolled_back_prepared_state) ... ok
+test_retention_removes_only_matching_companions (test_github_backups.GithubBackupTests.test_retention_removes_only_matching_companions) ... ok
+test_schema_and_unsafe_repository_rejected_even_with_matching_checksum (test_github_backups.GithubBackupTests.test_schema_and_unsafe_repository_rejected_even_with_matching_checksum) ... ok
+test_size_limit_is_checked_before_reading_snapshot_into_memory (test_github_backups.GithubBackupTests.test_size_limit_is_checked_before_reading_snapshot_into_memory) ... ok
+test_snapshot_timeout_does_not_leave_a_completed_backup (test_github_backups.GithubBackupTests.test_snapshot_timeout_does_not_leave_a_completed_backup) ... ok
+test_session_csrf_and_owner_bound_publication (test_github_changes.GithubChangesAPITests.test_session_csrf_and_owner_bound_publication) ... ok
+test_draft_is_local_owner_isolated_and_diff_preserves_file_mode (test_github_changes.GithubChangesTests.test_draft_is_local_owner_isolated_and_diff_preserves_file_mode) ... ok
+test_explicit_first_write_denied_preserves_draft_without_automatic_retry (test_github_changes.GithubChangesTests.test_explicit_first_write_denied_preserves_draft_without_automatic_retry) ... ok
+test_lost_response_keeps_unknown_and_blocks_retry (test_github_changes.GithubChangesTests.test_lost_response_keeps_unknown_and_blocks_retry) ... ok
+test_missing_permission_other_owner_and_changed_base_do_not_write (test_github_changes.GithubChangesTests.test_missing_permission_other_owner_and_changed_base_do_not_write) ... ok
+test_path_repo_unread_file_and_stale_blob_are_denied (test_github_changes.GithubChangesTests.test_path_repo_unread_file_and_stale_blob_are_denied) ... ok
+test_publish_new_branch_pr_idempotent_and_never_updates_main (test_github_changes.GithubChangesTests.test_publish_new_branch_pr_idempotent_and_never_updates_main) ... ok
+test_reconcile_branch_only_missing_mismatch_and_other_owner_never_retries_write (test_github_changes.GithubChangesTests.test_reconcile_branch_only_missing_mismatch_and_other_owner_never_retries_write) ... ok
+test_reconcile_lost_response_finds_exact_pr_using_only_get (test_github_changes.GithubChangesTests.test_reconcile_lost_response_finds_exact_pr_using_only_get) ... ok
+test_reconcile_rejects_unproposed_extra_file (test_github_changes.GithubChangesTests.test_reconcile_rejects_unproposed_extra_file) ... ok
+test_rejection_after_mutation_stays_unknown (test_github_changes.GithubChangesTests.test_rejection_after_mutation_stays_unknown) ... ok
+test_transport_blocks_redirects_and_unimplemented_mutations (test_github_changes.GithubChangesTests.test_transport_blocks_redirects_and_unimplemented_mutations) ... ok
+test_transport_classifies_permissions_and_rate_limit_without_echoing_body (test_github_changes.GithubChangesTests.test_transport_classifies_permissions_and_rate_limit_without_echoing_body) ... ok
+test_connect_auth_csrf_validation_and_no_secret_in_response (test_github_connect.GithubConnectAPITests.test_connect_auth_csrf_validation_and_no_secret_in_response) ... ok
+test_failed_connection_or_backup_preserves_previous_configuration (test_github_connect.GithubConnectTests.test_failed_connection_or_backup_preserves_previous_configuration) ... ok
+test_native_dpapi_connect_and_disconnect_backup (test_github_connect.GithubConnectTests.test_native_dpapi_connect_and_disconnect_backup) ... ok
+test_revoke_before_save_and_invalid_repo_never_changes_disk (test_github_connect.GithubConnectTests.test_revoke_before_save_and_invalid_repo_never_changes_disk) ... ok
+test_bad_refs_and_other_repo_are_denied_before_network (test_github_refs.GithubRefsTests.test_bad_refs_and_other_repo_are_denied_before_network) ... ok
+test_branch_listing_limit_and_bad_remote_data (test_github_refs.GithubRefsTests.test_branch_listing_limit_and_bad_remote_data) ... ok
+test_explicit_ref_file_cannot_authorize_edit_draft (test_github_refs.GithubRefsTests.test_explicit_ref_file_cannot_authorize_edit_draft) ... ok
+test_file_readme_and_tree_reference_is_encoded_and_sources_keep_it (test_github_refs.GithubRefsTests.test_file_readme_and_tree_reference_is_encoded_and_sources_keep_it) ... ok
+test_adapter_dispatch_and_real_public_child (test_integrations.IntegrationTests.test_adapter_dispatch_and_real_public_child) ... ok
+test_configuration_allowlist_and_safe_status (test_integrations.IntegrationTests.test_configuration_allowlist_and_safe_status) ... ok
+test_credentials_never_follow_redirect (test_integrations.IntegrationTests.test_credentials_never_follow_redirect) ... ok
+test_directory_preserves_paths_without_llm_summary_or_source_collision (test_integrations.IntegrationTests.test_directory_preserves_paths_without_llm_summary_or_source_collision) ... ok
+test_real_dpapi_current_user (test_integrations.IntegrationTests.test_real_dpapi_current_user) ... ok
+test_registry_schema_includes_paths (test_integrations.IntegrationTests.test_registry_schema_includes_paths) ... ok
+test_tree_file_and_repository_boundary (test_integrations.IntegrationTests.test_tree_file_and_repository_boundary) ... ok
+test_access_denied_breakaway_falls_back_without_hiding_other_errors (test_launcher.LauncherTests.test_access_denied_breakaway_falls_back_without_hiding_other_errors) ... ok
+test_missing_program_is_not_retried_as_permission_failure (test_launcher.LauncherTests.test_missing_program_is_not_retried_as_permission_failure) ... ok
+test_non_windows_branch_uses_separate_session (test_launcher.LauncherTests.test_non_windows_branch_uses_separate_session) ... ok
+test_real_background_child_finishes_after_launcher_returns (test_launcher.LauncherTests.test_real_background_child_finishes_after_launcher_returns) ... ok
+test_authorized_source_endpoint_and_connection_test (test_mcp.McpAPITests.test_authorized_source_endpoint_and_connection_test) ... ok
+test_mcp_only_chat_real_process_history_and_offline_default (test_mcp.McpAPITests.test_mcp_only_chat_real_process_history_and_offline_default) ... ok
+test_old_idempotency_hash_and_explicit_false_keep_same_run (test_mcp.McpAPITests.test_old_idempotency_hash_and_explicit_false_keep_same_run) ... ok
+test_bad_protocol_wrong_id_oversized_frame_and_disconnect (test_mcp.McpClientTests.test_bad_protocol_wrong_id_oversized_frame_and_disconnect) ... ok
+test_catalog_authorizes_next_read_without_changing_original_scope (test_mcp.McpClientTests.test_catalog_authorizes_next_read_without_changing_original_scope) ... ok
+test_real_nested_job_process_and_large_protocol_result (test_mcp.McpClientTests.test_real_nested_job_process_and_large_protocol_result) ... ok
+test_real_server_handshake_call_and_write_tool_rejected (test_mcp.McpClientTests.test_real_server_handshake_call_and_write_tool_rejected) ... ok
+test_scope_and_schema_deny_before_spawn (test_mcp.McpClientTests.test_scope_and_schema_deny_before_spawn) ... ok
+test_secret_environment_not_forwarded (test_mcp.McpClientTests.test_secret_environment_not_forwarded) ... ok
+test_server_cannot_request_sampling_or_client_secrets (test_mcp.McpClientTests.test_server_cannot_request_sampling_or_client_secrets) ... ok
+test_timeout_and_cancel_kill_real_child (test_mcp.McpClientTests.test_timeout_and_cancel_kill_real_child) ... ok
+test_catalog_read_utf8_and_limits (test_mcp.McpDocumentsTests.test_catalog_read_utf8_and_limits) ... ok
+test_symlink_outside_document_root_denied (test_mcp.McpDocumentsTests.test_symlink_outside_document_root_denied) ... skipped 'Windows account cannot create symlinks'
+test_traversal_credentials_binary_and_unknown_directory_denied (test_mcp.McpDocumentsTests.test_traversal_credentials_binary_and_unknown_directory_denied) ... ok
+test_windows_junction_is_not_followed (test_mcp.McpDocumentsTests.test_windows_junction_is_not_followed) ... ok
+test_upgrade_aborts_before_schema_change_if_backup_fails (test_media.MediaMigrationTests.test_upgrade_aborts_before_schema_change_if_backup_fails) ... ok
+test_upgrade_backup_and_old_restore (test_media.MediaMigrationTests.test_upgrade_backup_and_old_restore) ... ok
+test_auth_csrf_origin_and_other_owner (test_media.MediaTests.test_auth_csrf_origin_and_other_owner) ... ok
+test_backup_restore_delete_and_copy_failure (test_media.MediaTests.test_backup_restore_delete_and_copy_failure) ... ok
+test_blank_pdf_and_oversized_pixel_image (test_media.MediaTests.test_blank_pdf_and_oversized_pixel_image) ... ok
+test_cancel_and_gaming_during_vision (test_media.MediaTests.test_cancel_and_gaming_during_vision) ... ok
+test_decoder_real_process_timeout_no_partial_file (test_media.MediaTests.test_decoder_real_process_timeout_no_partial_file) ... ok
+test_jpeg_rotation_and_pdf_page_text (test_media.MediaTests.test_jpeg_rotation_and_pdf_page_text) ... ok
+test_malformed_empty_oversize_pages_and_cleanup (test_media.MediaTests.test_malformed_empty_oversize_pages_and_cleanup) ... ok
+test_png_sanitized_private_original_download_and_no_auto_send (test_media.MediaTests.test_png_sanitized_private_original_download_and_no_auto_send) ... ok
+test_process_profiles_do_not_overlap_and_gaming_stops (test_media.MediaTests.test_process_profiles_do_not_overlap_and_gaming_stops) ... ok
+test_quota_cancel_gaming_and_missing_model (test_media.MediaTests.test_quota_cancel_gaming_and_missing_model) ... ok
+test_vision_real_http_request_and_failure_returns_text_profile (test_media.MediaTests.test_vision_real_http_request_and_failure_returns_text_profile) ... ok
+test_concurrent_idempotency_is_atomic (test_native.APITests.test_concurrent_idempotency_is_atomic) ... ok
+test_failure_and_gaming_cancel_then_recovery (test_native.APITests.test_failure_and_gaming_cancel_then_recovery) ... ok
+test_host_origin_proxy_and_chunked_body_denied (test_native.APITests.test_host_origin_proxy_and_chunked_body_denied) ... ok
+test_incomplete_run_marked_failed_on_restart (test_native.APITests.test_incomplete_run_marked_failed_on_restart) ... ok
+test_login_csrf_logout_and_cookie_flags (test_native.APITests.test_login_csrf_logout_and_cookie_flags) ... ok
+test_owner_isolation (test_native.APITests.test_owner_isolation) ... ok
+test_pagination_latest_first_and_no_duplicates (test_native.APITests.test_pagination_latest_first_and_no_duplicates) ... ok
+test_real_http_stream_delivers_delta_before_completion (test_native.APITests.test_real_http_stream_delivers_delta_before_completion) ... ok
+test_reset_invalidates_logged_in_session (test_native.APITests.test_reset_invalidates_logged_in_session) ... ok
+test_stream_history_idempotency_and_replay (test_native.APITests.test_stream_history_idempotency_and_replay) ... ok
+test_long_history_trims_whole_turns_and_preserves_input (test_native.ContextTests.test_long_history_trims_whole_turns_and_preserves_input) ... ok
+test_oversized_latest_message_fails_explicitly (test_native.ContextTests.test_oversized_latest_message_fails_explicitly) ... ok
+test_tokenizer_failure_not_silent_character_fallback (test_native.ContextTests.test_tokenizer_failure_not_silent_character_fallback) ... ok
+test_backup_restore_preserves_history_and_revokes_sessions (test_native.DatabaseTests.test_backup_restore_preserves_history_and_revokes_sessions) ... ok
+test_backup_verification_failure_leaves_live_data_and_no_partial_copy (test_native.DatabaseTests.test_backup_verification_failure_leaves_live_data_and_no_partial_copy) ... ok
+test_bad_backup_does_not_replace_live_database (test_native.DatabaseTests.test_bad_backup_does_not_replace_live_database) ... ok
+test_changed_schema_rejected (test_native.DatabaseTests.test_changed_schema_rejected) ... ok
+test_foreign_key_rejects_cross_conversation_run (test_native.DatabaseTests.test_foreign_key_rejects_cross_conversation_run) ... ok
+test_migration_repeat_and_unknown_version (test_native.DatabaseTests.test_migration_repeat_and_unknown_version) ... ok
+test_password_reset_rejects_short_and_revokes_tokens (test_native.DatabaseTests.test_password_reset_rejects_short_and_revokes_tokens) ... ok
+test_single_instance_lock (test_native.DatabaseTests.test_single_instance_lock) ... ok
+test_transaction_rolls_back_on_error (test_native.DatabaseTests.test_transaction_rolls_back_on_error) ... ok
+test_wal_and_foreign_keys (test_native.DatabaseTests.test_wal_and_foreign_keys) ... ok
+test_corrupt_download_never_renamed_to_model (test_operations.DownloadTests.test_corrupt_download_never_renamed_to_model) ... model: 0 MiB
+ok
+test_existing_verified_file_no_network_and_corrupt_rejected (test_operations.DownloadTests.test_existing_verified_file_no_network_and_corrupt_rejected) ... ok
+test_extract_and_traversal_rejection (test_operations.DownloadTests.test_extract_and_traversal_rejection) ... ok
+test_resumed_download_checks_content_range (test_operations.DownloadTests.test_resumed_download_checks_content_range) ... ok
+test_conflict_rolls_back_all_changes (test_operations.ImportTests.test_conflict_rolls_back_all_changes) ... ok
+test_import_and_retry_preserve_history (test_operations.ImportTests.test_import_and_retry_preserve_history) ... ok
+test_invalid_role_not_imported (test_operations.ImportTests.test_invalid_role_not_imported) ... ok
+test_crash_detected_and_backoff_applied (test_operations.ProcessTests.test_crash_detected_and_backoff_applied) ... ok
+test_loading_timeout_kills_child_and_reports_error (test_operations.ProcessTests.test_loading_timeout_kills_child_and_reports_error) ... ok
+test_missing_binary_reports_error_without_success (test_operations.ProcessTests.test_missing_binary_reports_error_without_success) ... ok
+test_real_child_stops_and_restarts_on_toggle (test_operations.ProcessTests.test_real_child_stops_and_restarts_on_toggle) ... ok
+test_text_profile_uses_same_bounded_cache_after_vision_switch (test_operations.ProcessTests.test_text_profile_uses_same_bounded_cache_after_vision_switch) ... ok
+test_unknown_mode_cannot_become_shell_command (test_operations.ProcessTests.test_unknown_mode_cannot_become_shell_command) ... ok
+test_context_budget_drops_sources_without_dropping_question (test_rag.EmbeddingTests.test_context_budget_drops_sources_without_dropping_question) ... ok
+test_invalid_embeddings_and_checksum_rejected (test_rag.EmbeddingTests.test_invalid_embeddings_and_checksum_rejected) ... ok
+test_real_http_prefixes_normalization_and_failures (test_rag.EmbeddingTests.test_real_http_prefixes_normalization_and_failures) ... ok
+test_cpu_command_real_child_cleanup_and_cancel_before_ready (test_rag.EncoderProcessTests.test_cpu_command_real_child_cleanup_and_cancel_before_ready) ... ok
+test_rag_chat (test_rag.RagAPITests.test_rag_chat) ... ok
+test_backup_restore_delete_vectors_and_sources_and_backup_failure (test_rag.RagDataTests.test_backup_restore_delete_vectors_and_sources_and_backup_failure) ... ok
+test_blank_or_truncated_page_not_marked_ready_and_quota_rolls_back (test_rag.RagDataTests.test_blank_or_truncated_page_not_marked_ready_and_quota_rolls_back) ... ok
+test_cancellation_during_embedding_never_commits_page (test_rag.RagDataTests.test_cancellation_during_embedding_never_commits_page) ... ok
+test_checkpoint_failure_resume_no_duplicate_chunks (test_rag.RagDataTests.test_checkpoint_failure_resume_no_duplicate_chunks) ... ok
+test_corrupt_derived_index_not_published_as_backup (test_rag.RagDataTests.test_corrupt_derived_index_not_published_as_backup) ... ok
+test_gaming_and_revoked_session_pause_without_embedding (test_rag.RagDataTests.test_gaming_and_revoked_session_pause_without_embedding) ... ok
+test_migrate_v3_backup_and_rollback_on_failure (test_rag.RagDataTests.test_migrate_v3_backup_and_rollback_on_failure) ... ok
+test_model_mismatch_refused_and_rebuild_purges_old_index (test_rag.RagDataTests.test_model_mismatch_refused_and_rebuild_purges_old_index) ... ok
+test_pdf_index_retrieval_acl_partition_and_extension_disabled (test_rag.RagDataTests.test_pdf_index_retrieval_acl_partition_and_extension_disabled) ... ok
+test_restart_resumes_indexing_checkpoint (test_rag.RagDataTests.test_restart_resumes_indexing_checkpoint) ... ok
+test_code_name_and_lock_changes_invalidate_but_private_data_do_not (test_reuse_running.ReuseRunningTests.test_code_name_and_lock_changes_invalidate_but_private_data_do_not) ... ok
+test_missing_directory_and_oversized_program_fail_closed (test_reuse_running.ReuseRunningTests.test_missing_directory_and_oversized_program_fail_closed) ... ok
+test_missing_invalid_stamp_unlocked_or_dead_service_never_reuse (test_reuse_running.ReuseRunningTests.test_missing_invalid_stamp_unlocked_or_dead_service_never_reuse) ... ok
+test_real_http_probe_rejects_wrong_app_oversize_arrays_and_redirect (test_reuse_running.ReuseRunningTests.test_real_http_probe_rejects_wrong_app_oversize_arrays_and_redirect) ... ok
+test_same_source_and_running_build_required_even_when_both_dirs_edited (test_reuse_running.ReuseRunningTests.test_same_source_and_running_build_required_even_when_both_dirs_edited) ... ok
+test_long_page_summarized_through_local_http_and_original_source_saved (test_tools.LargeReadAPITests.test_long_page_summarized_through_local_http_and_original_source_saved) ... ok
+test_binary_compressed_and_oversize_responses_denied (test_tools.NetworkTests.test_binary_compressed_and_oversize_responses_denied) ... ok
+test_get_without_credentials_and_redirect_to_localhost_denied (test_tools.NetworkTests.test_get_without_credentials_and_redirect_to_localhost_denied) ... ok
+test_html_scripts_removed_and_github_json_decoded (test_tools.NetworkTests.test_html_scripts_removed_and_github_json_decoded) ... ok
+test_pinned_connection_uses_validated_ip_and_tls_hostname (test_tools.NetworkTests.test_pinned_connection_uses_validated_ip_and_tls_hostname) ... ok
+test_policy_only_current_resources_no_history_exfiltration (test_tools.NetworkTests.test_policy_only_current_resources_no_history_exfiltration) ... ok
+test_private_hosts_ips_mixed_dns_and_unsafe_schemes_denied (test_tools.NetworkTests.test_private_hosts_ips_mixed_dns_and_unsafe_schemes_denied) ... ok
+test_redirect_loop_has_bound (test_tools.NetworkTests.test_redirect_loop_has_bound) ... ok
+test_context_includes_tool_schema_and_bounds_external_results (test_tools.PlannerTests.test_context_includes_tool_schema_and_bounds_external_results) ... ok
+test_long_plain_answer_in_planner_does_not_block_final_generation (test_tools.PlannerTests.test_long_plain_answer_in_planner_does_not_block_final_generation) ... ok
+test_offline_no_model_request_and_limit_checked_before_reads (test_tools.PlannerTests.test_offline_no_model_request_and_limit_checked_before_reads) ... ok
+test_truncated_tool_arguments_never_execute (test_tools.PlannerTests.test_truncated_tool_arguments_never_execute) ... ok
+test_typed_calls_and_results_are_data_not_further_instructions (test_tools.PlannerTests.test_typed_calls_and_results_are_data_not_further_instructions) ... ok
+test_cancel_kills_real_child_and_unknown_tools_never_spawn (test_tools.ToolProcessTests.test_cancel_kills_real_child_and_unknown_tools_never_spawn) ... ok
+test_child_denies_private_target_and_cleans_files (test_tools.ToolProcessTests.test_child_denies_private_target_and_cleans_files) ... ok
+test_migration_v4_backup_guard_then_upgrade (test_tools.ToolProcessTests.test_migration_v4_backup_guard_then_upgrade) ... ok
+test_sources_preserved_by_backup_restore (test_tools.ToolProcessTests.test_sources_preserved_by_backup_restore) ... ok
+test_model_selects_tool_sources_saved_and_offline_stays_offline (test_tools.ToolsAPITests.test_model_selects_tool_sources_saved_and_offline_stays_offline) ... ok
+test_planner_text_limit_still_produces_normal_answer_with_tools_enabled (test_tools.ToolsAPITests.test_planner_text_limit_still_produces_normal_answer_with_tools_enabled) ... ok
+test_busy_and_other_session_cannot_cancel_job (test_voice.VoiceTests.test_busy_and_other_session_cannot_cancel_job) ... ok
+test_cancel_before_start_prevents_execution_and_retry (test_voice.VoiceTests.test_cancel_before_start_prevents_execution_and_retry) ... ok
+test_cancel_kills_real_child_cleans_files_and_recovers (test_voice.VoiceTests.test_cancel_kills_real_child_cleans_files_and_recovers) ... ok
+test_download_installs_pinned_layout_and_rejects_missing_executable (test_voice.VoiceTests.test_download_installs_pinned_layout_and_rejects_missing_executable) ... Przygotowuję lokalny głos: Whisper small, około 488 MB, CPU.
+ok
+test_gaming_logout_and_shutdown_interrupt_real_process (test_voice.VoiceTests.test_gaming_logout_and_shutdown_interrupt_real_process) ... ok
+test_missing_engine_and_bad_output_do_not_look_like_success (test_voice.VoiceTests.test_missing_engine_and_bad_output_do_not_look_like_success) ... ok
+test_missing_voice_and_invalid_language_and_text (test_voice.VoiceTests.test_missing_voice_and_invalid_language_and_text) ... ok
+test_pcm_accepts_boundary_and_rejects_truncation_format_and_duration (test_voice.VoiceTests.test_pcm_accepts_boundary_and_rejects_truncation_format_and_duration) ... ok
+test_restart_removes_orphaned_audio_without_touching_database (test_voice.VoiceTests.test_restart_removes_orphaned_audio_without_touching_database) ... ok
+test_small_model_selected_without_silent_base_fallback (test_voice.VoiceTests.test_small_model_selected_without_silent_base_fallback) ... ok
+test_speech_wav_and_plain_text_not_shell (test_voice.VoiceTests.test_speech_wav_and_plain_text_not_shell) ... ok
+test_timeout_and_engine_failure_are_explicit (test_voice.VoiceTests.test_timeout_and_engine_failure_are_explicit) ... ok
+test_transcript_real_process_unicode_cleanup_and_no_auto_send (test_voice.VoiceTests.test_transcript_real_process_unicode_cleanup_and_no_auto_send) ... ok
+test_upload_auth_csrf_origin_size_and_content_type (test_voice.VoiceTests.test_upload_auth_csrf_origin_size_and_content_type) ... ok
+test_decompression_bomb_has_decoded_limit (test_web_search.LargePageTests.test_decompression_bomb_has_decoded_limit) ... ok
+test_gzip_deflate_and_soft_limit_return_useful_prefix (test_web_search.LargePageTests.test_gzip_deflate_and_soft_limit_return_useful_prefix) ... ok
+test_main_wins_over_huge_visible_navigation_charset_and_unavailable (test_web_search.LargePageTests.test_main_wins_over_huge_visible_navigation_charset_and_unavailable) ... ok
+test_page_over_old_512k_limit_retains_main_content (test_web_search.LargePageTests.test_page_over_old_512k_limit_retains_main_content) ... ok
+test_self_closing_hidden_tag_does_not_swallow_article (test_web_search.LargePageTests.test_self_closing_hidden_tag_does_not_swallow_article) ... ok
+test_current_request_site_cannot_be_relaxed_by_model_query (test_web_search.SearchTests.test_current_request_site_cannot_be_relaxed_by_model_query) ... ok
+test_explicit_url_read_when_model_omits_call_and_no_repeat_fetch (test_web_search.SearchTests.test_explicit_url_read_when_model_omits_call_and_no_repeat_fetch) ... ok
+test_generic_search_does_not_contact_official_python_index (test_web_search.SearchTests.test_generic_search_does_not_contact_official_python_index) ... ok
+test_invalid_site_filter_fails_before_network_and_idna_matches (test_web_search.SearchTests.test_invalid_site_filter_fails_before_network_and_idna_matches) ... ok
+test_official_index_failure_falls_back_with_explicit_warning (test_web_search.SearchTests.test_official_index_failure_falls_back_with_explicit_warning) ... ok
+test_official_index_version_exact_names_and_untrusted_links (test_web_search.SearchTests.test_official_index_version_exact_names_and_untrusted_links) ... ok
+test_official_module_index_precedes_rss_and_does_not_guess_links (test_web_search.SearchTests.test_official_module_index_precedes_rss_and_does_not_guess_links) ... ok
+test_python_index_respects_positive_and_negative_site (test_web_search.SearchTests.test_python_index_respects_positive_and_negative_site) ... ok
+test_read_carries_search_scope_and_explicit_url_keeps_independent_permission (test_web_search.SearchTests.test_read_carries_search_scope_and_explicit_url_keeps_independent_permission) ... ok
+test_real_rss_shape_parsed_without_executing_html_or_entities (test_web_search.SearchTests.test_real_rss_shape_parsed_without_executing_html_or_entities) ... ok
+test_remote_result_cannot_trigger_new_search_query (test_web_search.SearchTests.test_remote_result_cannot_trigger_new_search_query) ... ok
+test_search_then_read_only_actual_result_urls (test_web_search.SearchTests.test_search_then_read_only_actual_result_urls) ... ok
+test_site_filters_dns_boundary_subdomains_and_exclusions (test_web_search.SearchTests.test_site_filters_dns_boundary_subdomains_and_exclusions) ... ok
+test_site_redirect_checked_before_dns_and_allowed_subdomain_read (test_web_search.SearchTests.test_site_redirect_checked_before_dns_and_allowed_subdomain_read) ... ok
+test_budget_or_summary_failure_keeps_excerpt_instead_of_refusing_page (test_web_search.SummaryTests.test_budget_or_summary_failure_keeps_excerpt_instead_of_refusing_page) ... ok
+test_whole_document_processed_in_bounded_chunks_and_original_excerpt_preserved (test_web_search.SummaryTests.test_whole_document_processed_in_bounded_chunks_and_original_excerpt_preserved) ... ok
+test_decoder_job_enforces_memory_limit (test_windows.WindowsTests.test_decoder_job_enforces_memory_limit) ... ok
+test_job_close_really_kills_child (test_windows.WindowsTests.test_job_close_really_kills_child) ... ok
+test_powershell_scripts_parse (test_windows.WindowsTests.test_powershell_scripts_parse) ... ok
+test_system_speech_generates_local_wav_when_voice_installed (test_windows.WindowsTests.test_system_speech_generates_local_wav_when_voice_installed) ... ok
+
+----------------------------------------------------------------------
+Ran 206 tests in 74.724s
+
+OK (skipped=1)
+Modele HTTP/STT/TTS/VLM/E5: atrapy w testach przenosnych; dekodery PNG/JPEG/PDF: prawdziwe; baza: prawdziwy SQLite z przypietym sqlite-vec; procesy: prawdziwe procesy potomne.
+NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, instalacja/odinstalowanie Windows, mikrofon i wizualny test przegladarki. Test System.Speech jest pomijany poza Windows lub przy braku glosow.
+
+reports/refs-profile-js.txt
+✔ tests\dom.cjs (99.9445ms)
+✔ MCP jest jawną flagą wiadomości, bez konieczności włączania internetu (16.3549ms)
+✔ kontynuacja zastępuje niepełną linię i ignoruje powtórzony snapshot SSE (121.8812ms)
+✔ Ctrl+V lokalnie, następnie jedno zdjęcie i pytanie w wiadomości oraz Markdown w streamie (107.2412ms)
+✔ samo zdjęcie ma pytanie domyślne, logout usuwa historię i ignoruje późny stream (106.6895ms)
+✔ anulowany upload nie wysyła wiadomości po spóźnionej odpowiedzi (2.3628ms)
+✔ anulowanie zaakceptowanej wiadomości zatrzymuje run po otrzymaniu ID (3.2846ms)
+✔ błąd uploadu zachowuje miniaturę do ponowienia (2.2899ms)
+✔ zły format, zbyt duży plik i wiele zdjęć nie zastępują istniejącego (1.4314ms)
+✔ przeciąganie i usunięcie miniatury; ponowny upload używa tego samego ID (1.7549ms)
+✔ Kontynuuj przenosi końcówkę do edycji, bez automatycznego wysyłania (2.2993ms)
+✔ zakończenie przez limit wyświetla ostrzeżenie o niepełnej odpowiedzi (2.5107ms)
+✔ wybrane dokumenty trafiają do wiadomości; zdjęcie i dokumenty nie są wysyłane razem (4.6362ms)
+✔ jawne uprawnienia narzędzi trafiają do żądania, a logout je czyści (2.2905ms)
+✔ plus otwiera menu, Escape i klik poza zamykają; uprawnienia pozostają jawne (3.9ms)
+✔ Markdown: nagłówki, pogrubienie, lista, cytat i tabela (61.8683ms)
+✔ kod HTML jest tekstem, kopiowanie zachowuje zawartość (2.2557ms)
+✔ częściowy blok w streamie nie dubluje się po domknięciu (1.9008ms)
+✔ XSS, zdalne obrazy i aktywne URL zablokowane (1.6849ms)
+✔ wzory ze zrzutu i ułamki renderują MathML (2.825ms)
+✔ TeX wewnątrz kodu i nieznane polecenia nie są wykonywane (3.3418ms)
+✔ odmowa schowka pokazuje ręczne kopiowanie (2.0997ms)
+✔ kolory słów, napisów i komentarzy nie zmieniają źródła JS/Python/CSS/JSON/SQL/shell/PS/HTML (11.3799ms)
+✔ napisy i komentarze pozostają pojedynczym tokenem; stream odzyskuje kolorowanie (2.1981ms)
+✔ nieznany język, duży blok i nadmiar tokenów mają bezpieczny zwykły tekst (12.1659ms)
+✔ awaria lub brak kolorowania pozostawia kod i działający schowek (3.9863ms)
+✔ propozycja jest tekstowym diffem; publikacja następuje tylko po kliknięciu (4.3568ms)
+✔ token kreatora tylko w lokalnym POST, czyszczony po błędzie i zamknięciu (2.4504ms)
+✔ niepewna publikacja daje tylko sprawdzenie wyniku zamiast ponowienia zapisu (2.5379ms)
+✔ połączone konto z samym odczytem wyjaśnia ograniczenie publikacji PR (2.369ms)
+✔ lista po zakończeniu operacji pozwala wybrać plik; wstawianie nie wysyła wiadomości (9.0663ms)
+✔ za duży upload nie jest wysyłany; Gaming blokuje przetwarzanie (2.7879ms)
+✔ wylogowanie usuwa prywatny podgląd i ignoruje spóźnioną odpowiedź (6.3656ms)
+✔ anulowanie analizy nie wstawia późnego wyniku (1.9002ms)
+✔ błąd API odblokowuje panel i pokazuje opis (1.4792ms)
+✔ wybór dokumentu jest jawny; otwarcie nie wysyła wiadomości ani nie indeksuje (8.0103ms)
+✔ wylogowanie usuwa wybór i ignoruje opóźnioną listę (2.2385ms)
+✔ kolejka ma POST z CSRF; gotowy indeks nie jest wybierany automatycznie (3.3628ms)
+✔ źródła i złośliwe nazwy/wycinki są tekstem, link prowadzi do lokalnego pliku (1.5185ms)
+✔ błąd pobierania indeksu pokazuje opis i umożliwia ponowienie (2.028ms)
+✔ błędny site i przekierowanie poza filtr mają czytelne opisy (3.5818ms)
+✔ MCP domyślnie wyłączone, czyszczone przy wylogowaniu i bezpieczny link lokalnego źródła (2.0329ms)
+✔ internet i GitHub domyślnie wyłączone, przełączniki niezależne i czyszczone (1.4785ms)
+✔ źródła sieci są tekstem; tylko HTTPS i bez aktywnego HTML (1.5011ms)
+✔ błędy odczytu mają czytelne opisy (1.6694ms)
+✔ PCM ma właściwy nagłówek, długość, clipping i brak NaN (12.9128ms)
+✔ anulowanie podczas zgody na mikrofon zamyka spóźniony strumień (1.6659ms)
+✔ odmowa dostępu do mikrofonu daje czytelny błąd i pozwala spróbować ponownie (1.0304ms)
+✔ błąd uruchomienia AudioContext nie pozostawia otwartego mikrofonu (0.863ms)
+✔ anulowanie opóźnionego TTS wysyła cancel i nie odtwarza wyniku (1.2061ms)
+✔ odczyt całego długiego tekstu jest porcjowany, bez cichego ucięcia (1.3848ms)
+✔ Gaming blokuje nagrywanie i odczyt (0.7398ms)
+✔ worklet kończy nagrywanie dokładnie po limicie i nie kopiuje dalszych próbek (11.9199ms)
+ℹ tests 53
+ℹ suites 0
+ℹ pass 53
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 514.8632
+
+reports/github-refs-live.txt
+{"section": "branches", "url": "https://github.com/kripusek/kripai/branches", "characters": 47, "truncated": false, "ref": null}
+{"section": "file", "url": "https://github.com/kripusek/kripai/blob/60c504b8ec677fbc255e6070b717291dda42026f/README.md", "characters": 13801, "truncated": false, "ref": "60c504b8ec677fbc255e6070b717291dda42026f"}
+{"section": "tree", "url": "https://github.com/kripusek/kripai/tree/60c504b8ec677fbc255e6070b717291dda42026f/app", "characters": 511, "truncated": false, "ref": "60c504b8ec677fbc255e6070b717291dda42026f"}
+
+reports/q8-profile-native.txt
+{"profile": "text-q8-kv-flash", "ready": true, "startup_seconds": 5.248, "vram": "7285 MiB, 8192 MiB"}
+
+reports/q8-process-memory.json
+{"DedicatedUsage": 5270130688, "SharedUsage": 111149056, "TotalCommitted": 5381279744}
+
+reports/real-github-refs-q8.txt
+Real CUDA GitHub reference read started
+{"status": "completed", "error": null, "characters": 452, "sources": [{"name": "github_read", "url": "https://github.com/kripusek/kripai/blob/60c504b8ec677fbc255e6070b717291dda42026f/README.md"}], "vram": "7322 MiB, 8192 MiB"}
+
+Dodatkowo prawdziwy Qwen3-8B z q8 KV: poprawne 391 na 17×23; generacja
+przerwana po rzeczywistej delcie, run=cancelled, model pozostał gotowy.
+Kontroler trybu i konto w tych próbach były odizolowanymi fixture, inference
+i CUDA rzeczywiste. Nie zatrzymywano modelu właściciela przez Gaming.
+
+real_start_math.py {"status": "completed", "error": null, "characters": 3, "sources": [], "vram": "7306 MiB, 8192 MiB"}
+cancel_real_model.py {"received_real_delta": true, "cancel_http": 202, "status": "cancelled", "model_still_ready": true}
