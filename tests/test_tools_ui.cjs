@@ -12,4 +12,4 @@ test('źródła sieci są tekstem; tylko HTTPS i bez aktywnego HTML',()=>{
  const nodes=walk(box);assert(!nodes.some(n=>['img','script'].includes(n.tagName)));const links=nodes.filter(n=>n.tagName==='a');assert.equal(links.length,1);assert.equal(links[0].rel,'noopener noreferrer');
  h.api.renderSources(target,[]);assert.equal(walk(box).filter(n=>n.tagName==='details').length,0);
 });
-test('błędy odczytu mają czytelne opisy',()=>{const h=harness();assert.match(h.api.activity({name:'web_read',state:'tool_resource_not_authorized'}),/bieżącej wiadomości/);assert.match(h.api.activity({name:'web_read',state:'tool_dns_failed'}),/serwera/);});
+test('błędy odczytu mają czytelne opisy',()=>{const h=harness();assert.match(h.api.activity({name:'web_read',state:'tool_resource_not_authorized'}),/bieżącej wiadomości/);assert.match(h.api.activity({name:'web_read',state:'tool_dns_failed'}),/serwera/);assert.match(h.api.activity({name:'web_search',state:'reading'}),/Szukam/);assert.match(h.api.activity({name:'web_read',state:'summarizing'}),/Streszczam/);});

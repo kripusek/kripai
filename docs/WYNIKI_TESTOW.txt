@@ -294,3 +294,10 @@ Windows/CUDA/VRAM i wizualny UI pozostają NIE URUCHOMIONE.
 111 Python: 107 OK, 4 Windows pominięte; 43 JS OK = 150 zaliczonych.
 Sieć/model planera kontrolowane w regresji; rzeczywista próba GitHub: tool_dns_failed.
 Brak natywnego Windows i prawdziwego Qwen3-8B z tools. Pełny raport INTERNET_TESTY.txt.
+
+
+=== DUŻE STRONY I WYSZUKIWANIE 4b — 02.11.2026 ===
+123 Python: 119 OK, 4 pominięte Windows; 43 JS OK = 162 zaliczonych.
+Rzeczywisty HTML >1 MiB i Bing RSS przetworzone przez urllib QA, nie natywny transport.
+Strona ze zgłoszenia: Site Unavailable, odczyt właściwej treści niezaliczony.
+Szczegóły i logi: docs/WEB_SEARCH_TESTY.txt. Model notatek kontrolowany w regresji.

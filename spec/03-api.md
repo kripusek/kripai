@@ -54,3 +54,7 @@ Etap 4a: MessageCreate.allow_web/allow_github (false) zapisane w run z sesją.
 Bez nowego endpointu wykonującego dowolne polecenia. SSE tool.activity i
  tool.sources; messages.tool_sources zawiera wycinki/URL. Obrazy i narzędzia
 wysyłane osobno. Backup obejmuje tool_sources; migracja 5 z kopią.
+
+4b rozszerza allow_web o web_search (Bing RSS) i odczyt otrzymanych wyników.
+Do 2 rund/4 wywołań; lokalne notatki dla długiego tekstu. Brak nowego endpointu
+ani migracji; format zapisanego oryginalnego wycinka źródła nadal max 1200 znaków.

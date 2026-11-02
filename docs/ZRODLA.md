@@ -91,3 +91,14 @@ Włączono --jinja w tekstowym profilu; model i VRAM bez zmiany profilu.
 Publiczne GitHub API, bez tokenów. Własny adapter HTTPS przypina sprawdzone IP
 z TLS SNI i walidacją nazwy; testy kontrolowane. Rzeczywisty DNS hosta QA
 odmówił odczytu api.github.com; nie jest to potwierdzenie sieci na Windows.
+
+## Duże strony / wyszukiwanie — 02.11.2026
+https://docs.python.org/3/library/zlib.html
+https://docs.python.org/3/library/html.parser.html
+https://docs.python.org/3/library/xml.etree.elementtree.html
+https://www.bing.com/search?format=rss&q=Python+documentation
+Sprawdzono rzeczywisty kanał RSS (5 wyników) i większy HTML przez urllib QA.
+Publiczny RSS Bing służy osobistemu agregowaniu; obowiązują warunki operatora,
+nie traktować go jako gwarantowanego API dla dowolnego wdrożenia.
+Witryna https://our-website-is-broken.org zwracała Site Unavailable w tej próbie.
+Nie uznano tej odpowiedzi za odczyt jej właściwej treści.

@@ -1,7 +1,7 @@
 'use strict';
 window.KripTools=(()=>{
  const $=id=>document.getElementById(id);
- const labels={web_read:'Czytam stronę WWW',github_read:'Czytam publiczne repozytorium',github_find:'Szukam repozytoriów GitHub'};
+ const labels={web_read:'Czytam stronę WWW',web_search:'Szukam w internecie',github_read:'Czytam publiczne repozytorium',github_find:'Szukam repozytoriów GitHub'};
  function permissions(){return {allow_web:!!$('allowWeb').checked,allow_github:!!$('allowGithub').checked};}
  function clear(){$('allowWeb').checked=false;$('allowGithub').checked=false;}
  function renderSources(target,items){
@@ -14,6 +14,6 @@ window.KripTools=(()=>{
    list.append(row);
   }
  }
- function activity(data){const errors={tool_resource_not_authorized:'Podaj adres HTTPS lub owner/repo w bieżącej wiadomości.',tool_address_denied:'Ten adres sieciowy jest zablokowany.',tool_timeout:'Przekroczono czas odczytu.',tool_dns_failed:'Nie udało się odnaleźć serwera.',tool_remote_denied:'Serwis odmówił odczytu lub ograniczył liczbę zapytań.',tool_response_too_large:'Źródło jest za duże dla tego odczytu.'};return labels[data.name]?(data.state==='reading'?labels[data.name]+'…':data.state==='completed'?'Odczyt zakończony.':errors[data.state]||'Nie udało się odczytać źródła.'):'Narzędzie niedostępne.';}
+ function activity(data){const errors={tool_resource_not_authorized:'Podaj adres HTTPS lub owner/repo w bieżącej wiadomości.',tool_address_denied:'Ten adres sieciowy jest zablokowany.',tool_timeout:'Przekroczono czas odczytu.',tool_dns_failed:'Nie udało się odnaleźć serwera.',tool_remote_denied:'Serwis odmówił odczytu lub ograniczył liczbę zapytań.',tool_response_too_large:'Odpowiedź API jest za duża.',tool_search_unavailable:'Wyszukiwarka jest chwilowo niedostępna.',tool_page_unreadable:'Nie znaleziono tekstu strony; może wymagać JavaScript lub logowania.'};return labels[data.name]?(data.state==='reading'?labels[data.name]+'…':data.state==='summarizing'?'Streszczam fragmenty długiej strony…':data.state==='completed'?'Odczyt zakończony.':errors[data.state]||'Nie udało się odczytać źródła.'):'Narzędzie niedostępne.';}
  return {permissions,clear,renderSources,activity};
 })();

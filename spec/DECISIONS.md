@@ -81,3 +81,10 @@ starych sesji, sekretów, kolejek ani zdarzeń; nie usuwa starej bazy.
     Planer bez prywatnej historii/PDF, brak nowych modeli/płatnego API.
     Wyszukiwarka WWW, kolejne konektory/MCP, prywatne konta i zapis to 4b–4d.
     Lokalny KripAI nie dziedziczy wtyczek ani tokenów ChatGPT. Szczegóły etap-4.
+
+24. Po zgłoszeniu większych stron 02.11.2026: web_read czyta ograniczony strumień
+    zamiast odrzucać duży Content-Length; gzip/deflate, wyciąg głównej treści,
+    lokalne notatki w istniejącym modelu, zakres częściowy jawny. Pierwszy 4b:
+    Bing RSS bez klucza, do 5 wyników, następnie ich kontrolowany odczyt.
+    Do 2 rund/4 wywołań/1 wyszukiwania i 8 fragmentów notatek. Bez nowego modelu,
+    migracji, płatnego API ani obchodzenia blokad. Szczegóły etap-4.

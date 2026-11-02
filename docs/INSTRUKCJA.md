@@ -229,3 +229,12 @@ Sprawdź offline/Cancel/Gaming/wylogowanie, odmowę localhost i błędnego serwe
 Prywatne repo, zapis i ogólne wyszukiwanie WWW jeszcze niedostępne.
 Jeżeli brak źródła, panel nie potwierdza, że odpowiedź ma aktualne dane z internetu.
 Natywny odbiór modelu z narzędziami, sieci i UI nie został wykonany w QA.
+
+## Większe strony i wyszukiwanie 4b
+Po git pull --ff-only uruchom START.cmd i Ctrl+F5. Włącz „Internet: szukaj i czytaj”.
+Możesz wpisać pytanie bez URL; Bing RSS dostarczy wyniki, a model może je odczytać.
+Dłuższa strona przechodzi przez ekstrakcję i lokalne notatki; to może potrwać
+więcej niż pojedyncza odpowiedź. Panel pokazuje stan streszczania.
+Przy limicie używany jest częściowy tekst, nie odrzucana całość. Sprawdź źródła.
+Nie obiecuje to stron z logowaniem/CAPTCHA/JS ani dostępności każdego serwisu.
+Wyszukiwarka to publiczny kanał RSS z limitami operatora, nie usługa z gwarancją SLA.

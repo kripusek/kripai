@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.5.0
+  version: 1.6.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -995,7 +995,7 @@ components:
         allow_web:
           type: boolean
           default: false
-          description: Zezwól na odczyt publicznych HTTPS URL wskazanych w bieżącej wiadomości
+          description: Zezwól na wyszukiwanie Bing RSS z bieżącej prośby i odczyt publicznych HTTPS URL prośby lub wyników
         allow_github:
           type: boolean
           default: false

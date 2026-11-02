@@ -230,3 +230,14 @@ Próba realnego publicznego GitHuba: tool_dns_failed w środowisku QA — NIE za
 Prawdziwy Qwen3-8B z narzędziami/Windows/Job Object/wizualny UI do sprawdzenia.
 Start Windows: git pull --ff-only, START.cmd, Ctrl+F5; bez nowych modeli/wheels.
 Prywatny GitHub, zapis i pełna wyszukiwarka WWW nadal są planem.
+
+## 02.11.2026 — większe strony i pierwszy moduł wyszukiwania 4b
+Usunięto odrzucanie całego HTML po 512 KiB. Strumień/gzip/deflate, główna treść,
+wyciąg 160000 znaków, lokalne notatki fragmentami, zachowany oryginał wycinka.
+Dodano web_search Bing RSS i drugą rundę odczytu wyników, cache i budżety.
+Testy: 123 Python (119 OK, 4 Windows pominięte), 43 JS OK = 162 zaliczonych.
+Prawdziwa strona Wikipedii >1 MiB i 5 wyników RSS przetworzone przez urllib QA;
+przypięty transport/natywny Qwen3-8B/nowy obieg Windows i UI nieodebrane.
+Witryna zgłoszona przez właściciela zwróciła Site Unavailable, nie zaliczona.
+Start: git pull --ff-only, START.cmd, Ctrl+F5. Nie ma nowego modelu ani migracji.
+Plan i granice: etap-4/INTERNET_WTYCZKI.md, raport WEB_SEARCH_TESTY.txt.

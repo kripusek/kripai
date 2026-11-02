@@ -5,7 +5,7 @@ Aktualizacja: 02.11.2026. Ten plik opisuje bieżącą paczkę; STATUS.md zachowu
 Etapy 1, 2 i 2.5a mają implementacje. Odbiór natywnego Windows nieukończony.
 Etap 2.5b ma pierwszy działający zakres: tekstowy PDF → indeks E5/sqlite-vec
 → wybór dokumentów → pytanie w czacie → źródła ze stroną i wycinkiem.
-Dokumenty skanowane i inne formaty nie są jeszcze indeksowane. Rozpoczęty moduł 4a: jawny odczyt WWW/publicznego GitHuba. Etapy 2.5c, 3, 4b–4d i 5–6 planem.
+Dokumenty skanowane i inne formaty nie są jeszcze indeksowane. Rozpoczęty moduł 4a: jawny odczyt WWW/publicznego GitHuba. Rozpoczęto też 4b: wyszukiwanie WWW i większe strony. Etapy 2.5c, 3, 4c–4d i 5–6 planem.
 
 ## Źródła i stan GitHub
 Repo https://github.com/kripusek/kripai, main. Pierwsza publikacja źródeł:
@@ -27,7 +27,7 @@ aktualizacją gałęzi sprawdzać head, zachowywać nowszą pracę, bez force pu
 Szczegóły i granice: README.md, spec/, docs/AUDYT_2026-11-02.md.
 
 ## Potwierdzone wyniki
-Po dodaniu 4a: 111 Python (107 OK, 4 pominięte Windows) i 43 JS OK; 150 zaliczonych.
+Po poprawce dużych stron i 4b: 123 Python (119 OK, 4 pominięte Windows) i 43 JS OK; 162 zaliczonych.
 Linux QA: Python 3.12.14, SQLite 3.53.1, sqlite-vec 0.1.6, FastAPI 0.115.12,
 Pydantic 2.14.1, Pillow 12.3.0, pypdfium2 5.14.0. To nie jest runtime Windows.
 W regresji: prawdziwe SQLite/vec0/PDF/procesy/HTTP, kontrolowane embeddingi/LLM.
@@ -107,10 +107,27 @@ prawdziwego publicznego GitHuba); testy sieci są kontrolowane. Prawdziwy Qwen3-
 z narzędziami na Windows, nowy proces/Job Object i wizualny UI niewykonane.
 Raport: docs/INTERNET_TESTY.txt. Nie nazywać tego pełnym odbiorem etapu 4.
 
-Następne zadania integracji: odbiór 4a na Windows, 4b dostawca ogólnej
-wyszukiwarki WWW, 4c prywatne konta/adaptery/MCP i magazyn poświadczeń,
+Następne zadania integracji: odbiór 4a na Windows, rozbudowa/odbiór 4b i dostawców wyszukiwarki WWW, 4c prywatne konta/adaptery/MCP i magazyn poświadczeń,
 4d zapis w zakresie jawnych uprawnień właściciela. Tokeny ChatGPT nie są dostępne
 lokalnemu KripAI. Pozostałe moduły z planu, w tym 2.5c i Cardputer, pozostają.
 
 Baza publikacji modułu 4a sprawdzona na GitHub: 504559f52c70544df2a56efa19584c330b31307a.
 Dokument nie zastępuje odczytu bieżącej gałęzi przed kolejnym pushem.
+
+## Ostatni moduł — duże strony i wyszukiwanie 4b
+Właściciel zgłosił działanie 4a poza większymi stronami i oczekuje funkcji bliższych
+ChatGPT. Twardy limit 512 KiB dla web_read zastąpiono strumieniem do 8 MiB / 16 MiB
+po dekompresji, wyciągiem do 160000 znaków i lokalnymi notatkami z fragmentów.
+Jawne zakresy częściowe, oryginalne wycinki w historii. Sieciowe API/JSON nadal
+mają limit 512 KiB. Protokół procesu do 1 MiB; proces 35 s/256 MiB.
+Wyszukiwanie Bing RSS bez klucza, odczyt URL faktycznych wyników, 2 rundy i cache.
+Nowe zapytania tylko przed wynikami sieci, aby strona nie wywołała eksportu query.
+Bez nowych modeli/zależności/migracji. Poprzednie migracje pozostają niezmienione.
+
+Próby prawdziwych danych przez trasę urllib QA: Wikipedia 1030701 B → 95312 znaków;
+Bing RSS → 5 wyników. To nie potwierdzenie przypiętego transportu na Windows.
+our-website-is-broken.org zwracał Site Unavailable — nie deklarować naprawy
+samej zewnętrznej witryny ani obsługi logowania/CAPTCHA/JavaScript.
+Raport: docs/WEB_SEARCH_TESTY.txt. Baza publikacji: d54c6c238f6986f671d231cd6abd6f029f6b6ff3.
+Następnie odbiór nowego obiegu na Windows, dalsi dostawcy i jakość wyszukiwania,
+4c własne konektory/MCP/prywatny GitHub; pozostałe moduły z planu zachowane.

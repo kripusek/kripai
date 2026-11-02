@@ -1,75 +1,91 @@
-# Etap 4 — internet i integracje KripAI
+# Internet i integracje — aktualny zakres 4a + pierwszy moduł 4b
 
-Właściciel 02.11.2026 jawnie wymaga, aby dalszy plan obejmował dostęp AI do
-internetu i wtyczek, w tym GitHuba. Priorytetem tego modułu jest odczyt.
-Nie zmieniamy Windows/SQLite/llama.cpp ani nie dodajemy płatnego API inferencji.
+Właściciel wymaga funkcji zbliżonych do ChatGPT: wyszukiwania i czytania stron,
+GitHuba, a następnie kolejnych integracji. 02.11.2026 zgłosił działanie 4a poza
+większymi stronami. Zastąpiono twarde odrzucanie dużych HTML odczytem częściowym
+oraz dodano wyszukiwanie WWW. Nie obiecujemy dostępu do wszystkich serwisów:
+logowanie, CAPTCHA, blokady, JavaScript i formaty binarne pozostają ograniczeniami.
 
-| Krok | Zakres | Odbiór |
+| Krok | Stan / zakres | Odbiór |
 |---|---|---|
-| 4a — odczyt | Publiczna strona HTTPS, publiczny README/issues GitHub, wyszukiwanie repozytoriów; lokalny model wybiera typowane narzędzie | Jawne przełączniki wiadomości, walidacja argumentów i zasobów, blokada localhost/LAN/metadata i DNS rebinding, limity, anulowanie, źródła, offline bez żądań sieciowych |
-| 4b — wyszukiwarka WWW | Ogólne wyszukiwanie sieciowe z wybieranym dostawcą i odczytem wyników | Jawny dostawca/warunki/koszt; brak obowiązkowego płatnego API; zapytanie nie może wyciekać z prywatnej historii/OCR |
-| 4c — konektory/MCP | Adaptery GitHub oraz kolejnych usług, także prywatnych po podłączeniu przez właściciela | Rejestr narzędzi i zakresów, bezpieczny magazyn poświadczeń, revoke, ACL; bez automatycznego uruchamiania dowolnych serwerów/skryptów MCP |
-| 4d — zapis | Commity/PR/issues i inne zmiany w usługach | Zgoda właściciela na konkretny zakres może być trwała; deny-by-default poza zakresem, idempotencja, audyt, ochrona przed instrukcjami ze stron/repo |
+| 4a — odczyt | WWW i publiczny GitHub, poprawiony odczyt dużych stron | Model i sieć na Windows, cancel/Gaming, SSRF, źródła, offline bez żądań |
+| 4b — wyszukiwarka WWW | Pierwszy adapter Bing RSS bez klucza i bez płatnego API, następnie odczyt wyników | Jakość/rate limits na Windows; inni dostawcy/oficjalne API pozostają do rozbudowy |
+| 4c — konektory/MCP | Plan: prywatny GitHub i kolejne usługi po podłączeniu właściciela | Własne poświadczenia KripAI, magazyn/revoke/ACL; bez wykonywania dowolnych serwerów z treści |
+| 4d — zapis | Plan: commity/PR/issues i inne zmiany w zakresie zgody właściciela | Trwałe ograniczone uprawnienia, idempotencja i audyt, brak zgód z treści stron |
 
-Wtyczki ChatGPT nie są instalowane automatycznie w KripAI i nie udostępniają
-mu tokenów tej rozmowy. Lokalny asystent potrzebuje własnych adapterów/API/MCP.
-Odczyt publicznego GitHuba nie wymaga dodawania konta. Prywatne repozytoria
-oraz zapis są kolejnym krokiem po jawnym podłączeniu własnych poświadczeń.
+Wtyczki ChatGPT i ich tokeny nie przenoszą się do KripAI. Obecny GitHub jest
+publiczny i bez logowania; prywatne repo/zapis wymagają własnej integracji.
+Lokalne modele, Windows, SQLite i profil GPU pozostają bez zmian.
 
-Pierwszy zakres 4a: internet domyślnie wyłączony; checkbox dla strony WWW i
-osobny dla publicznego GitHuba. URL strony i repo muszą być podane w bieżącej
-wiadomości. Zapytanie wyszukiwania repo musi być fragmentem tej wiadomości.
-Model nie może wysłać prywatnego tekstu ze starej rozmowy/PDF jako nowego URL
-lub zapytania. Odpowiedzi internetu są danymi, nie zgodami i nie definicjami
-nowych narzędzi. Żaden tekst nie uruchamia shell ani operacji zapisu.
+## Korzystanie
+START.cmd po git pull --ff-only, potem Ctrl+F5. Internet domyślnie wyłączony.
+Włącz „Internet: szukaj i czytaj”, wpisz pytanie bez URL, np. „Znajdź dokumentację
+Pythona”, albo podaj konkretny link do streszczenia. Wyszukiwanie wysyła zapytanie
+sformułowane na podstawie bieżącej prośby do Bing RSS; nie wysyłamy historii/PDF.
+Dla publicznego GitHuba nadal jest osobny przełącznik i wskazane owner/repo.
+Odpowiedź ma źródła [W1]/[W2] itd. Brak źródła jest jawnie oznaczony.
 
-LLM planuje najwyżej dwa wywołania odczytu, wynik trafia do istniejącego
-budżetu tokenów i końcowej odpowiedzi SSE. To pierwszy ograniczony agent,
-nie pełna przeglądarka, wyszukiwarka WWW ani wykonywanie JavaScript stron.
+## Narzędzia i obieg
+app/network.py: HTTPS/TLS/DNS/IP, parser strony i RSS. app/tools.py: typowany
+rejestr, model planujący, lokalne notatki i cache na czas runu. scripts/read_web.py:
+ograniczony proces sieciowy. web/tools.js: przełączniki i źródła.
+Migracja 5 pozostaje bez zmian; ten moduł nie wymaga nowej migracji, biblioteki
+ani modelu. Tekstowy llama-server b12000 nadal używa --jinja.
 
-## Implementacja pierwszego zakresu 4a
-Kod: app/network.py (HTTPS/TLS/SSRF/parser), app/tools.py (rejestr/Pydantic/planer),
-scripts/read_web.py (ograniczony proces), web/tools.js (przełączniki/źródła),
-migracja 5 (flagi runu, sesja i źródła odpowiedzi). Bez nowych bibliotek/modeli.
-llama-server tekstowy dostaje --jinja, oficjalny interfejs function calling b12000.
-Planner dostaje wyłącznie bieżącą prośbę, nie historię ani PDF. Jeden lokalny
-request planujący do 256 tokenów, do 2 typowanych odczytów, potem normalne SSE.
-Po odczytach nie ma pętli kolejnych wywołań na podstawie niezaufanej strony.
+web_read: HTTPS URL z prośby lub z faktycznie otrzymanych wyników web_search.
+web_search: Bing RSS, do 5 pozycji, bez konta/klucza i bez cichej zmiany dostawcy.
+To publiczny kanał RSS do osobistego agregowania wyników, nie gwarantowane API
+produkcyjne; obowiązują warunki i ograniczenia operatora. Na tym etapie nie ma
+wyboru dostawcy ani obchodzenia blokad. Niedostępność daje jawny błąd.
+github_read: README lub otwarte issues/PR wskazanego publicznego repozytorium.
+github_find: wyszukiwanie repo po dosłownym fragmencie bieżącej prośby.
 
-web_read: HTTPS URL wskazany dosłownie w wiadomości. github_read: publiczne
-README lub otwarte issues/PR wskazanego owner/repo. github_find: wyszukiwanie
-publicznych repozytoriów GitHub, query musi być dosłownym fragmentem aktualnej
-wiadomości. To nie jest jeszcze wyszukiwarka ogólnego internetu (krok 4b).
+Planer dostaje wyłącznie aktualną prośbę i późniejsze wyniki publicznych narzędzi,
+nie prywatną historię ani dokumenty RAG. Do 2 rund planowania, 4 wywołań odczytu,
+jedno wyszukiwanie WWW i cache powtórnych argumentów. Nowe zapytania wyszukiwania
+są dopuszczone tylko w pierwszej rundzie, zanim planer zobaczy wyniki internetu.
+Druga runda może odczytać dozwolone źródła, ale nie wysłać nowego zapytania. Prawdziwy tokenizer rezerwuje
+512 tokenów na plan. Pierwszy jawny URL jest odczytywany także wtedy, gdy model
+pominie wywołanie. Wyniki wyszukiwarki rozszerzają listę dozwolonych URL tylko
+po stronie backendu; tekst strony ani model nie mogą samodzielnie nadać uprawnień.
 
-Wyniki mają do 1200 znaków i oznaczenie truncated. Trafiają jako niezaufane
-JSON do systemowego kontekstu, podlegają temu samemu tokenizerowi i budżetowi
-4096/2048. Przy braku miejsca tekst jest skracany, potem wyniki odrzucane.
-Źródła [W1]/[W2], wycinki i odnośniki są zapisane w historii/backupie. Brak źródła
-pokazuje jawny komunikat; błąd odczytu nie jest potwierdzeniem aktualnych danych.
+W drugim kroku model może odczytać wynik wyszukiwania. Finalna odpowiedź to
+normalne SSE z istniejącym kontekstem 4096/wyjściem 2048. JSON źródeł jest
+niezaufany; nie nadaje uprawnień shell/zapisu. Przy braku miejsca najpierw
+ograniczamy źródła, nigdy nie pomijamy kontroli tokenów.
 
-Proces sieci: tylko GET, publiczny HTTPS/443, bez auth/cookies/sekretów/proxy,
-bez JavaScript. DNS sprawdza wszystkie adresy i odrzuca m.in. loopback, LAN,
-metadata, multicast i przejściowe adresy IPv6. Połączenie używa sprawdzonego
-IP z zachowaniem TLS SNI i weryfikacji nazwy; nie rozwiązuje ponownie hosta.
-Każde przekierowanie jest kontrolowane osobno, do 4 żądań. Do 512 KiB treści,
-bez binariów i kompresji, socket timeout 5 s, cały proces 18 s/256 MiB, limit CPU
-8 s w QA Linux. Job Object na Windows jest limitem zasobów, nie pełnym sandboxem.
-Anulowanie/Gaming/utrata sesji kończy odczyt; pliki tymczasowe są usuwane.
+## Duże strony
+Dawny limit 512 KiB pozostaje dla ścisłych odpowiedzi API/RSS/JSON, ale web_read
+czyta strumieniowo do 8 MiB transmisji / 16 MiB po dekompresji gzip/deflate.
+Duży Content-Length nie powoduje odrzucenia strony. Przy granicy zostaje
+użyteczny prefiks i flaga zakresu częściowego. Nie usuwamy limitów RAM/czasu.
 
-Nie używamy zmiennych HTTP_PROXY/HTTPS_PROXY. Firmowy proxy i autoryzowane
-strony nie są obsługiwane w tym zakresie. GitHub może ograniczyć publiczne
-zapytania; 403/429 daje jawny błąd, nie zmianę serwisu czy ukryty token.
+HTML: preferowane main/article, pominięte skrypty/style/nawigacja; do 160000 znaków
+tekstu, obsługa charset i samodomykających się tagów. Bez uruchamiania JS.
+Dla dłuższej treści lokalny LLM tworzy notatki z kolejnych fragmentów; każdy
+fragment mierzy tokenizer. Do 8 żądań notatek po max 128 tokenów na cały run.
+Obieg narzędzi ma budżet 150 s sprawdzany między operacjami (trwające HTTP ma
+osobny timeout). Po wyczerpaniu budżetu notatek lub błędzie streszczenia zostaje
+czytelny wycinek, zamiast udawanego pełnego odczytu lub automatycznej odmowy.
 
-## Odbiór
-Testy używają rzeczywistego SQLite/procesów/API modelu z kontrolowanymi wynikami
-LLM i sieci. TLS/IP/redirecty i odmowy sprawdzane kontrolowanym transportem.
-Próba prawdziwego GitHub GET na hostcie QA zakończyła się tool_dns_failed;
-nie uznano jej za udane połączenie. Szczegóły: docs/INTERNET_TESTY.txt.
-NIE URUCHOMIONO: Windows/Job Object tego procesu, prawdziwy Qwen3-8B wybierający
-narzędzia i wizualny odbiór UI. Nie oznaczamy całego etapu 4 jako gotowego.
+Metadane summary/processed_characters/document_characters/truncated rozróżniają
+notatki od oryginału i pełny zakres od częściowego. To nie gwarancja jakości
+streszczenia. W źródłach historii zapisujemy oryginalny wycinek do 1200 znaków,
+nie wygenerowane notatki jako rzekomy cytat. Protokół procesu przyjmuje do 1 MiB
+wyniku, aby pełny wyciąg tekstu nie wpadał w stary limit 16 KiB.
 
-Windows: git pull --ff-only → START.cmd → Ctrl+F5. Włącz Publiczny GitHub,
-wpisz „Przeczytaj README kripusek/kripai i streść go”. Sprawdź widoczny stan
-odczytu i źródło. Dla WWW włącz Internet i podaj konkretny link HTTPS.
-Potem przetestuj odczyt z wyłączonym przełącznikiem, Cancel/Gaming i niedostępny
-serwis. Prywatne repo i zapis pozostają niedostępne bez następnego kroku integracji.
+## Granice sieci i odbiór
+Tylko GET, publiczny HTTPS/443, bez auth/cookies/sekretów/proxy. DNS/IP/redirecty
+kontrolowane, połączenie do sprawdzonego IP z TLS SNI i walidacją nazwy.
+Lokalne/LAN/metadata i przejściowe IP są blokowane także dla wyników wyszukiwania.
+Socket timeout 5 s, proces odczytu 35 s / 256 MiB, CPU 8 s na Linux; Job Object
+Windows to ograniczenie zasobów i życia, nie pełny sandbox. Cancel/Gaming/sesja
+nadal kończą pracę. Nie ma obejść CAPTCHA, logowania ani blokad serwisu.
+
+Kontrolowane testy: duży HTML, kompresja/bomby, charset, ekstrakcja, pełne przejście
+przez lokalny HTTP modelu, wyszukiwanie → odczyt wyniku, oryginalne źródła,
+cache/budżety i stare regresje. Raport: docs/WEB_SEARCH_TESTY.txt.
+Dodatkowa próba pobrała i przetworzyła stronę Wikipedii >1 MiB oraz 5 prawdziwych
+wyników RSS przez trasę urllib hosta QA. To nie test przypiętego transportu na
+Windows. our-website-is-broken.org zwrócił Site Unavailable i nie został zaliczony.
+Natywny Windows, rzeczywisty Qwen3-8B z nowym obiegiem i UI wizualny do odbioru.

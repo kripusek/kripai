@@ -125,7 +125,7 @@ def infer(run):
             scope=tools.policy(history[-1]['content'],run['allow_web'],run['allow_github'])
             with httpx.Client(timeout=30,headers=config.llm_headers(),trust_env=False) as planner:
                 # Planer nie dostaje prywatnej historii ani PDF; tylko bieżącą prośbę.
-                planning,_,_=prepare([history[-1]],planner,tool_definitions=tools.schemas(scope))
+                planning,_,_=prepare([history[-1]],planner,tool_definitions=tools.schemas(scope),budget=config.CONTEXT-512-128)
                 readings=tools.plan(planner,planning,scope,check_tools,activity)
             check_tools()
         selected=json.loads(run.get('rag_selection','[]'))

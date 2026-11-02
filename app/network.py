@@ -7,9 +7,14 @@ import json
 import re
 import socket
 import ssl
+import zlib
+import xml.etree.ElementTree as ET
 from urllib.parse import urlsplit,urlunsplit,urljoin,quote,urlencode
 
 MAX_BODY=512*1024
+MAX_PAGE_BYTES=8*1024**2
+MAX_DECODED=16*1024**2
+MAX_TEXT=160000
 class ToolError(Exception):
     def __init__(self,code):self.code=code;super().__init__(code)
 
@@ -49,40 +54,134 @@ class PinnedHTTPS(http.client.HTTPSConnection):
         try:self.sock=self._context.wrap_socket(raw,server_hostname=self.host)
         except BaseException:raw.close();raise
 
-def fetch(url):
+def body(response,partial=False):
+    encoding=response.getheader('Content-Encoding','identity').strip().lower()
+    if encoding not in {'identity','gzip','deflate'}:raise ToolError('tool_encoding_denied')
+    length=response.getheader('Content-Length')
+    if length and not length.isdigit():raise ToolError('tool_http_error')
+    limit=MAX_PAGE_BYTES if partial else MAX_BODY
+    decoded_limit=MAX_DECODED if partial else MAX_BODY
+    if not partial and length and int(length)>limit:raise ToolError('tool_response_too_large')
+    decoder=zlib.decompressobj(16+zlib.MAX_WBITS if encoding=='gzip' else zlib.MAX_WBITS) if encoding!='identity' else None
+    output=bytearray();wire=0;truncated=False
+    try:
+        while True:
+            chunk=response.read(min(65536,limit-wire+1))
+            if not chunk:break
+            room=limit-wire
+            if len(chunk)>room:chunk=chunk[:room];truncated=True
+            wire+=len(chunk)
+            available=decoded_limit-len(output)
+            part=decoder.decompress(chunk,available+1) if decoder else chunk
+            if len(part)>available:part=part[:available];truncated=True
+            output.extend(part)
+            if truncated:break
+        if length and wire<int(length):truncated=True
+        if decoder and not truncated and not decoder.eof:raise ToolError('tool_encoding_failed')
+    except zlib.error:raise ToolError('tool_encoding_failed') from None
+    if truncated and not partial:raise ToolError('tool_response_too_large')
+    return bytes(output),truncated
+
+def fetch(url,partial=False):
     current=canonical(url)
     for _ in range(4):
         p=urlsplit(current);ip=resolve(p.hostname);conn=PinnedHTTPS(p.hostname,ip)
         try:
-            conn.request('GET',p.path+('?' +p.query if p.query else ''),headers={'User-Agent':'KripAI/1.0 read-only','Accept':'text/html,text/plain,application/json','Accept-Encoding':'identity'})
+            conn.request('GET',p.path+('?' +p.query if p.query else ''),headers={'User-Agent':'KripAI/1.0 read-only','Accept':'text/html,text/plain,application/json,application/rss+xml,application/xml','Accept-Encoding':'gzip, deflate'})
             response=conn.getresponse()
             if response.status in (301,302,303,307,308):
                 location=response.getheader('Location')
                 if not location:raise ToolError('tool_redirect_invalid')
                 current=canonical(urljoin(current,location));continue
-            if response.status in (403,429):raise ToolError('tool_remote_denied')
+            if response.status in (401,403,429):raise ToolError('tool_remote_denied')
             if response.status!=200:raise ToolError('tool_http_error')
-            kind=response.getheader('Content-Type','').split(';')[0].strip().lower()
-            if kind not in {'text/html','text/plain','application/json','application/vnd.github+json'}:raise ToolError('tool_format_denied')
-            if response.getheader('Content-Encoding','identity').lower()!='identity':raise ToolError('tool_encoding_denied')
-            length=response.getheader('Content-Length')
-            if length and (not length.isdigit() or int(length)>MAX_BODY):raise ToolError('tool_response_too_large')
-            data=response.read(MAX_BODY+1)
-            if len(data)>MAX_BODY:raise ToolError('tool_response_too_large')
-            return {'url':current,'kind':kind,'data':data}
+            content_type=response.getheader('Content-Type','');kind=content_type.split(';')[0].strip().lower()
+            if kind not in {'text/html','text/plain','application/json','application/vnd.github+json','text/xml','application/xml','application/rss+xml'}:raise ToolError('tool_format_denied')
+            data,truncated=body(response,partial)
+            charset=re.search(r'charset=[\"\']?([A-Za-z0-9_-]+)',content_type,re.I)
+            return {'url':current,'kind':kind,'data':data,'download_truncated':truncated,'charset':charset[1] if charset else None}
         except (OSError,http.client.HTTPException):raise ToolError('tool_network_failed') from None
         finally:conn.close()
     raise ToolError('tool_redirect_limit')
 
 class Text(HTMLParser):
-    def __init__(self):super().__init__(convert_charrefs=True);self.hidden=[];self.parts=[]
+    """Główna treść ma pierwszeństwo przed nawigacją, skryptami i stopką."""
+    VOID={'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'}
+    HIDDEN={'script','style','nav','aside','footer','iframe','svg','template','noscript'}
+    def __init__(self):
+        super().__init__(convert_charrefs=True);self.stack=[];self.hidden=0;self.main=0;self.head=0;self.title_depth=0
+        self.parts=[];self.article=[];self.size=0;self.article_size=0;self.title=[];self.truncated=False;self.fallback_truncated=False;self.article_truncated=False
     def handle_starttag(self,tag,attrs):
-        if tag in {'script','style','head','iframe','svg','template','noscript'}:self.hidden.append(tag)
-        if not self.hidden and tag in {'p','br','li','div','h1','h2','h3'}:self.parts.append('\n')
+        if tag in self.VOID:
+            if tag in {'br','hr'}:self.handle_data('\n')
+            return
+        if len(self.stack)>=256:raise ToolError('tool_html_too_deep')
+        hidden=tag in self.HIDDEN;main=tag in {'main','article'};head=tag=='head';title=tag=='title'
+        self.stack.append((tag,hidden,main,head,title));self.hidden+=hidden;self.main+=main;self.head+=head;self.title_depth+=title
+        if tag in {'p','div','li','section','h1','h2','h3','tr'}:self.handle_data('\n')
+    def handle_startendtag(self,tag,attrs):
+        if tag not in self.VOID:self.handle_starttag(tag,attrs);self.handle_endtag(tag)
     def handle_endtag(self,tag):
-        if self.hidden and tag==self.hidden[-1]:self.hidden.pop()
+        for i in range(len(self.stack)-1,-1,-1):
+            if self.stack[i][0]==tag:
+                for _,hidden,main,head,title in self.stack[i:]:self.hidden-=hidden;self.main-=main;self.head-=head;self.title_depth-=title
+                del self.stack[i:];break
     def handle_data(self,data):
-        if not self.hidden and len(self.parts)<10000:self.parts.append(data)
+        if self.title_depth and sum(map(len,self.title))<200:self.title.append(data[:200])
+        if self.hidden or self.head:return
+        if self.size<MAX_TEXT:
+            self.fallback_truncated|=len(data)>MAX_TEXT-self.size
+            value=data[:MAX_TEXT-self.size];self.parts.append(value);self.size+=len(value)
+        else:self.fallback_truncated=True
+        if self.main:
+            if self.article_size<MAX_TEXT:
+                self.article_truncated|=len(data)>MAX_TEXT-self.article_size
+                value=data[:MAX_TEXT-self.article_size];self.article.append(value);self.article_size+=len(value)
+            else:self.article_truncated=True
+    def result(self):
+        main=' '.join(self.article).strip()
+        self.truncated=self.article_truncated if len(main)>=40 else self.fallback_truncated
+        return (main if len(main)>=40 else ' '.join(self.parts)),''.join(self.title).strip()[:200]
+
+def page(result):
+    data=result['data'];charset=result.get('charset')
+    if not charset:
+        meta=re.search(br'charset=[\"\']?([A-Za-z0-9_-]+)',data[:4096],re.I)
+        charset='utf-16' if data.startswith((b'\xff\xfe',b'\xfe\xff')) else meta[1].decode('ascii') if meta else 'utf-8-sig'
+    try:raw=data.decode(charset,errors='replace')
+    except (LookupError,UnicodeError):raw=data.decode('utf-8',errors='replace')
+    if '\x00' in raw:raise ToolError('tool_format_denied')
+    title=urlsplit(result['url']).hostname;truncated=result.get('download_truncated',False)
+    if result['kind']=='text/html':
+        parser=Text();parser.feed(raw);raw,heading=parser.result();title=heading or title;truncated|=parser.truncated
+    text=re.sub(r'[ \t\r\f\v]+',' ',raw);text=re.sub(r'\n\s*\n+','\n',text).strip()
+    if not text:raise ToolError('tool_page_unreadable')
+    if len(text)<5000 and title.casefold().strip() in {'site unavailable','just a moment...','access denied','attention required! | cloudflare'}:raise ToolError('tool_remote_denied')
+    truncated|=len(text)>MAX_TEXT;text=text[:MAX_TEXT]
+    return {'url':result['url'],'title':title,'text':text[:1200],'document':text,'excerpt':text[:1200],
+        'truncated':bool(truncated),'document_characters':len(text),'summary':False}
+
+def search(query):
+    # Publiczny kanał RSS Bing: bez konta, bez tokenów i bez cichej zmiany dostawcy.
+    result=fetch('https://www.bing.com/search?'+urlencode({'format':'rss','q':query}))
+    raw=result['data']
+    if b'<!DOCTYPE' in raw.upper() or b'<!ENTITY' in raw.upper():raise ToolError('tool_search_invalid')
+    try:root=ET.fromstring(raw)
+    except ET.ParseError:raise ToolError('tool_search_unavailable') from None
+    if root.tag!='rss':raise ToolError('tool_search_unavailable')
+    items=[];seen=set()
+    for node in root.findall('./channel/item'):
+        try:
+            url=canonical((node.findtext('link') or '').strip());host=urlsplit(url).hostname
+            try:
+                if not public_ip(str(ipaddress.ip_address(host))):continue
+            except ValueError:pass
+        except ToolError:continue
+        if url in seen:continue
+        seen.add(url);parser=Text();parser.feed(node.findtext('description') or '');snippet,_=parser.result()
+        items.append({'url':url,'title':(node.findtext('title') or host)[:200],'text':re.sub(r'\s+',' ',snippet).strip()[:500],'truncated':True})
+        if len(items)>=5:break
+    return {'provider':'Bing RSS','query':query,'items':items}
 
 def policy(text,web=False,github=False):
     urls=[];repos=set()
@@ -109,12 +208,11 @@ def execute(name,args,scope):
         if set(args)!={'url'}:raise ToolError('tool_arguments_invalid')
         url=canonical(args['url'])
         if url not in scope['urls']:raise ToolError('tool_resource_not_authorized')
-        result=fetch(url);raw=result['data'].decode('utf-8',errors='replace')
-        if result['kind']=='text/html':
-            parser=Text();parser.feed(raw);raw=' '.join(parser.parts)
-        if '\x00' in raw:raise ToolError('tool_format_denied')
-        text=re.sub(r'\s+',' ',raw).strip()
-        return {'url':result['url'],'title':urlsplit(result['url']).hostname,'text':text[:1200],'truncated':len(text)>1200}
+        return page(fetch(url,partial=True))
+    if name=='web_search':
+        if not scope['web']:raise ToolError('tool_permission_denied')
+        if set(args)!={'query'} or not isinstance(args['query'],str) or not 3<=len(args['query'])<=160:raise ToolError('tool_arguments_invalid')
+        return search(args['query'])
     if name not in {'github_read','github_find'}:raise ToolError('tool_not_allowed')
     if not scope['github']:raise ToolError('tool_permission_denied')
     if name=='github_find':
@@ -137,4 +235,4 @@ def execute(name,args,scope):
         except UnicodeError:raise ToolError('tool_format_denied') from None
         if '\x00' in text:raise ToolError('tool_format_denied')
     else:text=json.dumps([{'title':r['title'],'body':(r.get('body') or '')[:500],'url':r['html_url']} for r in data[:3]],ensure_ascii=False)
-    return {'url':'https://github.com/'+repo+('/issues' if args['section']=='issues' else '#readme'),'title':repo+' · '+args['section'],'text':text[:1200],'truncated':len(text)>1200}
+    return {'url':'https://github.com/'+repo+('/issues' if args['section']=='issues' else '#readme'),'title':repo+' · '+args['section'],'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(text)>MAX_TEXT}

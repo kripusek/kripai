@@ -42,7 +42,7 @@ nie ma wymaganego runtime. Nie jest instalowany globalny CUDA Toolkit ani Python
 - [x] Automatyczne przełączanie modelu tekstowego i VLM bez ich równoległego uruchamiania.
 - [x] Markdown: nagłówki, listy, cytaty, tabele, pogrubienie i bloki kodu z kopiowaniem.
 - [x] Lokalne kolorowanie oznaczonych bloków JS/TS, Python, HTML, CSS, JSON, SQL, shell i PowerShell.
-- [x] Pierwsze narzędzia odczytu: wskazana strona HTTPS i publiczny GitHub, włączane jawnie.
+- [x] Internet: wyszukiwanie WWW, odczyt wyników i większych stron; publiczny GitHub.
 - [x] Pamięć tekstowych PDF: indeksowanie, wybór dokumentów, źródła ze stroną i wycinkiem.
 - [x] Podstawowe wzory matematyczne jako MathML; nieznany zapis pozostaje tekstem.
 - [x] Nagrywanie do 30 sekund, lokalna transkrypcja Whisper do pola korekty.
@@ -62,7 +62,7 @@ nie ma wymaganego runtime. Nie jest instalowany globalny CUDA Toolkit ani Python
 | 2.5b — RAG | Pierwszy zakres zaimplementowany, odbiór Windows nieukończony | Tekstowe PDF, E5 CPU, sqlite-vec, checkpointy i źródła w czacie |
 | 2.5c — większe pliki | Niezaimplementowany | Wznawianie uploadów i wizualne embeddingi |
 | 3 — Cardputer | Niezaimplementowany | Osobna zabezpieczona bramka, parowanie i unieważnianie urządzeń |
-| 4 — internet i integracje | Pierwszy moduł odczytu 4a, odbiór Windows/modelu nieukończony | WWW/GitHub, dalej wyszukiwarka WWW, konektory/MCP, prywatne konta i zapis |
+| 4 — internet i integracje | Odczyt 4a i pierwszy moduł wyszukiwania 4b, odbiór Windows nieukończony | WWW/GitHub, dalej inni dostawcy, konektory/MCP, prywatne konta i zapis |
 | 5 — zadania w tle | Niezaimplementowany | Trwały worker, harmonogram, powiadomienia i koordynacja GPU |
 | 6 — Android | Niezaimplementowany | Aplikacja mobilna, synchronizacja i bezpieczna bramka |
 
@@ -116,8 +116,8 @@ wymazanie nośnika. Anulowany upload może wymagać usunięcia pliku w panelu.
 
 ## Testy i stopień weryfikacji
 
-Ostatni pełny przebieg: **111 testów Python — 107 OK, 4 pominięte Windows;
-43 testy JavaScript OK. Razem 150 zaliczonych i 4 pominięte.**
+Ostatni pełny przebieg: **123 testy Python — 119 OK, 4 pominięte Windows;
+43 testy JavaScript OK. Razem 162 zaliczonych i 4 pominięte.**
 
 SQLite, dekodery, HTTP/SSE i procesy potomne są rzeczywiste. Inference w testach
 regresji zastępują kontrolowane atrapy. Testy UI używają modelu DOM, nie testują
@@ -184,16 +184,25 @@ oraz nowa DLL wymagają testu Windows. Szczegóły: [RAG.md](spec/etap-2.5b/RAG.
 Próba rzeczywistego E5 i sqlite-vec na Linux przeszła; trzy przykłady PL/EN
 nie są pełnym benchmarkiem ani testem poprawności odpowiedzi modelu tekstowego.
 
-## Internet i GitHub — pierwszy zakres 4a
+## Internet i GitHub — odczyt i wyszukiwanie
 
-Po aktualizacji START.cmd i Ctrl+F5. Domyślnie oba przełączniki są wyłączone.
-Włącz „Publiczny GitHub” i wpisz np. „Przeczytaj README kripusek/kripai”.
-Dla strony włącz „Internet: odczyt linków” i podaj konkretny link HTTPS.
-AI może wybrać do dwóch odczytów; pod odpowiedzią pojawią się źródła [W1]/[W2].
-Publiczne wyszukiwanie repozytoriów wysyła fragment bieżącego pytania do GitHuba.
+Po aktualizacji START.cmd i Ctrl+F5. Włącz „Internet: szukaj i czytaj” i zadaj
+pytanie bez linku albo wklej URL do streszczenia. Wyszukiwanie używa publicznego
+Bing RSS bez klucza API; model może odczytać link z wyników. Obecnie do 2 rund,
+4 wywołań i jednego wyszukiwania na pytanie. Zapytanie trafia do wyszukiwarki;
+planer nie dostaje prywatnej historii ani PDF. Domyślnie internet jest wyłączony.
 
-To nie jest jeszcze ogólna wyszukiwarka WWW ani przeglądarka uruchamiająca JS.
-Prywatne repo i zapis nie są obsługiwane. Wtyczki/tokeny ChatGPT nie przenoszą
-się do KripAI. Kolejne kroki są jawnie w [planie integracji](spec/etap-4/INTERNET_WTYCZKI.md).
-Prawdziwa próba sieci na hoście QA została zablokowana przez DNS; Windows,
-wybór narzędzi przez prawdziwy Qwen3-8B i wizualny UI pozostają do odbioru.
+Duża strona nie jest już odrzucana tylko za przekroczenie 512 KiB. Odczyt jest
+strumieniowy, obsługuje gzip/deflate i główną treść HTML. Długi tekst model
+przetwarza lokalnie fragmentami. Przy granicy zasobów wykorzystuje dostępny
+fragment i oznacza zakres. Źródła pokazują oryginalny wycinek, nie notatki modelu.
+Większa strona może wymagać więcej czasu. Limit pamięci GPU pozostaje bez zmian.
+
+„Publiczny GitHub”: np. „Przeczytaj README kripusek/kripai”. Prywatne repo i zapis
+są kolejnymi etapami. Wtyczki/tokeny ChatGPT nie przenoszą się do KripAI.
+Logowanie, CAPTCHA, JavaScript i blokady serwisów nadal mogą uniemożliwić odczyt;
+nie obiecujemy obsługi wszystkich witryn. Plan i granice: [integracje](spec/etap-4/INTERNET_WTYCZKI.md).
+
+QA przetworzyło rzeczywistą stronę >1 MiB i kanał RSS przez trasę urllib hosta;
+transport Windows i rzeczywisty Qwen3-8B z nowym obiegiem wymagają odbioru.
+Strona ze zgłoszenia zwracała tutaj Site Unavailable. Raport: [WEB_SEARCH_TESTY.txt](docs/WEB_SEARCH_TESTY.txt).
