@@ -42,6 +42,7 @@ nie ma wymaganego runtime. Nie jest instalowany globalny CUDA Toolkit ani Python
 - [x] Automatyczne przełączanie modelu tekstowego i VLM bez ich równoległego uruchamiania.
 - [x] Markdown: nagłówki, listy, cytaty, tabele, pogrubienie i bloki kodu z kopiowaniem.
 - [x] Lokalne kolorowanie oznaczonych bloków JS/TS, Python, HTML, CSS, JSON, SQL, shell i PowerShell.
+- [x] Pierwsze narzędzia odczytu: wskazana strona HTTPS i publiczny GitHub, włączane jawnie.
 - [x] Pamięć tekstowych PDF: indeksowanie, wybór dokumentów, źródła ze stroną i wycinkiem.
 - [x] Podstawowe wzory matematyczne jako MathML; nieznany zapis pozostaje tekstem.
 - [x] Nagrywanie do 30 sekund, lokalna transkrypcja Whisper do pola korekty.
@@ -61,7 +62,7 @@ nie ma wymaganego runtime. Nie jest instalowany globalny CUDA Toolkit ani Python
 | 2.5b — RAG | Pierwszy zakres zaimplementowany, odbiór Windows nieukończony | Tekstowe PDF, E5 CPU, sqlite-vec, checkpointy i źródła w czacie |
 | 2.5c — większe pliki | Niezaimplementowany | Wznawianie uploadów i wizualne embeddingi |
 | 3 — Cardputer | Niezaimplementowany | Osobna zabezpieczona bramka, parowanie i unieważnianie urządzeń |
-| 4 — narzędzia agenta | Niezaimplementowany | Typowane narzędzia, polityka uprawnień i jawne zgody |
+| 4 — internet i integracje | Pierwszy moduł odczytu 4a, odbiór Windows/modelu nieukończony | WWW/GitHub, dalej wyszukiwarka WWW, konektory/MCP, prywatne konta i zapis |
 | 5 — zadania w tle | Niezaimplementowany | Trwały worker, harmonogram, powiadomienia i koordynacja GPU |
 | 6 — Android | Niezaimplementowany | Aplikacja mobilna, synchronizacja i bezpieczna bramka |
 
@@ -115,8 +116,8 @@ wymazanie nośnika. Anulowany upload może wymagać usunięcia pliku w panelu.
 
 ## Testy i stopień weryfikacji
 
-Ostatni pełny przebieg: **96 testów Python — 92 OK, 4 pominięte Windows;
-39 testów JavaScript OK. Razem 131 zaliczonych i 4 pominięte.**
+Ostatni pełny przebieg: **111 testów Python — 107 OK, 4 pominięte Windows;
+43 testy JavaScript OK. Razem 150 zaliczonych i 4 pominięte.**
 
 SQLite, dekodery, HTTP/SSE i procesy potomne są rzeczywiste. Inference w testach
 regresji zastępują kontrolowane atrapy. Testy UI używają modelu DOM, nie testują
@@ -182,3 +183,17 @@ oraz nowa DLL wymagają testu Windows. Szczegóły: [RAG.md](spec/etap-2.5b/RAG.
 
 Próba rzeczywistego E5 i sqlite-vec na Linux przeszła; trzy przykłady PL/EN
 nie są pełnym benchmarkiem ani testem poprawności odpowiedzi modelu tekstowego.
+
+## Internet i GitHub — pierwszy zakres 4a
+
+Po aktualizacji START.cmd i Ctrl+F5. Domyślnie oba przełączniki są wyłączone.
+Włącz „Publiczny GitHub” i wpisz np. „Przeczytaj README kripusek/kripai”.
+Dla strony włącz „Internet: odczyt linków” i podaj konkretny link HTTPS.
+AI może wybrać do dwóch odczytów; pod odpowiedzią pojawią się źródła [W1]/[W2].
+Publiczne wyszukiwanie repozytoriów wysyła fragment bieżącego pytania do GitHuba.
+
+To nie jest jeszcze ogólna wyszukiwarka WWW ani przeglądarka uruchamiająca JS.
+Prywatne repo i zapis nie są obsługiwane. Wtyczki/tokeny ChatGPT nie przenoszą
+się do KripAI. Kolejne kroki są jawnie w [planie integracji](spec/etap-4/INTERNET_WTYCZKI.md).
+Prawdziwa próba sieci na hoście QA została zablokowana przez DNS; Windows,
+wybór narzędzi przez prawdziwy Qwen3-8B i wizualny UI pozostają do odbioru.

@@ -18,6 +18,8 @@ class MessageCreate(Strict):
     client_message_id: UUID
     attachment_id: UUID | None = None
     document_ids: list[UUID] = Field(default_factory=list,max_length=5)
+    allow_web: bool = False
+    allow_github: bool = False
 
 class Mode(Strict):
     mode: Literal['normal','gaming']

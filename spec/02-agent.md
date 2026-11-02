@@ -28,3 +28,7 @@ konkretne skutki. Sam tekst modelu, pliku lub strony nie jest zgodą właścicie
 Nie wykonujemy poleceń shell pochodzących z LLM.
 
 Etap 2.5a: odczyt wybranego obrazu/strony PDF bez narzędzi. Wynik do ręcznej korekty i wysłania; nie pamięć dokumentów ani RAG.
+
+Etap 4a rozpoczęty na polecenie właściciela: etap-4/INTERNET_WTYCZKI.md.
+Jawne odczyty z bieżącej prośby, nie samowolne przeglądanie zasobów z historii.
+Internet jest domyślnie wyłączony. Włączenie nie nadaje dostępu do shell/zapisu.

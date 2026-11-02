@@ -1,3 +1,4 @@
+from schema_helpers import drop_tools
 """Pliki: prawdziwe dekodery/SQLite/procesy, VLM jako kontrolowana atrapa HTTP."""
 import concurrent.futures
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
@@ -211,6 +212,7 @@ class MediaTests(DataCase):
 class MediaMigrationTests(DataCase):
     def old_database(self):
         with connect() as conn:
+            drop_tools(conn)
             conn.execute('DROP TABLE message_sources');conn.execute('DROP TABLE rag_vectors');conn.execute('DROP TABLE rag_chunks');conn.execute('DROP TABLE rag_documents');conn.execute('ALTER TABLE runs DROP COLUMN rag_selection')
             conn.execute('DROP TABLE message_images')
             conn.execute('DROP TABLE attachments')

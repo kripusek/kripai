@@ -22,7 +22,7 @@ from .db import connect, event, change_state, migrate
 from . import config
 from .context import prepare, ContextTooLarge
 from .model_process import control
-from . import voice, media, rag
+from . import voice, media, rag, tools
 from fastapi.staticfiles import StaticFiles
 from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex
 from .security import digest, password_hash, verify_password
@@ -110,6 +110,24 @@ def infer(run):
             change_state(conn,rid,'preparing_context')
             history = conn.execute('SELECT role,content FROM messages WHERE conversation_id=? ORDER BY seq DESC LIMIT 200',(run['conversation_id'],)).fetchall()[::-1]
             total=conn.execute('SELECT count(*) AS n FROM messages WHERE conversation_id=?',(run['conversation_id'],)).fetchone()['n']
+        readings=None
+        if run.get('allow_web') or run.get('allow_github'):
+            def check_tools():
+                with connect() as conn:
+                    state=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()['status']
+                    mode=conn.execute('SELECT requested_mode FROM system_mode').fetchone()['requested_mode']
+                    session=conn.execute('SELECT 1 FROM sessions WHERE id=? AND revoked_at IS NULL AND expires_at>now()',(run['tool_session_id'],)).fetchone()
+                if state=='cancelling' or stop_worker.is_set():raise tools.ToolError('tool_cancelled')
+                if mode!='normal':raise tools.ToolError('gaming_mode')
+                if not session:raise tools.ToolError('login_required')
+            def activity(name,state):
+                with connect() as conn:event(conn,rid,'tool.activity',{'name':name,'state':state})
+            scope=tools.policy(history[-1]['content'],run['allow_web'],run['allow_github'])
+            with httpx.Client(timeout=30,headers=config.llm_headers(),trust_env=False) as planner:
+                # Planer nie dostaje prywatnej historii ani PDF; tylko bieżącą prośbę.
+                planning,_,_=prepare([history[-1]],planner,tool_definitions=tools.schemas(scope))
+                readings=tools.plan(planner,planning,scope,check_tools,activity)
+            check_tools()
         selected=json.loads(run.get('rag_selection','[]'))
         citations=None
         if selected:
@@ -122,7 +140,9 @@ def infer(run):
             with connect() as conn:uid=conn.execute('SELECT owner_id FROM conversations WHERE id=?',(run['conversation_id'],)).fetchone()['owner_id']
             citations=rag.retrieve(selected,uid,history[-1]['content'],check_rag)
         with httpx.Client(timeout=20,headers=config.llm_headers(),trust_env=False) as tokenizer:
-            messages,omitted,tokens=prepare(history,tokenizer,citations)
+            messages,omitted,tokens=prepare(history,tokenizer,citations,network=readings)
+        if readings is not None:
+            with connect() as conn:event(conn,rid,'tool.sources',{'items':[dict(item,ordinal=i) for i,item in enumerate(readings,1) if 'error' not in item]})
         if citations is not None:
             with connect() as conn:
                 rag.validate_selection(conn,selected,uid)
@@ -169,6 +189,7 @@ def infer(run):
             mid=uuid4()
             conn.execute('INSERT INTO messages(id,conversation_id,role,content) VALUES (?,?,\'assistant\',?)',(mid,run['conversation_id'],answer))
             if citations:rag.save_sources(conn,mid,citations)
+            if readings:tools.save_sources(conn,mid,readings)
             conn.execute('UPDATE conversations SET updated_at=now() WHERE id=?',(run['conversation_id'],))
             change_state(conn,rid,'completed','output_limit' if finish_reason=='length' else None)
     except Exception as exc:
@@ -176,7 +197,7 @@ def infer(run):
         with connect() as conn:
             row=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()
             if row and row['status'] not in TERMINAL:
-                change_state(conn,rid,'cancelled' if row['status']=='cancelling' else 'failed','context_too_large' if isinstance(exc,ContextTooLarge) else exc.code if isinstance(exc,(media.MediaError,rag.RagError)) else 'inference_interrupted')
+                change_state(conn,rid,'cancelled' if row['status']=='cancelling' else 'failed','context_too_large' if isinstance(exc,ContextTooLarge) else exc.code if isinstance(exc,(media.MediaError,rag.RagError,tools.ToolError)) else 'inference_interrupted')
 
 
 def infer_image(run,image):
@@ -226,6 +247,7 @@ async def lifespan(app):
     migrate()
     voice.service.reset()
     media.reset()
+    tools.reset()
     with connect() as conn:conn.execute("UPDATE system_mode SET requested_profile='text',loaded_profile='none',controller_state='offline'")
     with connect() as conn:
         for row in conn.execute("SELECT id FROM runs WHERE status NOT IN ('completed','cancelled','failed','expired','outcome_unknown')").fetchall():
@@ -362,7 +384,9 @@ def messages(cid:UUID,limit:int=Query(20,ge=1,le=100),cursor:str|None=None,user=
     with connect() as conn:
         owned(conn,cid,user['id'])
         rows=conn.execute('SELECT m.seq,m.id,m.role,m.content,m.created_at,i.attachment_id FROM messages m LEFT JOIN message_images i ON i.message_id=m.id WHERE m.conversation_id=? AND m.seq<? ORDER BY m.seq DESC LIMIT ?',(cid,before,limit+1)).fetchall()
-        for row in rows:row['sources']=rag.sources(conn,row['id'],user['id'])
+        for row in rows:
+            row['sources']=rag.sources(conn,row['id'],user['id'])
+            row['tool_sources']=tools.sources(conn,row['id'])
     selected=rows[:limit]
     return {'items':list(reversed(selected)),'next_cursor':str(selected[-1]['seq']) if len(rows)>limit else None}
 
@@ -378,6 +402,7 @@ def send(cid:UUID,body:MessageCreate,request:Request,user=Depends(identity)):
         if conn.execute('SELECT controller_state FROM system_mode').fetchone()['controller_state']!='ready':fail(503,'model_unavailable')
         if conn.execute("SELECT 1 FROM runs WHERE status NOT IN ('completed','cancelled','failed','expired','outcome_unknown') LIMIT 1").fetchone(): fail(409,'generation_busy')
         if conn.execute('SELECT 1 FROM messages WHERE conversation_id=? AND client_message_id=?',(cid,body.client_message_id)).fetchone(): fail(409,'client_message_conflict')
+        if body.attachment_id and (body.allow_web or body.allow_github):fail(422,'tool_image_combination')
         if body.document_ids:
             if body.attachment_id:fail(422,'rag_image_combination')
             rag.validate_selection(conn,body.document_ids,user['id'])
@@ -390,7 +415,7 @@ def send(cid:UUID,body:MessageCreate,request:Request,user=Depends(identity)):
         if body.attachment_id:
             conn.execute('INSERT INTO message_images VALUES (?,?,?)',(mid,body.attachment_id,user['session_id']))
         conn.execute('INSERT INTO runs(id,conversation_id,user_message_id,status) VALUES (?,?,?,\'queued\')',(rid,cid,mid))
-        conn.execute('UPDATE runs SET rag_selection=? WHERE id=?',(json.dumps([str(x) for x in body.document_ids]),rid))
+        conn.execute('UPDATE runs SET rag_selection=?,allow_web=?,allow_github=?,tool_session_id=? WHERE id=?',(json.dumps([str(x) for x in body.document_ids]),int(body.allow_web),int(body.allow_github),user['session_id'] if body.allow_web or body.allow_github else None,rid))
         conn.execute("UPDATE conversations SET updated_at=now(),title=CASE WHEN title='' THEN ? ELSE title END WHERE id=?",(body.text[:60],cid))
         event(conn,rid,'run.status',{'state':'queued'})
         return remember(conn,user['id'],route,key,{'message_id':str(mid),'run_id':str(rid),'status':'queued'})

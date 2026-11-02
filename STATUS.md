@@ -218,3 +218,15 @@ Rzeczywisty E5 CPU b12000 oraz PDF→vec0→wyszukiwanie na Linux potwierdzone;
 Natywny Windows/CUDA/VRAM/nowa DLL/instalator i wizualny UI niewykonane.
 Start Windows: git pull --ff-only, START.cmd, Ctrl+F5. Dodatkowe pobranie około
 126 MiB; istniejące rozmowy zachowane. Brak OCR skanów i innych formatów w RAG.
+
+## 02.11.2026 — internet i integracje 4a
+Właściciel wymagał obecności internetu i GitHuba w planie. Plan doprecyzowany
+w etap-4/INTERNET_WTYCZKI.md: odczyt, wyszukiwarka WWW, konektory/MCP, zapis.
+Pierwszy kod: typowany rejestr odczytu, flagi wiadomości, planer do 2 narzędzi,
+WWW HTTPS i publiczny GitHub. DNS/IP/TLS/redirecty/limity/proces/anulowanie,
+źródła w historii, migracja 5 z kopią. Planer nie dostaje historii ani PDF.
+Testy: 111 Python (107 OK, 4 Windows pominięte), 43 JS OK = 150 zaliczonych.
+Próba realnego publicznego GitHuba: tool_dns_failed w środowisku QA — NIE zaliczono.
+Prawdziwy Qwen3-8B z narzędziami/Windows/Job Object/wizualny UI do sprawdzenia.
+Start Windows: git pull --ff-only, START.cmd, Ctrl+F5; bez nowych modeli/wheels.
+Prywatny GitHub, zapis i pełna wyszukiwarka WWW nadal są planem.

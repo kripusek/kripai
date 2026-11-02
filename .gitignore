@@ -33,3 +33,4 @@ KripAI-backups/
 *.log
 node_modules/
 .venv/
+tools-tmp/

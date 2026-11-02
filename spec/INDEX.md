@@ -30,3 +30,6 @@ Doprecyzowanie właściciela: zdjęcia w czacie i formatowanie — etap-2.5a/CZA
 
 Etap 2.5b rozpoczęty: etap-2.5b/RAG.md i 004-rag.sql. Tekstowe PDF,
 E5 CPU i sqlite-vec; odbiór Windows i pełne benchmarki pozostają niewykonane.
+
+Etap 4: etap-4/INTERNET_WTYCZKI.md — jawny plan internetu, GitHuba,
+wyszukiwarki WWW, dalszych konektorów/MCP i operacji zapisu z uprawnieniami.

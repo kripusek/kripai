@@ -1,3 +1,4 @@
+from schema_helpers import drop_tools
 """RAG: prawdziwy sqlite-vec/SQLite/PDF/HTTP; model embeddingów kontrolowany."""
 from contextlib import contextmanager
 import concurrent.futures
@@ -164,13 +165,14 @@ class RagDataTests(DataCase):
         finally:rag.shutdown()
     def test_migrate_v3_backup_and_rollback_on_failure(self):
         with connect() as conn:
+            drop_tools(conn)
             for table in ['message_sources','rag_vectors','rag_chunks','rag_documents']:conn.execute('DROP TABLE '+table)
             conn.execute('ALTER TABLE runs DROP COLUMN rag_selection');conn.execute('DELETE FROM schema_migrations WHERE version=4')
         with patch.object(maintenance,'backup',side_effect=OSError('disk full')):
             with self.assertRaises(OSError):migrate()
         with connect() as conn:self.assertEqual(len(conn.execute('SELECT * FROM schema_migrations').fetchall()),3)
         migrate()
-        with connect() as conn:self.assertEqual(len(conn.execute('SELECT * FROM schema_migrations').fetchall()),4)
+        with connect() as conn:self.assertEqual(len(conn.execute('SELECT * FROM schema_migrations').fetchall()),len(migration_checksums()))
 
     def test_corrupt_derived_index_not_published_as_backup(self):
         self.ready()

@@ -79,3 +79,15 @@ Pobrano i zweryfikowano Windows/Linux wheels, DLL/SO i E5 Q8_0; hash w lockach.
 Jawny override tokenizer.ggml.token_type_count=int:2 wynika z config type_vocab_size
 i loadera b12000. Poprawność obu partycji vec0 i runtime E5 potwierdzono na Linux.
 Nie uznano dokumentacji upstream za test Windows.
+
+## Narzędzia odczytu 4a — 02.11.2026
+https://raw.githubusercontent.com/ggml-org/llama.cpp/b12000/docs/function-calling.md
+https://raw.githubusercontent.com/ggml-org/llama.cpp/b12000/tools/server/README.md
+https://docs.github.com/en/rest/repos/contents
+https://docs.github.com/en/rest/issues/issues#list-repository-issues
+https://docs.github.com/en/rest/search/search#search-repositories
+https://docs.python.org/3/library/http.client.html
+Włączono --jinja w tekstowym profilu; model i VRAM bez zmiany profilu.
+Publiczne GitHub API, bez tokenów. Własny adapter HTTPS przypina sprawdzone IP
+z TLS SNI i walidacją nazwy; testy kontrolowane. Rzeczywisty DNS hosta QA
+odmówił odczytu api.github.com; nie jest to potwierdzenie sieci na Windows.

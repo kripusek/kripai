@@ -5,7 +5,7 @@ Aktualizacja: 02.11.2026. Ten plik opisuje bieżącą paczkę; STATUS.md zachowu
 Etapy 1, 2 i 2.5a mają implementacje. Odbiór natywnego Windows nieukończony.
 Etap 2.5b ma pierwszy działający zakres: tekstowy PDF → indeks E5/sqlite-vec
 → wybór dokumentów → pytanie w czacie → źródła ze stroną i wycinkiem.
-Dokumenty skanowane i inne formaty nie są jeszcze indeksowane. Etapy 2.5c–6 planem.
+Dokumenty skanowane i inne formaty nie są jeszcze indeksowane. Rozpoczęty moduł 4a: jawny odczyt WWW/publicznego GitHuba. Etapy 2.5c, 3, 4b–4d i 5–6 planem.
 
 ## Źródła i stan GitHub
 Repo https://github.com/kripusek/kripai, main. Pierwsza publikacja źródeł:
@@ -27,7 +27,7 @@ aktualizacją gałęzi sprawdzać head, zachowywać nowszą pracę, bez force pu
 Szczegóły i granice: README.md, spec/, docs/AUDYT_2026-11-02.md.
 
 ## Potwierdzone wyniki
-Po dodaniu RAG: 96 Python (92 OK, 4 pominięte Windows) i 39 JS OK; 131 zaliczonych.
+Po dodaniu 4a: 111 Python (107 OK, 4 pominięte Windows) i 43 JS OK; 150 zaliczonych.
 Linux QA: Python 3.12.14, SQLite 3.53.1, sqlite-vec 0.1.6, FastAPI 0.115.12,
 Pydantic 2.14.1, Pillow 12.3.0, pypdfium2 5.14.0. To nie jest runtime Windows.
 W regresji: prawdziwe SQLite/vec0/PDF/procesy/HTTP, kontrolowane embeddingi/LLM.
@@ -48,7 +48,7 @@ Brak deklaracji pełnego audytu bezpieczeństwa lub gotowości produkcyjnej.
 
 Znane ograniczenia: skończony kontekst 4096/wyjście 2048; jedno zdjęcie na wiadomość;
 brak analizy dawnych pikseli bez ponownego załącznika, całodokumentowego OCR,
-pamięci poza wybranymi tekstowymi PDF i narzędzi. Lekki lexer nie pokrywa pełnej gramatyki języków
+pamięci poza wybranymi tekstowymi PDF oraz narzędzi zapisu. Lekki lexer nie pokrywa pełnej gramatyki języków
 (np. zagnieżdżonych szablonów); nieznane/duże bloki wyświetla jako zwykły tekst.
 Licencja własnego kodu nadal niewybrana. Publiczne repo samo nie nadaje licencji.
 
@@ -74,7 +74,7 @@ i model embeddingów CPU; nie zwiększono kontekstu modelu GPU.
 
 ## Decyzje architektoniczne
 Windows natywnie, localhost:8765, SQLite WAL, llama.cpp CUDA, RTX 3060 Ti 8 GB,
-jeden model/jedna generacja, bez WSL/Docker/PostgreSQL/Caddy i płatnego API.
+jeden model GPU/jedna generacja, bez WSL/Docker/PostgreSQL/Caddy i płatnego API.
 Dane/kopie poza programem; treść modelu/plików nie nadaje uprawnień.
 Nie zwiększono kontekstu ani obciążenia VRAM. Dalsze decyzje: spec/DECISIONS.md.
 
@@ -90,3 +90,27 @@ Kolejne zadania: odbiór tego przepływu na Windows i pomiar RAM/VRAM; jakość
 wyszukiwania PL/EN na większym zestawie; OCR skanowanych PDF/obsługa pustych
 stron i innych formatów; potem resumable upload 2.5c. Cardputer i zdalna bramka
 wymagają osobnego wdrożenia zgodnie ze specyfikacją, nie wystawienia localhost.
+
+## Moduł 4a — internet i publiczny GitHub
+Na wyraźne polecenie właściciela doprecyzowano plan internetu, wyszukiwarki,
+konektorów/MCP i uprawnień zapisu. Szczegóły: spec/etap-4/INTERNET_WTYCZKI.md.
+Kod 4a: app/network.py, tools.py, scripts/read_web.py, web/tools.js i migracja 5.
+Brak nowych zależności/modeli; tekstowy llama-server otrzymuje --jinja.
+Jawne flagi wiadomości; planer widzi tylko aktualną prośbę, do 2 odczytów.
+WWW: wyłącznie wskazany HTTPS URL. GitHub: wskazane publiczne owner/repo,
+README/issues oraz wyszukiwanie repo po fragmencie bieżącej wiadomości.
+Kontrola DNS/IP/TLS/redirectów, GET bez sekretów/proxy/cookies, proces 18 s/256 MiB,
+anulowanie/sesja/Gaming. Wyniki niezaufane, ograniczony kontekst i źródła w historii.
+
+NIE POTWIERDZONO: rzeczywisty odczyt internetu na QA (tool_dns_failed w próbie
+prawdziwego publicznego GitHuba); testy sieci są kontrolowane. Prawdziwy Qwen3-8B
+z narzędziami na Windows, nowy proces/Job Object i wizualny UI niewykonane.
+Raport: docs/INTERNET_TESTY.txt. Nie nazywać tego pełnym odbiorem etapu 4.
+
+Następne zadania integracji: odbiór 4a na Windows, 4b dostawca ogólnej
+wyszukiwarki WWW, 4c prywatne konta/adaptery/MCP i magazyn poświadczeń,
+4d zapis w zakresie jawnych uprawnień właściciela. Tokeny ChatGPT nie są dostępne
+lokalnemu KripAI. Pozostałe moduły z planu, w tym 2.5c i Cardputer, pozostają.
+
+Baza publikacji modułu 4a sprawdzona na GitHub: 504559f52c70544df2a56efa19584c330b31307a.
+Dokument nie zastępuje odczytu bieżącej gałęzi przed kolejnym pushem.

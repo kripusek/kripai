@@ -42,7 +42,7 @@ def connect():
 
 
 def migration_files():
-    return [config.ROOT/'spec/etap-1/baza.sql', config.ROOT/'spec/etap-2.5a/002-pliki.sql', config.ROOT/'spec/etap-2.5a/003-obraz-w-rozmowie.sql', config.ROOT/'spec/etap-2.5b/004-rag.sql']
+    return [config.ROOT/'spec/etap-1/baza.sql', config.ROOT/'spec/etap-2.5a/002-pliki.sql', config.ROOT/'spec/etap-2.5a/003-obraz-w-rozmowie.sql', config.ROOT/'spec/etap-2.5b/004-rag.sql', config.ROOT/'spec/etap-4/005-tools.sql']
 
 
 def migration_checksums():

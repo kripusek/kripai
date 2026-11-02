@@ -218,3 +218,14 @@ Skany i strony >12000 znaków są jawnie odrzucane; nie są gotowym indeksem.
 Usuń indeks zachowuje PDF, Usuń plik usuwa też indeks; wycinki znikają z replay.
 Sprawdź backup/restore źródeł i wektorów na danych testowych, bez kasowania
 prywatnej bazy. Zmierz RAM/VRAM — Linux QA nie potwierdza tych wyników Windows.
+
+## Internet/publiczny GitHub — pierwszy moduł 4a
+Windows: git pull --ff-only, START.cmd, Ctrl+F5. Nowa migracja ma kopię przed zmianą.
+Przełączniki pod czatem są początkowo wyłączone. Włącz Publiczny GitHub, wpisz
+„Przeczytaj README kripusek/kripai i streść go”. Oczekuj stanu odczytu i [W1].
+Dla WWW włącz Internet i podaj konkretny URL HTTPS. Odczyt do 1200 znaków,
+bez JavaScript; większa strona może być częściowym źródłem lub zostać odrzucona.
+Sprawdź offline/Cancel/Gaming/wylogowanie, odmowę localhost i błędnego serwera.
+Prywatne repo, zapis i ogólne wyszukiwanie WWW jeszcze niedostępne.
+Jeżeli brak źródła, panel nie potwierdza, że odpowiedź ma aktualne dane z internetu.
+Natywny odbiór modelu z narzędziami, sieci i UI nie został wykonany w QA.

@@ -288,3 +288,9 @@ NIE WYKONANO: push main, oczekuje zatwierdzenia zakresu przez właściciela.
 Rzeczywisty E5 i PDF→vec0→retrieval sprawdzone osobno na Linux.
 Pełne logi, poprawka metadanych modelu i ograniczenia: docs/RAG_TESTY.txt.
 Windows/CUDA/VRAM i wizualny UI pozostają NIE URUCHOMIONE.
+
+
+=== INTERNET I INTEGRACJE 4a — 02.11.2026 ===
+111 Python: 107 OK, 4 Windows pominięte; 43 JS OK = 150 zaliczonych.
+Sieć/model planera kontrolowane w regresji; rzeczywista próba GitHub: tool_dns_failed.
+Brak natywnego Windows i prawdziwego Qwen3-8B z tools. Pełny raport INTERNET_TESTY.txt.

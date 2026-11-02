@@ -74,3 +74,10 @@ starych sesji, sekretów, kolejek ani zdarzeń; nie usuwa starej bazy.
     Model/revizja/SHA i jawny override metadanych w rag-lock.json; szczegóły RAG.md.
     Źródła wybierane jawnie; filtry owner+document wewnątrz KNN, checkpoint strony,
     usuwanie pochodnych i wycinków z kopią. Nadal bez narzędzi agenta i bez cloud.
+
+23. Właściciel 02.11.2026 wymaga internetu i wtyczek, w tym GitHuba, w dalszym
+    planie. Rozpoczęto 4a przed pozostałymi modułami: odczyt jawnie wskazanych
+    publicznych zasobów, per-message web/GitHub, typowany rejestr i maks. 2 odczyty.
+    Planer bez prywatnej historii/PDF, brak nowych modeli/płatnego API.
+    Wyszukiwarka WWW, kolejne konektory/MCP, prywatne konta i zapis to 4b–4d.
+    Lokalny KripAI nie dziedziczy wtyczek ani tokenów ChatGPT. Szczegóły etap-4.

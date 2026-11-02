@@ -49,3 +49,8 @@ Sesja, ACL, Origin i CSRF jak pozostałe operacje; brak dowolnych ścieżek/SQL.
 MessageCreate.document_ids: do 5 gotowych PDF właściciela, bez jednoczesnego
 attachment_id. Run zapisuje wybór; SSE rag.sources i messages.sources zawierają
 użyte wycinki. Usunięcie indeksu usuwa je również z replay SSE. Szczegóły RAG.md.
+
+Etap 4a: MessageCreate.allow_web/allow_github (false) zapisane w run z sesją.
+Bez nowego endpointu wykonującego dowolne polecenia. SSE tool.activity i
+ tool.sources; messages.tool_sources zawiera wycinki/URL. Obrazy i narzędzia
+wysyłane osobno. Backup obejmuje tool_sources; migracja 5 z kopią.

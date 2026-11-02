@@ -14,7 +14,7 @@ class ModelProcess:
             '--model',str(config.DATA/'models/model.gguf'),'--host','127.0.0.1','--port','8766',
             '--ctx-size',str(config.CONTEXT),'--n-gpu-layers','99','--parallel','1',
             '--api-key-file',str(config.DATA/'llm.key'),'--log-disable',
-            '--chat-template-kwargs','{"enable_thinking":false}']
+            '--jinja','--chat-template-kwargs','{"enable_thinking":false}']
         self.launch=launch;self.health=health or self.probe;self.clock=clock
         self.process=None;self.started=0;self.state='offline';self.retry_at=0
         self.job=ModelJob()
@@ -24,7 +24,7 @@ class ModelProcess:
             '--model',str(config.DATA/'models'/('model.gguf' if profile=='text' else 'vision-model.gguf')),
             '--host','127.0.0.1','--port','8766','--ctx-size',str(config.CONTEXT),
             '--n-gpu-layers','99','--parallel','1','--api-key-file',str(config.DATA/'llm.key'),'--log-disable']
-        if profile=='text':command+=['--chat-template-kwargs','{"enable_thinking":false}']
+        if profile=='text':command+=['--jinja','--chat-template-kwargs','{"enable_thinking":false}']
         else:command+=['--mmproj',str(config.DATA/'models/vision-mmproj.gguf'),'--no-mmproj-offload','--image-max-tokens','1024']
         return command
     def probe(self):

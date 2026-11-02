@@ -1,3 +1,4 @@
+from schema_helpers import drop_tools
 """Prawdziwa baza/API/dekoder; VLM kontrolowany, bez GPU w teście."""
 import concurrent.futures
 import threading
@@ -91,6 +92,7 @@ class ChatImageTests(DataCase):
     def test_v2_upgrade_backup_failure_then_success_preserves_images(self):
         aid=self.upload()
         with connect() as conn:
+            drop_tools(conn)
             conn.execute('DROP TABLE message_sources');conn.execute('DROP TABLE rag_vectors');conn.execute('DROP TABLE rag_chunks');conn.execute('DROP TABLE rag_documents');conn.execute('ALTER TABLE runs DROP COLUMN rag_selection')
             conn.execute('DROP TABLE message_images');conn.execute('DELETE FROM schema_migrations WHERE version>=3')
         with patch.object(maintenance,'backup',side_effect=OSError('disk full')):

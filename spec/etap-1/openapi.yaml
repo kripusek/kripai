@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.4.0
+  version: 1.5.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -992,6 +992,14 @@ components:
             format: uuid
           - type: 'null'
           title: Attachment Id
+        allow_web:
+          type: boolean
+          default: false
+          description: Zezwól na odczyt publicznych HTTPS URL wskazanych w bieżącej wiadomości
+        allow_github:
+          type: boolean
+          default: false
+          description: Zezwól na odczyt publicznego owner/repo i wyszukiwanie repo po fragmencie bieżącej wiadomości
         document_ids:
           type: array
           maxItems: 5
@@ -1039,6 +1047,16 @@ components:
               filename: {type: string}
               page: {type: integer}
               excerpt: {type: string, maxLength: 1000}
+        tool_sources:
+          type: array
+          items:
+            type: object
+            properties:
+              ordinal: {type: integer}
+              name: {type: string}
+              url: {type: string, format: uri}
+              title: {type: string}
+              excerpt: {type: string, maxLength: 1200}
     RunCreated:
       type: object
       required:

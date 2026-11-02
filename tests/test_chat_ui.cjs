@@ -64,3 +64,10 @@ test('wybrane dokumenty trafiają do wiadomości; zdjęcie i dokumenty nie są w
  const other=await harness();other.ctx.window.KripRag={selection:()=>['pdf-id']};other.paste();await other.doc.getElementById('composer').onsubmit({preventDefault(){}});
  assert(!other.calls.some(([u,o])=>u.includes('/messages')&&o.method==='POST'));assert.match(other.doc.getElementById('notice').textContent,/osobno/);
 });
+test('jawne uprawnienia narzędzi trafiają do żądania, a logout je czyści',async()=>{
+ const h=await harness();let cleared=false;h.ctx.window.KripTools={permissions:()=>({allow_web:true,allow_github:false}),renderSources(){},clear(){cleared=true;}};
+ h.doc.getElementById('prompt').value='Przeczytaj https://example.org';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});
+ const body=JSON.parse(h.calls.find(([u,o])=>u.includes('/messages')&&o.method==='POST')[1].body);assert.equal(body.allow_web,true);assert(!body.allow_github);
+ h.streams[0].events['tool.sources']({data:JSON.stringify({items:[]})});assert.match(h.doc.getElementById('notice').textContent,/nie jest potwierdzona/);
+ await h.doc.getElementById('logout').onclick();assert(cleared);
+});
