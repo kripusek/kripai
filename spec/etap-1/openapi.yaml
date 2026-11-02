@@ -9,6 +9,44 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /integrations/github/connect:
+    post:
+      summary: Test i zapis lokalnego połączenia GitHub przez DPAPI (owner i CSRF)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [repositories, token]
+              properties:
+                repositories:
+                  type: array
+                  minItems: 1
+                  maxItems: 5
+                  items:
+                    type: string
+                token:
+                  type: string
+                  writeOnly: true
+                  maxLength: 512
+                write:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Login i repozytoria bez tokenu
+        '409':
+          description: Błąd połączenia lub konfiguracji
+        '403':
+          description: Brak uprawnień owner, CSRF lub Origin
+  /integrations/github/disconnect:
+    post:
+      summary: Lokalne odłączenie z kopią zaszyfrowanej konfiguracji (owner i CSRF)
+      responses:
+        '204':
+          description: Odłączono lokalnie; token wymaga osobnego unieważnienia w GitHub
   /integrations/github/drafts:
     get:
       summary: Lokalne propozycje zmian należące do zalogowanego owner

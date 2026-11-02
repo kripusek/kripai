@@ -212,3 +212,6 @@ Integracje 4c: panel stanu przy przełącznikach internetu, odczyt plików i kat
 Nowe: automatyczna kontynuacja długich odpowiedzi tekstowych (do 8 porcji),
 zachowanie częściowego tekstu przy awarii oraz lokalne propozycje zmian GitHuba
 z publikacją na nowej gałęzi i PR w ograniczonym repo. [Konfiguracja i limity](docs/PR_I_DLUGIE_ODPOWIEDZI.md).
+
+Opcje rozmowy są teraz pod przyciskiem +. GitHub połączysz w oknie Połączenia,
+bez PowerShella: [kreator i zasady](docs/MENU_I_POLACZENIE_GITHUB.md).

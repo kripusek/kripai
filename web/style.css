@@ -25,3 +25,23 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+#composer{position:relative}
+.composer-actions{display:flex;gap:10px;align-items:center;flex-shrink:0}
+#notice:empty{display:none}
+#composerPlus{width:36px;height:36px;padding:0;border:0;border-radius:50%;font-size:26px;line-height:1;background:transparent}
+#composerPlus:hover,#composerPlus[aria-expanded="true"]{background:var(--soft)}
+#enabledTools{font-size:12px;color:var(--muted)}
+@media(max-width:460px){#enabledTools{display:none}}
+#composer>.composer-menu{display:block;position:absolute;left:0;bottom:calc(100% + 8px);z-index:20;width:360px;max-width:calc(100vw - 210px);max-height:65dvh;overflow:auto;padding:16px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 40px #19332626}
+@media(max-width:460px){#composer>.composer-menu{max-width:calc(100vw - 150px)}}
+.composer-menu>button{display:block;width:100%;text-align:left;border:0;background:transparent;margin:3px 0}
+.composer-menu .tools-bar{display:block;border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
+.composer-menu .tools-bar label{margin:10px 0}
+.composer-menu .tools-bar small{display:block;font-size:11px}
+.composer-menu .voiceBar{border-top:1px solid var(--line);padding-top:12px}
+.composer-menu .rag-bar{flex-wrap:wrap}
+#integrationsDialog{max-width:720px;max-height:85dvh;overflow:auto}
+#integrationsPanel .check-row{display:flex;gap:10px;align-items:center}
+#integrationsPanel .check-row input{width:auto;margin:0}
+#integrationsPanel form button{margin:12px 8px 0 0}
+#integrationsPanel pre{max-height:24rem;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}

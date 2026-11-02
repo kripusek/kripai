@@ -299,3 +299,17 @@ Pełnej listy 50 punktów na CUDA NIE UKOŃCZONO w tej próbie: model generował
 bardzo wolno przy 100% obciążenia GPU (7421/8192 MiB). Potwierdzono przejście
 planera bez sieci; nie deklarujemy odbioru wszystkich 50 punktów. Zatrzymano
 wyłącznie własny proces verify_plain_advice.py, bez zatrzymywania backendu/modelu.
+
+## 02.11.2026 — menu plus i lokalny kreator GitHuba
+Stały pasek narzędzi zastąpiono menu + przy Wyślij; połączenia i propozycje PR
+są w osobnym oknie. Kreator tworzy/testuje połączenie tokenem z poziomu UI,
+Windows DPAPI, kopia przed zmianą/odłączeniem, bez tokenu w rozmowie/modelu.
+Nie jest to OAuth: własna aplikacja GitHub nadal nieskonfigurowana.
+Windows: 150/150 Python i Node 48/48 OK. Prawdziwy Chrome desktop/390 px
+z kontrolowanym API: menu, zamykanie, formularz i układ bez poziomego przepełnienia.
+Poświadczenia właściciela niezmienione; konto rzeczywiste NIE PODŁĄCZANE w teście.
+Struktura/start/limity: docs/MENU_I_POLACZENIE_GITHUB.md. Nowe github_connect.py
+i composer-menu.js. Start nadal WYLACZ/START, Ctrl+F5; bez modeli/zależności.
+Następny moduł: odczytowe uzgadnianie niepewnego wyniku publikacji PR; potem
+kopie dziennika, MCP i trafniejszy dostawca WWW. Użytkownik potwierdził działanie
+poprzedniej poprawki planera/długiej odpowiedzi.

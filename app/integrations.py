@@ -29,7 +29,7 @@ class GithubAdapter:
             if not isinstance(repos, list) or not repos or any(not valid_repo(r) for r in repos): raise ValueError()
             writes=data.get('write_repositories',[])
             if not isinstance(writes,list) or any(r!='kripusek/kripusek-autoexec' or r not in [p.lower() for p in repos] for r in writes):raise ValueError()
-            return {'repositories': [r.lower() for r in repos], 'credential': data['credential'],'write_repositories':writes}
+            return {'repositories': [r.lower() for r in repos], 'credential': data['credential'],'write_repositories':writes,'login':data.get('login')}
         except (OSError, ValueError, KeyError, TypeError):
             raise ToolError('integration_configuration_invalid') from None
 
@@ -59,7 +59,7 @@ class GithubAdapter:
     def status(self):
         try:
             data = self.configuration()
-            return {'name': self.name, 'public': True, 'configured': bool(data['repositories']), 'repositories': data['repositories'], 'read_only': not bool(data.get('write_repositories')), 'write_repositories':data.get('write_repositories',[])}
+            return {'name': self.name, 'public': True, 'configured': bool(data['repositories']), 'repositories': data['repositories'], 'read_only': not bool(data.get('write_repositories')), 'write_repositories':data.get('write_repositories',[]),'login':data.get('login')}
         except ToolError as exc: return {'name': self.name, 'error': exc.code, 'read_only': True}
 
 class WebAdapter:

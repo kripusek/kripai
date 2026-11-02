@@ -24,7 +24,7 @@ from .context import prepare, ContextTooLarge
 from .model_process import control
 from . import voice, media, rag, tools
 from fastapi.staticfiles import StaticFiles
-from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex
+from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect
 from .security import digest, password_hash, verify_password
 
 ORIGIN = config.ORIGIN
@@ -363,6 +363,25 @@ def integrations_status(user=Depends(identity)):
 def github_drafts(user=Depends(identity)):
     from .github_changes import list_drafts
     return {'items':list_drafts(user['id'])}
+
+@app.post('/api/v1/integrations/github/connect')
+def github_connect(body: 'GithubConnect', user=Depends(identity)):
+    if user['username']!='owner':fail(403,'integration_owner_required')
+    from .github_connect import connect as configure
+    def check_connection_session():
+        with connect() as conn:
+            if not conn.execute('SELECT 1 FROM sessions WHERE id=? AND revoked_at IS NULL AND expires_at>now()',(user['session_id'],)).fetchone():raise tools.ToolError('login_required')
+    try:return configure(body.repositories,body.token.get_secret_value(),body.write,check_connection_session)
+    except tools.ToolError as exc:fail(409,exc.code)
+    except OSError:fail(503,'integration_configuration_failed')
+
+@app.post('/api/v1/integrations/github/disconnect',status_code=204)
+def github_disconnect(user=Depends(identity)):
+    if user['username']!='owner':fail(403,'integration_owner_required')
+    from .github_connect import disconnect
+    try:disconnect()
+    except OSError:fail(503,'integration_configuration_failed')
+    return Response(status_code=204)
 
 @app.post('/api/v1/integrations/github/drafts/{did}/publish')
 def github_publish(did:UUID,user=Depends(identity)):

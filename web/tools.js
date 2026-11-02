@@ -3,7 +3,7 @@ window.KripTools=(()=>{
  const $=id=>document.getElementById(id);
  const labels={github_draft:'Przygotowuję propozycję zmian',web_read:'Czytam stronę WWW',web_search:'Szukam w internecie',github_read:'Czytam repozytorium GitHub',github_find:'Szukam repozytoriów GitHub'};
  function permissions(){return {allow_web:!!$('allowWeb').checked,allow_github:!!$('allowGithub').checked};}
- function clear(){$('allowWeb').checked=false;$('allowGithub').checked=false;}
+ function clear(){$('allowWeb').checked=false;$('allowGithub').checked=false;window.KripMenu?.close();window.KripMenu?.summary();}
  function renderSources(target,items){
   let list=target._toolSources;if(!list){list=document.createElement('div');list.className='rag-sources';target.parentNode.append(list);target._toolSources=list;}
   list.replaceChildren();

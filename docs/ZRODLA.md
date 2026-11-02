@@ -112,3 +112,7 @@ https://docs.github.com/en/rest/git/trees#create-a-tree
 https://docs.github.com/en/rest/git/commits#create-a-commit
 https://docs.github.com/en/rest/git/refs#create-a-reference
 https://docs.github.com/en/rest/pulls/pulls#create-a-pull-request
+
+## Kreator GitHub
+https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectdata

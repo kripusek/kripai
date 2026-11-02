@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 from uuid import UUID
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 class Strict(BaseModel):
     model_config = ConfigDict(extra='forbid')
@@ -43,3 +43,8 @@ class ImageQuestion(Strict):
 
 class RagIndex(Strict):
     rebuild: bool = False
+
+class GithubConnect(Strict):
+    repositories:list[str]=Field(min_length=1,max_length=5)
+    token:SecretStr=Field(min_length=1,max_length=512)
+    write:bool=False
