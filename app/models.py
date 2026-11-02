@@ -20,6 +20,7 @@ class MessageCreate(Strict):
     document_ids: list[UUID] = Field(default_factory=list,max_length=5)
     allow_web: bool = False
     allow_github: bool = False
+    allow_mcp: bool = False
 
 class Mode(Strict):
     mode: Literal['normal','gaming']

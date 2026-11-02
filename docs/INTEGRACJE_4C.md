@@ -71,3 +71,9 @@ instalacji/uninstall, wszystkich stron, CAPTCHA, logowania ani JavaScript.
 Źródła kontraktów:
 [GitHub Contents API](https://docs.github.com/en/rest/repos/contents),
 [Microsoft DPAPI](https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptunprotectdata).
+
+## Aktualizacja: pierwszy zakres MCP wdrożony
+Wcześniejsza sekcja „kolejny konkretny zakres” jest historyczna. Działa lokalny
+serwer dokumentacji stdio, klient, tools/list/call, zgoda, źródła i test połączenia.
+Nie udostępniamy jeszcze konfiguracji dowolnego programu dostawcy. Pełny kontrakt,
+rzeczywisty test CUDA i następny zewnętrzny dostawca: [MCP.md](MCP.md).

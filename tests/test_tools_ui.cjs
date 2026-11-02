@@ -1,6 +1,12 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
 const {document,Node,walk}=require('./dom.cjs');
 function harness(){const doc=document(),ctx={document:doc,window:{},URL};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/tools.js'),'utf8'),ctx);return {doc,api:ctx.window.KripTools};}
+test('MCP domyślnie wyłączone, czyszczone przy wylogowaniu i bezpieczny link lokalnego źródła',()=>{
+ const h=harness();assert.equal(h.api.permissions().allow_mcp,false);h.doc.getElementById('allowMcp').checked=true;assert.equal(h.api.permissions().allow_mcp,true);h.api.clear();assert.equal(h.api.permissions().allow_mcp,false);
+ const box=new Node('article'),target=new Node('div');box.append(target);
+ h.api.renderSources(target,[{ordinal:1,name:'mcp_docs',title:'Dokument',url:'/api/v1/integrations/mcp/document?path=README.md',text:'tekst'},{ordinal:2,name:'web_read',title:'Nieuprawniony',url:'/api/v1/integrations/mcp/document?path=README.md'},{ordinal:3,name:'mcp_docs',title:'Obcy',url:'http://external.invalid/x'}]);
+ const links=walk(box).filter(n=>n.tagName==='a');assert.equal(links.length,1);assert.equal(links[0].href,'/api/v1/integrations/mcp/document?path=README.md');
+});
 test('internet i GitHub domyślnie wyłączone, przełączniki niezależne i czyszczone',()=>{
  const h=harness();assert.equal(h.api.permissions().allow_web,false);assert.equal(h.api.permissions().allow_github,false);
  h.doc.getElementById('allowGithub').checked=true;assert.equal(h.api.permissions().allow_github,true);assert.equal(h.api.permissions().allow_web,false);

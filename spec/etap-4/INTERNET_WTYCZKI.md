@@ -108,3 +108,9 @@ MCP/OAuth z własną aplikacją nadal planem; istnieje działający kreator toke
 ## Kopie dziennika 4d
 Kopie i monotoniczny odzysk lokalnego dziennika opisuje docs/KOPIE_DZIENNIKA_GITHUB.md
 w katalogu głównym. Przywrócenie danych nie zatwierdza ponownego zapisu do GitHuba.
+
+## MCP stdio — wdrożony pierwszy zakres
+Wcześniejsze zapisy „MCP nadal planem” opisują poprzednie paczki. Wbudowany
+serwer dokumentacji, klient stdio, read-only narzędzia, zgoda, źródła i test
+połączenia działają i przeszły rzeczywistą próbę CUDA. Nie jest to obsługa
+dowolnych serwerów MCP. Granice i kolejny konkretny zakres: ../../docs/MCP.md.

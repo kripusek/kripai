@@ -187,7 +187,7 @@ def search(query):
         if len(items)>=5:break
     return {'provider':'Bing RSS','query':query,'items':items}
 
-def policy(text,web=False,github=False):
+def policy(text,web=False,github=False,mcp=False):
     urls=[];repos=set()
     for raw in re.findall(r'https://[^\s<>"\[\]()]+',text):
         try:
@@ -200,7 +200,8 @@ def policy(text,web=False,github=False):
     for match in re.finditer(r'(?<![\w./-])([A-Za-z0-9_.-]{1,100}/[A-Za-z0-9_.-]{1,100})(?![\w./-])',text):
         pair=match[1].rstrip('.,;!')
         if valid_repo(pair):repos.add(pair.lower())
-    return {'web':bool(web),'github':bool(github),'urls':urls,'repositories':sorted(repos),'request':text}
+    documents=re.findall(r'(?<![\w./-])([A-Za-z0-9_./-]+\.md)(?![\w./-])',text)
+    return {'web':bool(web),'github':bool(github),'mcp':bool(mcp),'documents':list(dict.fromkeys(documents)),'urls':urls,'repositories':sorted(repos),'request':text}
 
 def valid_repo(value):
     return isinstance(value,str) and bool(re.fullmatch(r'[A-Za-z0-9_.-]{1,100}/[A-Za-z0-9_.-]{1,100}',value)) and all(part not in {'.','..'} for part in value.split('/'))

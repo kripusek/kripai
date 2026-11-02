@@ -1,7 +1,7 @@
 'use strict';
 window.KripIntegrations=(()=>{
  const $=id=>document.getElementById(id);
- let state,repo,token,write,drafts,connectButton,disconnectButton,epoch=0;
+ let state,repo,token,write,drafts,connectButton,disconnectButton,mcpState,epoch=0;
  const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
  const errors={tool_remote_denied:'GitHub odrzucił token, dostęp do repo lub ograniczył liczbę żądań.',tool_http_error:'Nie znaleziono repozytorium. Sprawdź nazwę i dostęp.',tool_dns_failed:'Nie można odnaleźć GitHuba.',tool_network_failed:'Nie można połączyć się z GitHubem.',integration_repositories_invalid:'Podaj od 1 do 5 nazw owner/repo, oddzielonych przecinkiem.',integration_configuration_failed:'Nie zapisano konfiguracji. Sprawdź folder danych i kopii.',integration_token_invalid:'Wpisz poprawny token w polu połączenia.'};
  function clear(){epoch++;if(token)token.value='';if(repo)repo.value='';if(state)state.textContent='';if(drafts)drafts.replaceChildren();$('integrationsDialog')?.close();}
@@ -15,6 +15,7 @@ window.KripIntegrations=(()=>{
  async function refresh(){
   const version=epoch;
   try{const data=await api('/integrations');if(version!==epoch)return;const github=data.items.find(x=>x.name==='github');
+   const mcp=data.items.find(x=>x.name==='mcp');mcpState.textContent=mcp?.available?'Lokalny serwer dokumentacji gotowy. Włącz MCP w menu +. Dostęp tylko do odczytu.':'Lokalny serwer MCP niedostępny. Zaktualizuj program przez START.cmd.';
    state.textContent=github?.configured?'Połączono'+(github.login?' jako '+github.login:'')+' · '+github.repositories.join(', ')+((github.write_repositories||[]).length?' · tworzenie PR włączone':' · tylko odczyt. Propozycje zmian działają; publikacja PR wymaga włączenia zapisu poniżej i tokenu z uprawnieniami Contents/Pull requests: write.'):'Publiczny GitHub działa bez konta. Połącz konto do prywatnych repozytoriów i PR.';
    disconnectButton.disabled=!github?.configured;
    if(github?.configured){repo.value=github.repositories.join(', ');write.checked=!!github.write_repositories?.length;write.onchange?.();}
@@ -52,6 +53,8 @@ window.KripIntegrations=(()=>{
   disconnectButton.onclick=async()=>{disconnectButton.disabled=true;try{await request('/disconnect','POST');token.value='';repo.value='';write.checked=false;tokenLink();await refresh();state.textContent='Odłączono lokalnie. Unieważnij token również w ustawieniach GitHuba. Zaszyfrowana kopia konfiguracji pozostaje w folderze kopii.';}catch(e){state.textContent=e.message;}finally{disconnectButton.disabled=false;}};
   drafts=el('div');const refreshButton=el('button','Pokaż propozycje zmian');refreshButton.type='button';refreshButton.onclick=refreshDrafts;
   panel.append(state,form,hint,el('h3','Propozycje zmian'),refreshButton,drafts);
+  mcpState=el('p','Lokalna dokumentacja KripAI, bez konta i internetu.');const mcpTest=el('button','Test połączenia MCP');mcpTest.type='button';mcpTest.onclick=async()=>{const version=epoch;mcpTest.disabled=true;try{const result=await api('/integrations/mcp/test','POST');if(version===epoch)mcpState.textContent=result.available?'MCP działa · dostępnych dokumentów: '+result.documents:'MCP niedostępny. '+({mcp_timeout:'Przekroczono czas połączenia.',mcp_disconnected:'Proces serwera zakończył połączenie.',mcp_protocol_invalid:'Niepoprawny protokół serwera.',mcp_remote_error:'Serwer odmówił odczytu.'}[result.error]||'Sprawdź pliki programu i uruchom test ponownie.');}catch(e){if(version===epoch)mcpState.textContent=e.message;}finally{mcpTest.disabled=false;}};
+  panel.append(el('h3','MCP · dokumentacja lokalna'),mcpState,mcpTest);
   $('integrationsDialog').addEventListener('close',()=>{token.value='';});
  });
  return {refresh,clear};

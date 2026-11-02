@@ -111,7 +111,7 @@ def infer(run):
             history = conn.execute('SELECT role,content FROM messages WHERE conversation_id=? ORDER BY seq DESC LIMIT 200',(run['conversation_id'],)).fetchall()[::-1]
             total=conn.execute('SELECT count(*) AS n FROM messages WHERE conversation_id=?',(run['conversation_id'],)).fetchone()['n']
         readings=None
-        if run.get('allow_web') or run.get('allow_github'):
+        if run.get('allow_web') or run.get('allow_github') or run.get('allow_mcp'):
             def check_tools():
                 with connect() as conn:
                     state=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()['status']
@@ -122,7 +122,7 @@ def infer(run):
                 if not session:raise tools.ToolError('login_required')
             def activity(name,state):
                 with connect() as conn:event(conn,rid,'tool.activity',{'name':name,'state':state})
-            scope=tools.policy(history[-1]['content'],run['allow_web'],run['allow_github'])
+            scope=tools.policy(history[-1]['content'],run['allow_web'],run['allow_github'],run.get('allow_mcp',False))
             with connect() as conn:scope['owner']=conn.execute('SELECT owner_id FROM conversations WHERE id=?',(run['conversation_id'],)).fetchone()['owner_id']
             with httpx.Client(timeout=30,headers=config.llm_headers(),trust_env=False) as planner:
                 # Planer nie dostaje prywatnej historii ani PDF; tylko bieżącą prośbę.
@@ -359,6 +359,24 @@ def integrations_status(user=Depends(identity)):
     from .integrations import ADAPTERS
     return {'items':[adapter.status() for adapter in ADAPTERS.values()]}
 
+@app.post('/api/v1/integrations/mcp/test')
+def mcp_test(user=Depends(identity)):
+    from .mcp_client import execute
+    try:
+        result=execute('list');return {'available':True,'documents':len(result['paths']),'read_only':True}
+    except tools.ToolError as exc:return {'available':False,'error':exc.code}
+
+@app.get('/api/v1/integrations/mcp/catalog')
+def mcp_catalog(user=Depends(identity)):
+    from .mcp_documents import catalog
+    return catalog(config.ROOT)
+
+@app.get('/api/v1/integrations/mcp/document')
+def mcp_document(path:str=Query(max_length=200),user=Depends(identity)):
+    from .mcp_documents import document
+    try:return Response(document(config.ROOT,path)['text'],media_type='text/plain')
+    except tools.ToolError as exc:fail(404,exc.code)
+
 @app.get('/api/v1/integrations/github/drafts')
 def github_drafts(user=Depends(identity)):
     from .github_changes import list_drafts
@@ -445,14 +463,15 @@ def send(cid:UUID,body:MessageCreate,request:Request,user=Depends(identity)):
     key=key_from(request);route=str(request.url.path)
     with connect() as conn:
         owned(conn,cid,user['id'])
-        cached=idempotent(conn,user['id'],route,key,body.model_dump(mode='json'))
+        # Nowa flaga false ma identyczne znaczenie jak brak flagi w starym UI.
+        cached=idempotent(conn,user['id'],route,key,body.model_dump(mode='json',exclude={'allow_mcp'} if not body.allow_mcp else set()))
         if cached is not None: return JSONResponse(cached,202)
         if conn.execute('SELECT requested_mode FROM system_mode').fetchone()['requested_mode']!='normal': fail(503,'gaming_mode')
         if conn.execute('SELECT requested_profile FROM system_mode').fetchone()['requested_profile']!='text':fail(409,'vision_busy')
         if conn.execute('SELECT controller_state FROM system_mode').fetchone()['controller_state']!='ready':fail(503,'model_unavailable')
         if conn.execute("SELECT 1 FROM runs WHERE status NOT IN ('completed','cancelled','failed','expired','outcome_unknown') LIMIT 1").fetchone(): fail(409,'generation_busy')
         if conn.execute('SELECT 1 FROM messages WHERE conversation_id=? AND client_message_id=?',(cid,body.client_message_id)).fetchone(): fail(409,'client_message_conflict')
-        if body.attachment_id and (body.allow_web or body.allow_github):fail(422,'tool_image_combination')
+        if body.attachment_id and (body.allow_web or body.allow_github or body.allow_mcp):fail(422,'tool_image_combination')
         if body.document_ids:
             if body.attachment_id:fail(422,'rag_image_combination')
             rag.validate_selection(conn,body.document_ids,user['id'])
@@ -465,7 +484,7 @@ def send(cid:UUID,body:MessageCreate,request:Request,user=Depends(identity)):
         if body.attachment_id:
             conn.execute('INSERT INTO message_images VALUES (?,?,?)',(mid,body.attachment_id,user['session_id']))
         conn.execute('INSERT INTO runs(id,conversation_id,user_message_id,status) VALUES (?,?,?,\'queued\')',(rid,cid,mid))
-        conn.execute('UPDATE runs SET rag_selection=?,allow_web=?,allow_github=?,tool_session_id=? WHERE id=?',(json.dumps([str(x) for x in body.document_ids]),int(body.allow_web),int(body.allow_github),user['session_id'] if body.allow_web or body.allow_github else None,rid))
+        conn.execute('UPDATE runs SET rag_selection=?,allow_web=?,allow_github=?,allow_mcp=?,tool_session_id=? WHERE id=?',(json.dumps([str(x) for x in body.document_ids]),int(body.allow_web),int(body.allow_github),int(body.allow_mcp),user['session_id'] if body.allow_web or body.allow_github or body.allow_mcp else None,rid))
         conn.execute("UPDATE conversations SET updated_at=now(),title=CASE WHEN title='' THEN ? ELSE title END WHERE id=?",(body.text[:60],cid))
         event(conn,rid,'run.status',{'state':'queued'})
         return remember(conn,user['id'],route,key,{'message_id':str(mid),'run_id':str(rid),'status':'queued'})

@@ -51,7 +51,7 @@ $('composer').onsubmit=async e=>{
  const text=$('prompt').value.trim()||(KripAttachments.has()?'Opisz to zdjęcie.':'');if(!text)return;
  notice('');busy(true);const submission=++submissionEpoch,key=crypto.randomUUID(),body={text,client_message_id:crypto.randomUUID()};
  try{
-  const permissions=window.KripTools?.permissions()||{};if((permissions.allow_web||permissions.allow_github)&&KripAttachments.has())throw Error(labels.tool_image_combination);if(permissions.allow_web)body.allow_web=true;if(permissions.allow_github)body.allow_github=true;
+  const permissions=window.KripTools?.permissions()||{};if((permissions.allow_web||permissions.allow_github||permissions.allow_mcp)&&KripAttachments.has())throw Error(labels.tool_image_combination);if(permissions.allow_web)body.allow_web=true;if(permissions.allow_github)body.allow_github=true;if(permissions.allow_mcp)body.allow_mcp=true;
   const documents=window.KripRag?.selection()||[];if(documents.length&&KripAttachments.has())throw Error(labels.rag_image_combination);if(documents.length)body.document_ids=documents;
   const attachmentId=await KripAttachments.upload();if(submission!==submissionEpoch)return;if(attachmentId)body.attachment_id=attachmentId;
   if(!current){const c=await api('/conversations','POST',{});if(submission!==submissionEpoch)return;current=c.id;$('messages').replaceChildren();}

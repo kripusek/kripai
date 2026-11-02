@@ -218,3 +218,8 @@ bez PowerShella: [kreator i zasady](docs/MENU_I_POLACZENIE_GITHUB.md).
 
 Kopie obejmują również propozycje i dziennik GitHuba. Przenoś cały zestaw
 SQLite + .github + .github.sha256: [zasady i odzysk](docs/KOPIE_DZIENNIKA_GITHUB.md).
+
+Nowe MCP: w menu + wybierz „MCP: dokumentacja KripAI”, a następnie poproś np.
+o odczyt docs/KOPIE_DZIENNIKA_GITHUB.md. Połączenia zawierają rzeczywisty test
+serwera. Działa lokalnie bez konta, wyłącznie do odczytu dokumentacji programu:
+[użycie, wyniki i granice MCP](docs/MCP.md). Zewnętrzne serwery MCP są dalszym etapem.

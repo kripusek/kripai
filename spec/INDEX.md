@@ -33,3 +33,5 @@ E5 CPU i sqlite-vec; odbiór Windows i pełne benchmarki pozostają niewykonane.
 
 Etap 4: etap-4/INTERNET_WTYCZKI.md — jawny plan internetu, GitHuba,
 wyszukiwarki WWW, dalszych konektorów/MCP i operacji zapisu z uprawnieniami.
+
+Pierwszy zakres MCP stdio: ../docs/MCP.md oraz etap-4/006-mcp.sql.

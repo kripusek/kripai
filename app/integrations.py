@@ -73,10 +73,20 @@ class WebAdapter:
         return {'name': self.name, 'configured': True, 'provider': 'Bing RSS', 'read_only': True}
 
 
-ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter()}
+class McpAdapter:
+    name='mcp'
+    def status(self):return {'name':self.name,'configured':True,'available':(config.ROOT/'scripts/mcp_docs_server.py').is_file(),'read_only':True,'provider':'Dokumentacja KripAI · MCP stdio'}
+    def read(self,name,arguments,scope):
+        if not scope.get('mcp'):raise ToolError('tool_permission_denied')
+        if arguments['action']=='read' and arguments['path'] not in scope.get('documents',[]):raise ToolError('tool_resource_not_authorized')
+        from .mcp_client import execute
+        return execute(arguments['action'],arguments.get('path',''))
+
+ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter(),'mcp':McpAdapter()}
 TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web'}
 
 def read(name, arguments, scope):
+    if name=='mcp_docs':return ADAPTERS['mcp'].read(name,arguments,scope)
     if name=='github_draft':
         from .github_changes import draft
         return draft(arguments,scope)

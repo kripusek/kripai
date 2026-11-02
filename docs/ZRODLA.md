@@ -123,3 +123,9 @@ https://docs.github.com/en/rest/using-the-rest-api/troubleshooting-the-rest-api
 ## Kopie dziennika SQLite
 https://docs.python.org/3/library/sqlite3.html#sqlite3.Connection.backup
 https://www.sqlite.org/backup.html
+
+## MCP stdio (protokół 2025-11-25)
+https://modelcontextprotocol.io/specification/2025-11-25/basic/transports
+https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
+https://modelcontextprotocol.io/specification/2025-11-25/server/tools
+https://pypi.org/project/mcp/2.3.0/ (SDK wyłącznie QA, brak nowej zależności runtime)

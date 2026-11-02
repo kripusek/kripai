@@ -1,0 +1,1 @@
+ALTER TABLE runs ADD COLUMN allow_mcp INTEGER NOT NULL DEFAULT 0 CHECK(allow_mcp IN (0,1));

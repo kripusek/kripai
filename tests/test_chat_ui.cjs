@@ -2,6 +2,13 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 const {document,walk}=require('./dom.cjs'),marked=require('../web/vendor/marked/marked.umd.js');
 const tick=()=>new Promise(r=>setImmediate(r));
 
+test('MCP jest jawną flagą wiadomości, bez konieczności włączania internetu',async()=>{
+ const h=await harness();h.ctx.window.KripTools={permissions:()=>({allow_mcp:true}),renderSources(){},clear(){}};
+ h.doc.getElementById('prompt').value='Przeczytaj README.md przez MCP';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});
+ const body=JSON.parse(h.calls.find(([u,o])=>u.includes('/messages')&&o.method==='POST')[1].body);
+ assert.equal(body.allow_mcp,true);assert(!body.allow_web);assert(!body.allow_github);
+});
+
 test('kontynuacja zastępuje niepełną linię i ignoruje powtórzony snapshot SSE',async()=>{
  const h=await harness();h.doc.getElementById('prompt').value='Długa odpowiedź';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});
  const events=h.streams[0].events;

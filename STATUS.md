@@ -373,3 +373,23 @@ Struktura/start/limity: docs/KOPIE_DZIENNIKA_GITHUB.md, app/github_backups.py,
 maintenance.py i test_github_backups.py. Bez nowych zależności/modeli/migracji.
 Dalej: rzeczywisty PR po lokalnym udostępnieniu zapisu, MCP i trafniejszy WWW.
 Klucza z rozmowy nie kopiowano do kodu/komend/logów; konfiguracja konta bez zmian.
+
+## 02.11.2026 — MCP stdio: działający odczyt dokumentacji
+Wdrożono osobny serwer MCP i klienta, zgodę w menu +, stan/test połączenia,
+lokalne źródła wymagające sesji oraz migrację 006 (allow_mcp domyślnie 0).
+Stałe narzędzia list_documents/read_document czytają tylko Markdown programu;
+brak zapisu, dowolnych komend, kont i nowych zależności. Sekrety środowiska,
+ścieżki spoza zakresu, symlinki/junction i żądania sampling są odrzucane.
+Windows: 182 testy Python (181 OK, 1 symlink pominięty), Node 52/52 OK.
+Pełne wyniki, struktura, limity i dalszy zakres: docs/MCP.md i docs/MCP_TESTY.txt.
+Osobna rzeczywista próba CUDA/Qwen3-8B zakończyła odpowiedź ze źródłem MCP;
+cała karta 7475/8192 MiB VRAM, kontekst 4096. SDK MCP 2.3.0 potwierdził
+zgodność w obu kierunkach w oddzielnym środowisku QA, bez zmiany runtime.
+Start nadal START.cmd. Dowolni zewnętrzni dostawcy MCP/HTTP/OAuth nadal planem.
+Dalej: jeden zewnętrzny dostawca stdio z jawną listą narzędzi odczytu;
+rzeczywisty PR autoexec nadal wymaga lokalnego udostępnienia zapisu.
+
+Aktualizację zastosowano lokalnie po kopii programu i danych oraz sprawdzeniu
+braku aktywnego generowania. Migracja 006 potwierdzona na rzeczywistej bazie
+właściciela; backend i model gotowe. Z zainstalowanej kopii wykonano odczyt
+docs/MCP.md; menu jest serwowane, katalog bez logowania zwraca 401.

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.8.0
+  version: 1.9.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -9,6 +9,34 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /integrations/mcp/test:
+    post:
+      summary: Rzeczywisty handshake MCP i odczyt katalogu (sesja i CSRF)
+      responses:
+        '200':
+          description: Stan available, liczba documents lub jawny kod error; tylko odczyt
+  /integrations/mcp/catalog:
+    get:
+      summary: Katalog dokumentów programu (sesja)
+      responses:
+        '200':
+          description: Lista paths i flaga truncated
+  /integrations/mcp/document:
+    get:
+      summary: Oryginalny tekst dokumentacji programu (sesja)
+      parameters:
+      - name: path
+        in: query
+        required: true
+        schema: {type: string, maxLength: 200}
+      responses:
+        '200':
+          description: Tekst UTF-8 do 12000 znaków
+          content:
+            text/plain:
+              schema: {type: string}
+        '404':
+          description: Dokument niedostępny lub poza dozwolonym zakresem
   /integrations/github/drafts/{did}/reconcile:
     post:
       summary: Odczytowe sprawdzenie wyniku niepewnej publikacji (owner i CSRF)
@@ -1079,6 +1107,10 @@ components:
           type: boolean
           default: false
           description: Zezwól na wyszukiwanie Bing RSS z bieżącej prośby i odczyt publicznych HTTPS URL prośby lub wyników
+        allow_mcp:
+          type: boolean
+          default: false
+          description: Zgoda na lokalny odczyt dokumentacji KripAI przez stały serwer MCP stdio
         allow_github:
           type: boolean
           default: false

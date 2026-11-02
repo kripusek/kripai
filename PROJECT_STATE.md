@@ -1,11 +1,14 @@
 # KripAI — stan projektu
 Aktualizacja: 02.11.2026. Ten plik opisuje bieżącą paczkę; STATUS.md zachowuje historię.
 
+Aktualny zakres MCP i wyniki Windows: końcowy wpis „MCP stdio” oraz docs/MCP.md.
+Starsze wyniki i ograniczenia poniżej opisują kolejne historyczne paczki.
+
 ## Aktualny etap
 Etapy 1, 2 i 2.5a mają implementacje. Odbiór natywnego Windows nieukończony.
 Etap 2.5b ma pierwszy działający zakres: tekstowy PDF → indeks E5/sqlite-vec
 → wybór dokumentów → pytanie w czacie → źródła ze stroną i wycinkiem.
-Dokumenty skanowane i inne formaty nie są jeszcze indeksowane. Rozpoczęty moduł 4a: jawny odczyt WWW/publicznego GitHuba. Rozpoczęto też 4b: wyszukiwanie WWW i większe strony. Etapy 2.5c, 3, 4c–4d i 5–6 planem.
+Dokumenty skanowane i inne formaty nie są jeszcze indeksowane. Rozpoczęty moduł 4a: jawny odczyt WWW/publicznego GitHuba. Rozpoczęto też 4b: wyszukiwanie WWW i większe strony. Rozpoczęto 4c i ograniczony 4d; etapy 2.5c, 3 i 5–6 pozostają planem.
 
 ## Źródła i stan GitHub
 Repo https://github.com/kripusek/kripai, main. Pierwsza publikacja źródeł:
@@ -263,3 +266,23 @@ Struktura/start/limity: docs/KOPIE_DZIENNIKA_GITHUB.md, app/github_backups.py,
 maintenance.py i test_github_backups.py. Bez nowych zależności/modeli/migracji.
 Dalej: rzeczywisty PR po lokalnym udostępnieniu zapisu, MCP i trafniejszy WWW.
 Klucza z rozmowy nie kopiowano do kodu/komend/logów; konfiguracja konta bez zmian.
+
+## 02.11.2026 — MCP stdio: działający odczyt dokumentacji
+Wdrożono osobny serwer MCP i klienta, zgodę w menu +, stan/test połączenia,
+lokalne źródła wymagające sesji oraz migrację 006 (allow_mcp domyślnie 0).
+Stałe narzędzia list_documents/read_document czytają tylko Markdown programu;
+brak zapisu, dowolnych komend, kont i nowych zależności. Sekrety środowiska,
+ścieżki spoza zakresu, symlinki/junction i żądania sampling są odrzucane.
+Windows: 182 testy Python (181 OK, 1 symlink pominięty), Node 52/52 OK.
+Pełne wyniki, struktura, limity i dalszy zakres: docs/MCP.md i docs/MCP_TESTY.txt.
+Osobna rzeczywista próba CUDA/Qwen3-8B zakończyła odpowiedź ze źródłem MCP;
+cała karta 7475/8192 MiB VRAM, kontekst 4096. SDK MCP 2.3.0 potwierdził
+zgodność w obu kierunkach w oddzielnym środowisku QA, bez zmiany runtime.
+Start nadal START.cmd. Dowolni zewnętrzni dostawcy MCP/HTTP/OAuth nadal planem.
+Dalej: jeden zewnętrzny dostawca stdio z jawną listą narzędzi odczytu;
+rzeczywisty PR autoexec nadal wymaga lokalnego udostępnienia zapisu.
+
+Aktualizację zastosowano lokalnie po kopii programu i danych oraz sprawdzeniu
+braku aktywnego generowania. Migracja 006 potwierdzona na rzeczywistej bazie
+właściciela; backend i model gotowe. Z zainstalowanej kopii wykonano odczyt
+docs/MCP.md; menu jest serwowane, katalog bez logowania zwraca 401.
