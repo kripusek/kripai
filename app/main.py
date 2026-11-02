@@ -353,6 +353,19 @@ def logout(user=Depends(identity)):
     response.delete_cookie('assistant_csrf',secure=False,samesite='strict')
     return response
 
+@app.get('/api/v1/integrations')
+def integrations_status(user=Depends(identity)):
+    from .integrations import ADAPTERS
+    return {'items':[adapter.status() for adapter in ADAPTERS.values()]}
+
+@app.post('/api/v1/integrations/github/test')
+def integration_test(body: tools.GithubRead, user=Depends(identity)):
+    try:
+        scope=tools.policy(body.repository,False,True)
+        tools.read('github_read',{'repository':body.repository,'section':'tree','path':''},scope,lambda:None)
+        return {'available':True,'read_only':True}
+    except tools.ToolError as exc: return {'available':False,'error':exc.code}
+
 @app.get('/api/v1/me')
 def me(user=Depends(identity)): return {'id':user['id'],'username':user['username']}
 

@@ -206,3 +206,5 @@ nie obiecujemy obsługi wszystkich witryn. Plan i granice: [integracje](spec/eta
 QA przetworzyło rzeczywistą stronę >1 MiB i kanał RSS przez trasę urllib hosta;
 transport Windows i rzeczywisty Qwen3-8B z nowym obiegiem wymagają odbioru.
 Strona ze zgłoszenia zwracała tutaj Site Unavailable. Raport: [WEB_SEARCH_TESTY.txt](docs/WEB_SEARCH_TESTY.txt).
+
+Integracje 4c: panel stanu przy przełącznikach internetu, odczyt plików i katalogów GitHuba, opcjonalny prywatny dostęp DPAPI. Konfiguracja i granice: [docs/INTEGRACJE_4C.md](docs/INTEGRACJE_4C.md).

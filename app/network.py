@@ -82,14 +82,18 @@ def body(response,partial=False):
     if truncated and not partial:raise ToolError('tool_response_too_large')
     return bytes(output),truncated
 
-def fetch(url,partial=False):
+def fetch(url,partial=False,token=None):
     current=canonical(url)
+    if token and urlsplit(current).hostname!='api.github.com':raise ToolError('tool_permission_denied')
     for _ in range(4):
         p=urlsplit(current);ip=resolve(p.hostname);conn=PinnedHTTPS(p.hostname,ip)
         try:
-            conn.request('GET',p.path+('?' +p.query if p.query else ''),headers={'User-Agent':'KripAI/1.0 read-only','Accept':'text/html,text/plain,application/json,application/rss+xml,application/xml','Accept-Encoding':'gzip, deflate'})
+            headers={'User-Agent':'KripAI/1.0 read-only','Accept':'text/html,text/plain,application/json,application/rss+xml,application/xml','Accept-Encoding':'gzip, deflate'}
+            if token:headers['Authorization']='Bearer '+token
+            conn.request('GET',p.path+('?' +p.query if p.query else ''),headers=headers)
             response=conn.getresponse()
             if response.status in (301,302,303,307,308):
+                if token:raise ToolError('tool_redirect_invalid')
                 location=response.getheader('Location')
                 if not location:raise ToolError('tool_redirect_invalid')
                 current=canonical(urljoin(current,location));continue
@@ -223,16 +227,27 @@ def execute(name,args,scope):
         data=json.loads(result['data']);items=data['items'][:3]
         text=json.dumps([{'repository':r['full_name'],'description':r.get('description'),'url':r['html_url']} for r in items],ensure_ascii=False)
         return {'url':'https://github.com/search?'+urlencode({'q':query,'type':'repositories'}),'title':'GitHub — repozytoria','text':text[:1200],'truncated':len(text)>1200 or data.get('incomplete_results',False) or data.get('total_count',len(items))>len(items)}
-    if set(args)!={'repository','section'} or not valid_repo(args['repository']) or args['section'] not in {'readme','issues'}:raise ToolError('tool_arguments_invalid')
+    if not {'repository','section'}<=set(args) or set(args)-{'repository','section','path'} or not valid_repo(args['repository']) or args['section'] not in {'readme','issues','file','tree'}:raise ToolError('tool_arguments_invalid')
     repo=args['repository']
     if repo.lower() not in scope['repositories']:raise ToolError('tool_resource_not_authorized')
-    suffix='readme' if args['section']=='readme' else 'issues?state=open&per_page=3'
-    result=fetch('https://api.github.com/repos/'+repo+'/'+suffix);data=json.loads(result['data'])
-    if args['section']=='readme':
+    path=args.get('path','')
+    if not isinstance(path,str) or len(path)>1024 or any(p in {'.','..'} for p in path.split('/')) or path.startswith('/') or any(ord(c)<32 for c in path) or '\\' in path:raise ToolError('tool_arguments_invalid')
+    suffix={'readme':'readme','issues':'issues?state=open&per_page=3','file':'contents/'+quote(path,safe='/'),'tree':'contents/'+quote(path,safe='/')}[args['section']]
+    from .integrations import ADAPTERS
+    token=ADAPTERS['github'].token(repo)
+    url='https://api.github.com/repos/'+repo+'/'+suffix
+    result=fetch(url,token=token) if token else fetch(url)
+    data=json.loads(result['data'])
+    if args['section']=='tree':
+        if not isinstance(data,list):raise ToolError('tool_format_denied')
+        text=json.dumps([{'path':r['path'],'type':r['type'],'size':r.get('size')} for r in data[:200]],ensure_ascii=False)
+        return {'url':'https://github.com/'+repo,'title':repo+' · '+path,'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(data)>=200 or len(text)>MAX_TEXT}
+    if args['section'] in {'readme','file'}:
         if data.get('encoding')!='base64':raise ToolError('tool_format_denied')
         raw=base64.b64decode(data['content'],validate=False)
         try:text=raw.decode('utf-8')
         except UnicodeError:raise ToolError('tool_format_denied') from None
         if '\x00' in text:raise ToolError('tool_format_denied')
     else:text=json.dumps([{'title':r['title'],'body':(r.get('body') or '')[:500],'url':r['html_url']} for r in data[:3]],ensure_ascii=False)
-    return {'url':'https://github.com/'+repo+('/issues' if args['section']=='issues' else '#readme'),'title':repo+' · '+args['section'],'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(text)>MAX_TEXT}
+    source_path='/issues' if args['section']=='issues' else '/blob/HEAD/'+quote(path,safe='/') if args['section']=='file' else '#readme'
+    return {'url':'https://github.com/'+repo+source_path,'title':repo+' · '+args['section']+(' · '+path if path else ''),'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(text)>MAX_TEXT}

@@ -131,3 +131,17 @@ samej zewnętrznej witryny ani obsługi logowania/CAPTCHA/JavaScript.
 Raport: docs/WEB_SEARCH_TESTY.txt. Baza publikacji: d54c6c238f6986f671d231cd6abd6f029f6b6ff3.
 Następnie odbiór nowego obiegu na Windows, dalsi dostawcy i jakość wyszukiwania,
 4c własne konektory/MCP/prywatny GitHub; pozostałe moduły z planu zachowane.
+
+## 02.11.2026 — pierwszy zakres integracji 4c
+Dodano adaptery ReadAdapter WWW/GitHub, panel konfiguracji i test połączenia,
+odczyt plików/katalogów domyślnej gałęzi oraz opcjonalny PAT szyfrowany DPAPI
+CurrentUser z listą repozytoriów. Tylko GET; bez kont ChatGPT i zapisu usług.
+Windows: 129/129 Python OK, 43 zachowania JS OK (Node: 44 pliki/testy).
+Prawdziwy llama-server CUDA/Qwen3-8B wybrał narzędzie, odczytał publiczne README,
+streścił fragmentami i odpowiedział; całkowity VRAM 7378/8192 MiB, kontekst 4096.
+Bing RSS 5 wyników i odczyt python.org/doc potwierdzone. Wikipedia: błąd sieci.
+DPAPI sprawdzono sztuczną wartością. Prywatne repo właściciela NIE URUCHOMIONO
+(brak jego konfiguracji); wizualny UI i cancel rzeczywistej generacji do odbioru.
+Start nadal START.cmd. Konfiguracja lokalna: scripts/configure-github.ps1.
+Szczegóły, limity i następny konkretny zakres MCP: docs/INTEGRACJE_4C.md.
+MCP pozostaje planem; bez nowych zależności, modeli ani migracji bazy.

@@ -241,3 +241,17 @@ przypięty transport/natywny Qwen3-8B/nowy obieg Windows i UI nieodebrane.
 Witryna zgłoszona przez właściciela zwróciła Site Unavailable, nie zaliczona.
 Start: git pull --ff-only, START.cmd, Ctrl+F5. Nie ma nowego modelu ani migracji.
 Plan i granice: etap-4/INTERNET_WTYCZKI.md, raport WEB_SEARCH_TESTY.txt.
+
+## 02.11.2026 — pierwszy zakres integracji 4c
+Dodano adaptery ReadAdapter WWW/GitHub, panel konfiguracji i test połączenia,
+odczyt plików/katalogów domyślnej gałęzi oraz opcjonalny PAT szyfrowany DPAPI
+CurrentUser z listą repozytoriów. Tylko GET; bez kont ChatGPT i zapisu usług.
+Windows: 129/129 Python OK, 43 zachowania JS OK (Node: 44 pliki/testy).
+Prawdziwy llama-server CUDA/Qwen3-8B wybrał narzędzie, odczytał publiczne README,
+streścił fragmentami i odpowiedział; całkowity VRAM 7378/8192 MiB, kontekst 4096.
+Bing RSS 5 wyników i odczyt python.org/doc potwierdzone. Wikipedia: błąd sieci.
+DPAPI sprawdzono sztuczną wartością. Prywatne repo właściciela NIE URUCHOMIONO
+(brak jego konfiguracji); wizualny UI i cancel rzeczywistej generacji do odbioru.
+Start nadal START.cmd. Konfiguracja lokalna: scripts/configure-github.ps1.
+Szczegóły, limity i następny konkretny zakres MCP: docs/INTEGRACJE_4C.md.
+MCP pozostaje planem; bez nowych zależności, modeli ani migracji bazy.

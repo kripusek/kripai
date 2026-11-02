@@ -89,3 +89,8 @@ Dodatkowa próba pobrała i przetworzyła stronę Wikipedii >1 MiB oraz 5 prawdz
 wyników RSS przez trasę urllib hosta QA. To nie test przypiętego transportu na
 Windows. our-website-is-broken.org zwrócił Site Unavailable i nie został zaliczony.
 Natywny Windows, rzeczywisty Qwen3-8B z nowym obiegiem i UI wizualny do odbioru.
+
+## Rozpoczęty 4c — 02.11.2026
+Adaptery, panel, pliki/katalogi GitHuba i opcjonalny lokalny DPAPI PAT są zaimplementowane.
+Kontrakt, konfiguracja, testy, ograniczenia oraz kolejny zakres MCP: ../../docs/INTEGRACJE_4C.md.
+MCP i zapis 4d nadal planem. Prywatne konto właściciela nieweryfikowane.

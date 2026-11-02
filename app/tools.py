@@ -19,13 +19,14 @@ class WebSearch(Strict):
     query:str=Field(min_length=3,max_length=160)
 class GithubRead(Strict):
     repository:str=Field(min_length=3,max_length=201)
-    section:Literal['readme','issues']
+    section:Literal['readme','issues','file','tree']
+    path:str=Field(default='',max_length=1024)
 class GithubFind(Strict):
     query:str=Field(min_length=3,max_length=120)
 REGISTRY={
  'web_read':(WebRead,'Read a public HTTPS URL from the current request or an actual web_search result. Large pages are extracted and summarized locally; no JavaScript.'),
  'web_search':(WebSearch,'Search the public web using Bing RSS. Formulate a concise query from the current user request, then read relevant result URLs.'),
- 'github_read':(GithubRead,'Read public README or open issues of owner/repo explicitly present in the current user request.'),
+ 'github_read':(GithubRead,'Read README, issues, file or directory tree of owner/repo explicitly present in the current user request. path selects a file/directory on the default branch; empty tree path lists root.'),
  'github_find':(GithubFind,'Search public GitHub repositories. Query must be a verbatim fragment of the current user request.')
 }
 

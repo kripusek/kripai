@@ -1,7 +1,7 @@
 'use strict';
 window.KripTools=(()=>{
  const $=id=>document.getElementById(id);
- const labels={web_read:'Czytam stronę WWW',web_search:'Szukam w internecie',github_read:'Czytam publiczne repozytorium',github_find:'Szukam repozytoriów GitHub'};
+ const labels={web_read:'Czytam stronę WWW',web_search:'Szukam w internecie',github_read:'Czytam repozytorium GitHub',github_find:'Szukam repozytoriów GitHub'};
  function permissions(){return {allow_web:!!$('allowWeb').checked,allow_github:!!$('allowGithub').checked};}
  function clear(){$('allowWeb').checked=false;$('allowGithub').checked=false;}
  function renderSources(target,items){

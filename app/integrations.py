@@ -1,0 +1,79 @@
+"""Adaptery odczytu. Konfiguracja pochodzi wyłącznie z prywatnego dysku."""
+import json
+from typing import Protocol
+from . import config
+from .network import ToolError, valid_repo
+
+
+class ReadAdapter(Protocol):
+    name: str
+    def read(self, name, arguments, scope): ...
+    def status(self): ...
+
+
+class GithubAdapter:
+    name = 'github'
+
+    def read(self, name, arguments, scope):
+        from .network import execute
+        return execute(name, arguments, scope)
+
+    def configuration(self):
+        path = config.DATA / 'github.json'
+        if not path.exists():
+            return {'repositories': [], 'credential': None}
+        try:
+            if path.stat().st_size > 16384: raise ValueError()
+            data = json.loads(path.read_text(encoding='utf-8-sig'))
+            repos = data['repositories']
+            if not isinstance(repos, list) or not repos or any(not valid_repo(r) for r in repos): raise ValueError()
+            return {'repositories': [r.lower() for r in repos], 'credential': data['credential']}
+        except (OSError, ValueError, KeyError, TypeError):
+            raise ToolError('integration_configuration_invalid') from None
+
+    def token(self, repository):
+        data = self.configuration()
+        if repository.lower() not in data['repositories']: return None
+        # DPAPI CurrentUser: sekret odszyfrowuje tylko konto Windows właściciela.
+        try:
+            import ctypes as c
+            from ctypes import wintypes as w
+            import base64
+            class Blob(c.Structure):
+                _fields_ = [('size', w.DWORD), ('data', c.POINTER(c.c_byte))]
+            raw = base64.b64decode(data['credential'], validate=True)
+            buf = c.create_string_buffer(raw)
+            source = Blob(len(raw), c.cast(buf, c.POINTER(c.c_byte))); result = Blob()
+            crypt = c.WinDLL('crypt32'); kernel = c.WinDLL('kernel32')
+            crypt.CryptUnprotectData.argtypes = [c.POINTER(Blob), c.c_void_p, c.c_void_p, c.c_void_p, c.c_void_p, w.DWORD, c.POINTER(Blob)]
+            kernel.LocalFree.argtypes = [c.c_void_p]
+            if not crypt.CryptUnprotectData(c.byref(source), None, None, None, None, 1, c.byref(result)): raise ValueError()
+            try: token = c.string_at(result.data, result.size).decode('utf-8')
+            finally: kernel.LocalFree(result.data)
+            if not token or any(ord(ch) < 33 or ord(ch) > 126 for ch in token): raise ValueError()
+            return token
+        except Exception: raise ToolError('integration_credential_unavailable') from None
+
+    def status(self):
+        try:
+            data = self.configuration()
+            return {'name': self.name, 'public': True, 'configured': bool(data['repositories']), 'repositories': data['repositories'], 'read_only': True}
+        except ToolError as exc: return {'name': self.name, 'error': exc.code, 'read_only': True}
+
+class WebAdapter:
+    name = 'web'
+
+    def read(self, name, arguments, scope):
+        from .network import execute
+        return execute(name, arguments, scope)
+
+    def status(self):
+        return {'name': self.name, 'configured': True, 'provider': 'Bing RSS', 'read_only': True}
+
+
+ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter()}
+TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web'}
+
+def read(name, arguments, scope):
+    if name not in TOOL_ADAPTERS: raise ToolError('tool_not_allowed')
+    return ADAPTERS[TOOL_ADAPTERS[name]].read(name, arguments, scope)

@@ -102,3 +102,7 @@ Publiczny RSS Bing służy osobistemu agregowaniu; obowiązują warunki operator
 nie traktować go jako gwarantowanego API dla dowolnego wdrożenia.
 Witryna https://our-website-is-broken.org zwracała Site Unavailable w tej próbie.
 Nie uznano tej odpowiedzi za odczyt jej właściwej treści.
+
+## Integracje 4c
+https://docs.github.com/en/rest/repos/contents
+https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptunprotectdata
