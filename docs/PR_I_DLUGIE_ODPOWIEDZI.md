@@ -86,8 +86,31 @@ Start po aktualizacji: WYLACZ.cmd → START.cmd → Ctrl+F5. Nie zmienia się mo
 profil CUDA ani główny schemat bazy. MCP oraz trafniejszy dostawca wyszukiwarki
 pozostają następnymi niezależnymi zadaniami.
 
+## Poprawka planera po próbie 50 wskazówek
+
+Samo włączenie Internet/GitHub nie oznacza konieczności użycia narzędzia.
+Planer ma zwracać wywołanie lub krótkie „bez narzędzi”, zamiast pisać odpowiedź.
+Wcześniej jego zwykła odpowiedź przekraczała 512 tokenów, co błędnie kończyło
+cały run kodem tool_plan_limit. Teraz ucięty tekst planera bez tool_calls jest
+pomijany i uruchamia się normalne generowanie z automatyczną kontynuacją.
+Niepełne tool_calls nie są wykonywane: zostaje jawna informacja o braku odczytu,
+przy zachowaniu wcześniejszych źródeł. Nie zwiększono limitów ani uprawnień.
+Pusta lista wyników nie uruchamia już instrukcji odpowiedzi na podstawie źródeł:
+zwykłe porady mają korzystać z wiedzy modelu. Test rzeczywistego CUDA ujawnił,
+że poprzedni pusty kontekst sieciowy wywoływał nieuzasadnioną odmowę.
+
+Regresja obejmuje kontrolowany HTTP/SSE i rzeczywisty SQLite z włączonymi
+narzędziami oraz odrzucanie niepełnych argumentów przed jakąkolwiek siecią.
+Próba dokładnej prośby właściciela na działającym modelu:
+scripts/verify_plain_advice.py. Nie wymaga wyłączania przełączników internetu.
+
 Źródła API:
 https://docs.github.com/en/rest/git/trees#create-a-tree
 https://docs.github.com/en/rest/git/commits#create-a-commit
 https://docs.github.com/en/rest/git/refs#create-a-reference
 https://docs.github.com/en/rest/pulls/pulls#create-a-pull-request
+
+Pełnej listy 50 punktów na CUDA NIE UKOŃCZONO w tej próbie: model generował
+bardzo wolno przy 100% obciążenia GPU (7421/8192 MiB). Potwierdzono przejście
+planera bez sieci; nie deklarujemy odbioru wszystkich 50 punktów. Zatrzymano
+wyłącznie własny proces verify_plain_advice.py, bez zatrzymywania backendu/modelu.

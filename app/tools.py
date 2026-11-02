@@ -129,8 +129,16 @@ def plan(client,messages,scope,check,activity):
         r=client.post(config.LLM+'/v1/chat/completions',json={'messages':conversation,'tools':definitions,'tool_choice':'auto',
             'parallel_tool_calls':False,'stream':False,'max_tokens':output,'temperature':0,'chat_template_kwargs':{'enable_thinking':False}})
         r.raise_for_status();permitted();choice=r.json()['choices'][0]
-        if choice.get('finish_reason')=='length':raise ToolError('tool_plan_limit')
         message=choice['message'];calls=message.get('tool_calls') or []
+        if choice.get('finish_reason')=='length':
+            # Planer czasem zaczyna zwykłą odpowiedź zamiast wybrać narzędzie.
+            # Nie wykonujemy niepełnych argumentów ani nie blokujemy odpowiedzi
+            # końcowej tylko dlatego, że taki tekst nie zmieścił się w planie.
+            if calls:
+                results.append({'name':'planner','error':'tool_plan_limit'})
+                activity('planner','tool_plan_limit')
+                break
+            message=dict(message,content='')
         if not isinstance(calls,list) or calls_used+len(calls)>4:raise ToolError('tool_call_limit')
         if not calls:
             # Jawnie podany URL nie wymaga od użytkownika poprawiania wyboru narzędzia przez model.

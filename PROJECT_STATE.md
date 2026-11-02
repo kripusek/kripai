@@ -173,3 +173,19 @@ Struktura/start/limity/dług: docs/PR_I_DLUGIE_ODPOWIEDZI.md. Nowe generation.py
 github_changes.py, testy i panel; bez nowych zależności i zmiany profilu GPU.
 Następnie konfiguracja zapisu/odbiór PR, kopie dziennika i uzgadnianie awarii,
 kontynuacje VLM, MCP oraz trafniejszy dostawca WWW. Start: WYLACZ/START, Ctrl+F5.
+
+## 02.11.2026 — zwykła odpowiedź przy włączonych narzędziach
+Naprawiono tool_plan_limit dla zwykłej prośby o 50 wskazówek: planer ma
+wybierać narzędzia, a nie pisać odpowiedź. Ucięty tekst bez tool_calls nie
+blokuje właściwego generowania; niepełne wywołania nigdy nie są wykonywane.
+Pusta lista wyników nie wymusza odpowiedzi ze źródeł ani odmowy ogólnych porad.
+Windows: 146/146 Python i Node 46/46 OK. Regresja rzeczywistego HTTP/SSE/SQLite
+obejmuje włączony Internet i GitHub, limit planera oraz brak wywołań sieci.
+Rzeczywisty CUDA: planer dokładnej prośby właściciela zakończył się bez sieci.
+Odtwarzalna próba pełnej odpowiedzi: scripts/verify_plain_advice.py.
+Bez zmiany modeli, kontekstu, zależności i uprawnień. Start: WYLACZ/START, Ctrl+F5.
+
+Pełnej listy 50 punktów na CUDA NIE UKOŃCZONO w tej próbie: model generował
+bardzo wolno przy 100% obciążenia GPU (7421/8192 MiB). Potwierdzono przejście
+planera bez sieci; nie deklarujemy odbioru wszystkich 50 punktów. Zatrzymano
+wyłącznie własny proces verify_plain_advice.py, bez zatrzymywania backendu/modelu.

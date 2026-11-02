@@ -135,6 +135,17 @@ class ToolProcessTests(test_native.DataCase):
         with connect() as conn:self.assertEqual(len(conn.execute('SELECT * FROM schema_migrations').fetchall()),len(migration_checksums()))
 
 class PlannerTests(unittest.TestCase):
+    def test_long_plain_answer_in_planner_does_not_block_final_generation(self):
+        client=MagicMock();client.post.return_value.json.return_value={'choices':[{'finish_reason':'length','message':{'content':'Długa zwykła odpowiedź'}}]}
+        with patch.object(tools,'read',side_effect=AssertionError('network')):
+            self.assertEqual(tools.plan(client,[],network.policy('Napisz 50 wskazówek nauki Pythona',True,True),lambda:None,lambda *a:None),[])
+
+    def test_truncated_tool_arguments_never_execute(self):
+        client=MagicMock();client.post.return_value.json.return_value={'choices':[{'finish_reason':'length','message':{'tool_calls':[{'function':{'name':'web_read','arguments':'{"url":"https:'}}]}}]}
+        with patch.object(tools,'read',side_effect=AssertionError('network')):
+            result=tools.plan(client,[],network.policy('Czytaj https://example.org/',True,False),lambda:None,lambda *a:None)
+        self.assertEqual(result,[{'name':'planner','error':'tool_plan_limit'}])
+
     def test_offline_no_model_request_and_limit_checked_before_reads(self):
         client=MagicMock();scope=network.policy('hello',False,False)
         self.assertEqual(tools.plan(client,[],scope,lambda:None,lambda *a:None),[]);client.post.assert_not_called()
@@ -167,6 +178,17 @@ class ToolsAPITests(unittest.TestCase):
     def setUp(self):
         base=test_native.APITests('runTest');self.addCleanup(base.doCleanups);base.setUp()
         self.client,self.post,self.send,self.wait=base.client,base.post,base.send,base.wait
+    def test_planner_text_limit_still_produces_normal_answer_with_tools_enabled(self):
+        original=test_native.FakeModel.do_POST
+        def handler(server):
+            body=json.loads(server.rfile.read(int(server.headers['Content-Length'])))
+            if body.get('tools') and server.path=='/v1/chat/completions':
+                server.send_response(200);server.end_headers()
+                server.wfile.write(json.dumps({'choices':[{'finish_reason':'length','message':{'content':'1. Pierwsza wskazówka. '*100}}]}).encode());return
+            server.rfile=io.BytesIO(json.dumps(body).encode());server.headers.replace_header('Content-Length',str(len(server.rfile.getvalue())));original(server)
+        with patch.object(test_native.FakeModel,'do_POST',handler),patch.object(tools,'read',side_effect=AssertionError('network')):
+            _,response=self.send(body={'text':'Napisz 50 wskazówek nauki Pythona','client_message_id':str(uuid4()),'allow_web':True,'allow_github':True})
+            run=self.wait(response.json()['run_id']);self.assertEqual(run['status'],'completed',run);self.assertIsNone(run['error_code'])
     def test_model_selects_tool_sources_saved_and_offline_stays_offline(self):
         original=test_native.FakeModel.do_POST;plans=[]
         def handler(server):
