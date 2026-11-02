@@ -19,9 +19,10 @@ class WebSearch(Strict):
     query:str=Field(min_length=3,max_length=160)
 class GithubRead(Strict):
     repository:str=Field(min_length=3,max_length=201)
-    section:Literal['readme','issues','file','tree','branches']
+    section:Literal['readme','issues','file','tree','branches','pulls','pull']
     path:str=Field(default='',max_length=1024)
     ref:str=Field(default='',max_length=200)
+    number:int=Field(default=0,ge=0,le=2147483647,strict=True)
 class GithubFind(Strict):
     query:str=Field(min_length=3,max_length=120)
 class McpDocs(Strict):
@@ -38,7 +39,7 @@ class GithubDraft(Strict):
 REGISTRY={
  'web_read':(WebRead,'Read a public HTTPS URL from the current request or an actual web_search result. Large pages are extracted and summarized locally; no JavaScript.'),
  'web_search':(WebSearch,'Search the public web using Bing RSS. Formulate a concise query from the current user request, then read relevant result URLs.'),
- 'github_read':(GithubRead,'Read README, issues, file, directory tree or branches of owner/repo explicitly present in the current request. path selects a file/directory; empty tree path lists root. Optional ref selects a branch, tag or commit for readme/file/tree; empty ref uses the default branch. Explicit-ref files cannot be used for edit proposals.'),
+ 'github_read':(GithubRead,'Read owner/repo explicitly present in the current request: readme, issues, file, tree, branches, pulls (open PR list), pull (one PR with patches, requires number). path selects file/directory. ref optionally selects branch/tag/commit for readme/file/tree; empty uses default. Explicit-ref files and PR patches do not authorize edit proposals. Respect truncated/missing diff flags.'),
  'github_find':(GithubFind,'Search public GitHub repositories. Query must be a verbatim fragment of the current user request.')
 }
 

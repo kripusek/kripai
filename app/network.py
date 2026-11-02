@@ -287,7 +287,7 @@ def execute(name,args,scope):
         data=json.loads(result['data']);items=data['items'][:3]
         text=json.dumps([{'repository':r['full_name'],'description':r.get('description'),'url':r['html_url']} for r in items],ensure_ascii=False)
         return {'url':'https://github.com/search?'+urlencode({'q':query,'type':'repositories'}),'title':'GitHub — repozytoria','text':text[:1200],'truncated':len(text)>1200 or data.get('incomplete_results',False) or data.get('total_count',len(items))>len(items)}
-    if not {'repository','section'}<=set(args) or set(args)-{'repository','section','path','ref'} or not valid_repo(args['repository']) or args['section'] not in {'readme','issues','file','tree','branches'}:raise ToolError('tool_arguments_invalid')
+    if not {'repository','section'}<=set(args) or set(args)-{'repository','section','path','ref','number'} or not valid_repo(args['repository']) or args['section'] not in {'readme','issues','file','tree','branches','pulls','pull'}:raise ToolError('tool_arguments_invalid')
     repo=args['repository']
     if repo.lower() not in scope['repositories']:raise ToolError('tool_resource_not_authorized')
     path=args.get('path','')
@@ -296,10 +296,20 @@ def execute(name,args,scope):
     if not isinstance(ref,str) or len(ref)>200 or any(c.isspace() or ord(c)<32 or ord(c)==127 or c in '~^:?*[\\' for c in ref) or '..' in ref or '@{' in ref or ref.startswith('/') or ref.endswith('/') or '//' in ref:raise ToolError('tool_arguments_invalid')
     if ref and args['section'] not in {'readme','file','tree'}:raise ToolError('tool_arguments_invalid')
     if args['section']=='branches' and path:raise ToolError('tool_arguments_invalid')
-    suffix={'readme':'readme','issues':'issues?state=open&per_page=3','file':'contents/'+quote(path,safe='/'),'tree':'contents/'+quote(path,safe='/'),'branches':'branches?per_page=21'}[args['section']]
-    if ref:suffix+='?'+urlencode({'ref':ref})
+    number=args.get('number',0)
+    if type(number) is not int or not 0<=number<=2147483647 or (args['section']=='pull' and not number) or (args['section']!='pull' and number):raise ToolError('tool_arguments_invalid')
+    from .github_pulls import read as read_pull,sensitive_path
+    if args['section']=='file' and sensitive_path(path):raise ToolError('github_sensitive_path_denied')
+    if args['section'] in {'pulls','pull'} and path:raise ToolError('tool_arguments_invalid')
     from .integrations import ADAPTERS
     token=ADAPTERS['github'].token(repo)
+    if args['section'] in {'pulls','pull'}:
+        def request(suffix):
+            url='https://api.github.com/repos/'+repo+'/'+suffix
+            return fetch(url,token=token) if token else fetch(url)
+        return read_pull(repo,args['section'],number,request)
+    suffix={'readme':'readme','issues':'issues?state=open&per_page=3','file':'contents/'+quote(path,safe='/'),'tree':'contents/'+quote(path,safe='/'),'branches':'branches?per_page=21'}[args['section']]
+    if ref:suffix+='?'+urlencode({'ref':ref})
     url='https://api.github.com/repos/'+repo+'/'+suffix
     result=fetch(url,token=token) if token else fetch(url)
     data=json.loads(result['data'])

@@ -2,6 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 const {document,Node,walk}=require('./dom.cjs');
 test('błędny site i przekierowanie poza filtr mają czytelne opisy',()=>{assert.match(harness().api.activity({name:'web_search',state:'tool_search_filter_invalid'}),/samą domenę/);assert.match(harness().api.activity({name:'web_read',state:'tool_search_domain_denied'}),/poza dozwolony filtr/);});
 function harness(){const doc=document(),ctx={document:doc,window:{},URL};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/tools.js'),'utf8'),ctx);return {doc,api:ctx.window.KripTools};}
+test('zmiana PR i zablokowany sekret mają czytelny błąd',()=>{const h=harness();assert.match(h.api.activity({name:'github_read',state:'github_reference_changed'}),/PR zmienił/);assert.match(h.api.activity({name:'github_read',state:'github_sensitive_path_denied'}),/poświadczenia/);});
 test('MCP domyślnie wyłączone, czyszczone przy wylogowaniu i bezpieczny link lokalnego źródła',()=>{
  const h=harness();assert.equal(h.api.permissions().allow_mcp,false);h.doc.getElementById('allowMcp').checked=true;assert.equal(h.api.permissions().allow_mcp,true);h.api.clear();assert.equal(h.api.permissions().allow_mcp,false);
  const box=new Node('article'),target=new Node('div');box.append(target);

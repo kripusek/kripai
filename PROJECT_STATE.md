@@ -405,3 +405,20 @@ Dodatkowo prawdziwy Qwen3-8B z q8 KV: poprawne 391 na 17×23; generacja
 przerwana po rzeczywistej delcie, run=cancelled, model pozostał gotowy.
 Kontroler trybu i konto w tych próbach były odizolowanymi fixture, inference
 i CUDA rzeczywiste. Nie zatrzymywano modelu właściciela przez Gaming.
+
+## 03.11.2026 — odczyt PR, opisów i patchy
+github_read pulls/pull: lista otwartych PR i konkretny numer, również zamknięty.
+Metadane → pliki → metadane sprawdzają spójność head/base SHA. Jawne limity
+20 plików/6000 znaków patcha/2000 opisu, binary/brak diff/512 KiB API.
+Nazwy typowych sekretów blokują odczyt/patch także po rename. PR nie nadaje
+editable ani uprawnień zapisu. W kreatorze nowego PAT odczyt PR, bez zmiany
+istniejącego tokenu; prywatny PR wymaga Pull requests: Read-only.
+Windows: 213 Python (212 OK, 1 symlink pominięty), Node 55/55. Prawdziwy proces
+anonimowy: kripai pulls=0, python/cpython #158469 odczytany częściowo. Bez zapisu.
+Nowe prywatne konto NIE URUCHOMIONO. Start START.cmd, brak migracji/deps.
+Kod app/github_pulls.py, network/tools i UI. Kontrakt/raport:
+docs/GITHUB_PR_ODCZYT.md i GITHUB_PR_ODCZYT_TESTY.txt. Dalej: panel GPU/MCP.
+
+Osobno CUDA/Qwen3-8B q8 KV odczytał PR python/cpython #158469 i zakończył
+odpowiedź ze źródłem (1106 znaków). Cała karta 7187/8192 MiB po próbie.
+To test przepływu i źródła, nie gwarancja trafności każdej recenzji.

@@ -81,3 +81,6 @@ rzeczywisty test CUDA i następny zewnętrzny dostawca: [MCP.md](MCP.md).
 03.11.2026: gałęzie i ref dla README/file/tree wdrożone. Wcześniejszy
 zakres „tylko domyślna gałąź” jest historyczny. Kontrakt: docs/GITHUB_REWIZJE.md
 w katalogu głównym projektu.
+
+03.11.2026: przegląd PR i patchy tylko do odczytu wdrożony. Kontrakt:
+docs/GITHUB_PR_ODCZYT.md w katalogu głównym. To nie publikacja review/merge.
