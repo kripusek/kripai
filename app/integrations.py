@@ -27,7 +27,9 @@ class GithubAdapter:
             data = json.loads(path.read_text(encoding='utf-8-sig'))
             repos = data['repositories']
             if not isinstance(repos, list) or not repos or any(not valid_repo(r) for r in repos): raise ValueError()
-            return {'repositories': [r.lower() for r in repos], 'credential': data['credential']}
+            writes=data.get('write_repositories',[])
+            if not isinstance(writes,list) or any(r!='kripusek/kripusek-autoexec' or r not in [p.lower() for p in repos] for r in writes):raise ValueError()
+            return {'repositories': [r.lower() for r in repos], 'credential': data['credential'],'write_repositories':writes}
         except (OSError, ValueError, KeyError, TypeError):
             raise ToolError('integration_configuration_invalid') from None
 
@@ -57,7 +59,7 @@ class GithubAdapter:
     def status(self):
         try:
             data = self.configuration()
-            return {'name': self.name, 'public': True, 'configured': bool(data['repositories']), 'repositories': data['repositories'], 'read_only': True}
+            return {'name': self.name, 'public': True, 'configured': bool(data['repositories']), 'repositories': data['repositories'], 'read_only': not bool(data.get('write_repositories')), 'write_repositories':data.get('write_repositories',[])}
         except ToolError as exc: return {'name': self.name, 'error': exc.code, 'read_only': True}
 
 class WebAdapter:
@@ -75,5 +77,8 @@ ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter
 TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web'}
 
 def read(name, arguments, scope):
+    if name=='github_draft':
+        from .github_changes import draft
+        return draft(arguments,scope)
     if name not in TOOL_ADAPTERS: raise ToolError('tool_not_allowed')
     return ADAPTERS[TOOL_ADAPTERS[name]].read(name, arguments, scope)

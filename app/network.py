@@ -251,4 +251,4 @@ def execute(name,args,scope):
         if '\x00' in text:raise ToolError('tool_format_denied')
     else:text=json.dumps([{'title':r['title'],'body':(r.get('body') or '')[:500],'url':r['html_url']} for r in data[:3]],ensure_ascii=False)
     source_path='/issues' if args['section']=='issues' else '/blob/HEAD/'+quote(path,safe='/') if args['section']=='file' else '#readme'
-    return {'url':'https://github.com/'+repo+source_path,'title':repo+' · '+args['section']+(' · '+path if path else ''),'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(text)>MAX_TEXT}
+    return {'url':'https://github.com/'+repo+source_path,'title':repo+' · '+args['section']+(' · '+path if path else ''),'text':text[:1200],'document':text[:MAX_TEXT],'excerpt':text[:1200],'truncated':len(text)>MAX_TEXT,'sha':data.get('sha') if isinstance(data,dict) else None}

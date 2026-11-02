@@ -1,6 +1,17 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
 const {document,walk}=require('./dom.cjs'),marked=require('../web/vendor/marked/marked.umd.js');
 const tick=()=>new Promise(r=>setImmediate(r));
+
+test('kontynuacja zastępuje niepełną linię i ignoruje powtórzony snapshot SSE',async()=>{
+ const h=await harness();h.doc.getElementById('prompt').value='Długa odpowiedź';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});
+ const events=h.streams[0].events;
+ events['assistant.text.delta']({lastEventId:'1',data:JSON.stringify({text:'1. Gotowe.\n2. Poło'})});
+ events['assistant.text.snapshot']({lastEventId:'2',data:JSON.stringify({text:'1. Gotowe.\n'})});
+ events['assistant.text.snapshot']({lastEventId:'2',data:JSON.stringify({text:'Powtórzony błędny tekst'})});
+ events['assistant.text.delta']({lastEventId:'3',data:JSON.stringify({text:'2. Gotowe.'})});
+ await new Promise(r=>setTimeout(r,100));
+ const text=walk(h.doc.getElementById('messages')).find(n=>n._raw==='1. Gotowe.\n2. Gotowe.');assert(text);
+});
 async function harness(){
  const doc=document(),calls=[],streams=[],saved=new Map(),revoked=[];doc.cookie='assistant_csrf=token';doc.querySelectorAll=()=>[];
  const ctx={document:doc,window:{addEventListener(){}},marked,URL:{createObjectURL:()=> 'blob:preview',revokeObjectURL:u=>revoked.push(u)},crypto:{randomUUID:()=>Math.random().toString(36)},AbortController,setTimeout,clearTimeout,setInterval(){},navigator:{clipboard:{writeText:async()=>{}}},sessionStorage:{getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v),removeItem:k=>saved.delete(k)},KripVoice:{stop(){},configure(){},setBlocked(){},speak(){}},KripMedia:{hide(){},stop(){},configure(){},setBlocked(){}},EventSource:function(){this.events={};this.addEventListener=(k,fn)=>this.events[k]=fn;this.close=()=>{};streams.push(this);},fetch:async(url,options={})=>{

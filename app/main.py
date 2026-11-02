@@ -123,6 +123,7 @@ def infer(run):
             def activity(name,state):
                 with connect() as conn:event(conn,rid,'tool.activity',{'name':name,'state':state})
             scope=tools.policy(history[-1]['content'],run['allow_web'],run['allow_github'])
+            with connect() as conn:scope['owner']=conn.execute('SELECT owner_id FROM conversations WHERE id=?',(run['conversation_id'],)).fetchone()['owner_id']
             with httpx.Client(timeout=30,headers=config.llm_headers(),trust_env=False) as planner:
                 # Planer nie dostaje prywatnej historii ani PDF; tylko bieżącą prośbę.
                 planning,_,_=prepare([history[-1]],planner,tool_definitions=tools.schemas(scope),budget=config.CONTEXT-512-128)
@@ -154,32 +155,32 @@ def infer(run):
             if state=='cancelling':
                 change_state(conn,rid,'cancelled'); return
             change_state(conn,rid,'generating')
-        answer=''; pending=''; last=time.monotonic(); done=False; finish_reason=None
+        from .generation import generate, GenerationInterrupted
+        answer=''; pending=''; last=time.monotonic()
+        def check_generation():
+            with connect() as conn:
+                state=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()['status']
+                mode=conn.execute('SELECT requested_mode FROM system_mode').fetchone()['requested_mode']
+            if state=='cancelling' or stop_worker.is_set():raise tools.ToolError('tool_cancelled')
+            if mode!='normal':raise tools.ToolError('gaming_mode')
+        def emit(piece):
+            nonlocal pending,last
+            pending+=piece
+            if time.monotonic()-last>=0.1 or len(pending)>=128:
+                with connect() as conn:event(conn,rid,'assistant.text.delta',{'text':pending})
+                pending='';last=time.monotonic()
+        def continuing(segment):
+            with connect() as conn:event(conn,rid,'assistant.continuing',{'segment':segment})
+        def replace_answer(text):
+            nonlocal pending
+            pending=''
+            with connect() as conn:event(conn,rid,'assistant.text.snapshot',{'text':text})
+        interrupted=False
         with httpx.Client(timeout=httpx.Timeout(120,connect=10),headers=config.llm_headers(),trust_env=False) as client:
-            with client.stream('POST',LLM+'/v1/chat/completions',json={'messages':messages,'stream':True,'max_tokens':config.OUTPUT,'temperature':0.6,'chat_template_kwargs':{'enable_thinking':False}}) as result:
-                result.raise_for_status()
-                for line in result.iter_lines():
-                    if not line.startswith('data: '):
-                        continue
-                    with connect() as conn:
-                        state=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()['status']
-                        if state=='cancelling' or stop_worker.is_set():
-                            change_state(conn,rid,'cancelled'); return
-                    if line=='data: [DONE]':
-                        done=True; break
-                    payload=json.loads(line[6:])
-                    choices=payload.get('choices',[])
-                    if not choices:
-                        continue
-                    finish_reason=choices[0].get('finish_reason') or finish_reason
-                    delta=choices[0].get('delta',{}).get('content') or ''
-                    answer+=delta; pending+=delta
-                    if pending and (time.monotonic()-last>=0.1 or len(pending)>=128):
-                        with connect() as conn:
-                            event(conn,rid,'assistant.text.delta',{'text':pending})
-                        pending='';last=time.monotonic()
-        if not done or not answer.strip():
-            raise ValueError('incomplete_response')
+            try:answer,finish_reason=generate(client,messages,check_generation,emit,continuing,replace_answer)
+            except GenerationInterrupted as exc:
+                answer=exc.text;finish_reason='interrupted';interrupted=True
+                if not answer:raise
         with connect() as conn:
             state=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()['status']
             if state=='cancelling':
@@ -191,7 +192,7 @@ def infer(run):
             if citations:rag.save_sources(conn,mid,citations)
             if readings:tools.save_sources(conn,mid,readings)
             conn.execute('UPDATE conversations SET updated_at=now() WHERE id=?',(run['conversation_id'],))
-            change_state(conn,rid,'completed','output_limit' if finish_reason=='length' else None)
+            change_state(conn,rid,'failed' if interrupted else 'completed','inference_interrupted' if interrupted else 'output_limit' if finish_reason=='length' else None)
     except Exception as exc:
         # Nie logujemy promptu, treści odpowiedzi ani wyjątków zawierających dane.
         with connect() as conn:
@@ -357,6 +358,17 @@ def logout(user=Depends(identity)):
 def integrations_status(user=Depends(identity)):
     from .integrations import ADAPTERS
     return {'items':[adapter.status() for adapter in ADAPTERS.values()]}
+
+@app.get('/api/v1/integrations/github/drafts')
+def github_drafts(user=Depends(identity)):
+    from .github_changes import list_drafts
+    return {'items':list_drafts(user['id'])}
+
+@app.post('/api/v1/integrations/github/drafts/{did}/publish')
+def github_publish(did:UUID,user=Depends(identity)):
+    from .github_changes import publish
+    try:return publish(str(did),user['id'])
+    except tools.ToolError as exc:fail(409,exc.code)
 
 @app.post('/api/v1/integrations/github/test')
 def integration_test(body: tools.GithubRead, user=Depends(identity)):

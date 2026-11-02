@@ -208,3 +208,7 @@ transport Windows i rzeczywisty Qwen3-8B z nowym obiegiem wymagają odbioru.
 Strona ze zgłoszenia zwracała tutaj Site Unavailable. Raport: [WEB_SEARCH_TESTY.txt](docs/WEB_SEARCH_TESTY.txt).
 
 Integracje 4c: panel stanu przy przełącznikach internetu, odczyt plików i katalogów GitHuba, opcjonalny prywatny dostęp DPAPI. Konfiguracja i granice: [docs/INTEGRACJE_4C.md](docs/INTEGRACJE_4C.md).
+
+Nowe: automatyczna kontynuacja długich odpowiedzi tekstowych (do 8 porcji),
+zachowanie częściowego tekstu przy awarii oraz lokalne propozycje zmian GitHuba
+z publikacją na nowej gałęzi i PR w ograniczonym repo. [Konfiguracja i limity](docs/PR_I_DLUGIE_ODPOWIEDZI.md).

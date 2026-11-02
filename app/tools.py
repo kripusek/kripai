@@ -23,6 +23,14 @@ class GithubRead(Strict):
     path:str=Field(default='',max_length=1024)
 class GithubFind(Strict):
     query:str=Field(min_length=3,max_length=120)
+class GithubFileChange(Strict):
+    path:str=Field(min_length=1,max_length=200)
+    content:str=Field(min_length=1,max_length=20000)
+class GithubDraft(Strict):
+    repository:str=Field(min_length=3,max_length=201)
+    title:str=Field(min_length=1,max_length=150)
+    body:str=Field(max_length=2000)
+    files:list[GithubFileChange]=Field(min_length=1,max_length=3)
 REGISTRY={
  'web_read':(WebRead,'Read a public HTTPS URL from the current request or an actual web_search result. Large pages are extracted and summarized locally; no JavaScript.'),
  'web_search':(WebSearch,'Search the public web using Bing RSS. Formulate a concise query from the current user request, then read relevant result URLs.'),
@@ -30,9 +38,12 @@ REGISTRY={
  'github_find':(GithubFind,'Search public GitHub repositories. Query must be a verbatim fragment of the current user request.')
 }
 
+REGISTRY['github_draft']=(GithubDraft,'Prepare a LOCAL pull request proposal for kripusek/kripusek-autoexec when the user asks for edits. First read every changed file with section=file; only editable=true files (at most 3000 characters, read in full) can be changed. Supply entire replacement content. Does not publish or grant write permission.')
+
 def schemas(scope):
     allowed=['web_read','web_search'] if scope['web'] else []
     if scope['github']:allowed+=['github_read','github_find']
+    if scope['github'] and scope.get('owner') and 'kripusek/kripusek-autoexec' in scope.get('repositories',[]):allowed+=['github_draft']
     return [{'type':'function','function':{'name':name,'description':REGISTRY[name][1],'parameters':REGISTRY[name][0].model_json_schema()}} for name in allowed]
 
 def read(name,arguments,scope,check):
@@ -47,7 +58,7 @@ def read(name,arguments,scope,check):
         try:
             check();process=subprocess.Popen([sys.executable,str(config.ROOT/'scripts/read_web.py')],cwd=folder,
               stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
-              creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
+              creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0,env=dict(os.environ,KRIPAI_DATA=str(config.DATA)))
             job.attach(process);(folder/'job.ready').touch();deadline=time.monotonic()+35
             while process.poll() is None:
                 check()
@@ -102,7 +113,7 @@ def summarize(client,result,question,check,activity,budget,tool_name='web_read')
 def plan(client,messages,scope,check,activity):
     definitions=schemas(scope)
     if not definitions:return []
-    results=[];scope=dict(scope,urls=list(scope['urls']));conversation=[dict(m) for m in messages]
+    results=[];scope=dict(scope,urls=list(scope['urls']),github_files={});conversation=[dict(m) for m in messages]
     budget={'summaries':8};calls_used=0;searches=0;seen={};deadline=time.monotonic()+150
     def permitted():
         check()
@@ -111,8 +122,12 @@ def plan(client,messages,scope,check,activity):
         permitted()
         # W drugim kroku model widzi tylko wyniki publicznych narzędzi, nie prywatną historię/PDF.
         if round_number and token_count(client,conversation,definitions)>config.CONTEXT-512-128:break
+        output=512
+        if round_number and any(d['function']['name']=='github_draft' for d in definitions):
+            output=min(1536,config.CONTEXT-token_count(client,conversation,definitions)-128)
+            if output<256:break
         r=client.post(config.LLM+'/v1/chat/completions',json={'messages':conversation,'tools':definitions,'tool_choice':'auto',
-            'parallel_tool_calls':False,'stream':False,'max_tokens':512,'temperature':0,'chat_template_kwargs':{'enable_thinking':False}})
+            'parallel_tool_calls':False,'stream':False,'max_tokens':output,'temperature':0,'chat_template_kwargs':{'enable_thinking':False}})
         r.raise_for_status();permitted();choice=r.json()['choices'][0]
         if choice.get('finish_reason')=='length':raise ToolError('tool_plan_limit')
         message=choice['message'];calls=message.get('tool_calls') or []
@@ -140,6 +155,9 @@ def plan(client,messages,scope,check,activity):
                         if searches>=1:raise ToolError('tool_search_limit')
                         searches+=1
                     raw=read(name,arguments,scope,permitted);seen[signature]=dict(raw)
+                    if name=='github_read' and arguments.get('section')=='file' and raw.get('sha') and len(raw.get('document',''))<=3000 and not raw.get('truncated'):
+                        scope['github_files'][arguments['repository'].lower()+'/'+arguments.get('path','')]=raw['sha']
+                        raw['editable']=True
                 if name=='web_search':
                     feedback=[]
                     for item in raw.get('items',[])[:5]:
@@ -158,7 +176,7 @@ def plan(client,messages,scope,check,activity):
                     if index is None:results.append(source)
                     else:results[index]=source
                     feedback={k:v for k,v in raw.items() if k not in {'document','excerpt'}}
-                    if 'text' in feedback:feedback['text']=feedback['text'][:800]
+                    if 'text' in feedback and not raw.get('editable'):feedback['text']=feedback['text'][:800]
                 activity(name,'completed')
             except ToolError as exc:
                 if exc.code in {'tool_cancelled','gaming_mode','login_required','tool_budget_timeout'}:raise

@@ -47,10 +47,14 @@ class CutoffTests(DataCase):
         with connect() as conn:return conn.execute('SELECT * FROM runs WHERE id=?',(rid,)).fetchone(),conn.execute('SELECT * FROM messages WHERE conversation_id=? ORDER BY seq',(cid,)).fetchall()
 
     def test_limit_preserves_answer_and_reports_limit_in_run_and_sse(self):
-        run,rows=self.run_text('LIMIT');self.assertEqual(run['status'],'completed');self.assertEqual(run['error_code'],'output_limit');self.assertEqual(rows[-1]['content'],'Fragment kodu')
+        run,rows=self.run_text('LIMIT');self.assertEqual(run['status'],'completed');self.assertIsNone(run['error_code']);self.assertEqual(rows[-1]['content'],'Fragment koduFragment kodu')
         with connect() as conn:
             event=conn.execute("SELECT payload FROM run_events WHERE run_id=? AND type='run.status' ORDER BY seq DESC LIMIT 1",(run['id'],)).fetchone()
-        self.assertEqual(event['payload']['error_code'],'output_limit');self.assertEqual(self.server.budgets,[2048])
+        self.assertIsNone(event['payload']['error_code']);self.assertEqual(self.server.budgets,[2048,2048])
+
+    def test_partial_text_survives_broken_stream(self):
+        run,rows=self.run_text('BROKEN')
+        self.assertEqual(run['status'],'failed');self.assertEqual(rows[-1]['content'],'Fragment kodu')
 
     def test_normal_stop_not_reported_as_cutoff(self):
         run,rows=self.run_text('STOP');self.assertEqual(run['status'],'completed');self.assertIsNone(run['error_code'])

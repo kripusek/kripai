@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.6.0
+  version: 1.7.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -9,6 +9,36 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /integrations/github/drafts:
+    get:
+      summary: Lokalne propozycje zmian należące do zalogowanego owner
+      responses:
+        '200':
+          description: Lista propozycji, diffów i stanu publikacji
+        '401':
+          description: Brak sesji
+  /integrations/github/drafts/{did}/publish:
+    post:
+      summary: Nowa gałąź i PR w lokalnie dozwolonym repozytorium
+      parameters:
+      - name: did
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: URL PR i gałąź; ponowienie zakończonej operacji zwraca ten sam wynik
+        '403':
+          description: CSRF lub Origin/Host
+        '409':
+          description: Brak konfiguracji, konflikt head lub niepewny wynik poprzedniej operacji
   /auth/login:
     post:
       security: []

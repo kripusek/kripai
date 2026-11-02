@@ -18,3 +18,10 @@
 .rag-bar{display:flex;gap:12px;align-items:center;font-size:12px;margin:6px 0}.rag-bar button{font-size:12px;padding:4px 8px}.rag-document{border-bottom:1px solid #cbd0c4;padding:12px 0}.rag-document label{display:flex;gap:10px;align-items:center}.rag-document input{width:auto}.rag-document button{margin:3px}.rag-document p{font-size:13px}.rag-sources{margin-top:12px;font-size:13px}.rag-sources details{padding:8px;border:1px solid #cbd0c4;border-radius:6px;margin:5px 0}.rag-sources p{white-space:pre-wrap;overflow-wrap:anywhere}.rag-sources a{color:#466b45}#ragDialog{max-width:680px;width:90vw}
 
 .tools-bar{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;margin:8px 0}.tools-bar label{display:flex;align-items:center;gap:6px}.tools-bar input{width:auto;margin:0}.tools-bar small{flex-basis:100%;color:#687367}
+.tools-bar pre {
+  max-height: 24rem;
+  max-width: min(75vw, 60rem);
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

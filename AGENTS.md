@@ -41,3 +41,9 @@ Zawsze sprawdzaj aktualny head, zachowuj cudzą pracę i nie używaj force push.
 Istotne zmiany architektury, operacje destrukcyjne i deploy wymagają osobnej zgody.
 Nie deklaruj testów Windows/CUDA jako zaliczonych bez ich wykonania.
 PROJECT_STATE.md zawiera bieżący stan.
+
+Właściciel w kolejnym poleceniu 02.11.2026 autoryzował następny krok 4d:
+ograniczone propozycje oraz nowe gałęzie i PR w kripusek/kripusek-autoexec.
+Zapis wymaga lokalnej listy repo/tokenu KripAI; brak merge/delete/force push.
+Długie odpowiedzi tekstowe mają automatyczne kontynuacje bez zmiany kontekstu GPU.
+Szczegóły bieżącego zakresu: docs/PR_I_DLUGIE_ODPOWIEDZI.md.

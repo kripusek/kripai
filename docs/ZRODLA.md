@@ -106,3 +106,9 @@ Nie uznano tej odpowiedzi za odczyt jej właściwej treści.
 ## Integracje 4c
 https://docs.github.com/en/rest/repos/contents
 https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptunprotectdata
+
+## Pierwszy zapis GitHub (4d)
+https://docs.github.com/en/rest/git/trees#create-a-tree
+https://docs.github.com/en/rest/git/commits#create-a-commit
+https://docs.github.com/en/rest/git/refs#create-a-reference
+https://docs.github.com/en/rest/pulls/pulls#create-a-pull-request

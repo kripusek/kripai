@@ -156,3 +156,20 @@ dalszej pracy nad dostawcą. Nie deklarujemy naprawy tego zewnętrznego problemu
 Windows: 130/130 Python OK i 43 zachowania JS OK (Node raportuje 44).
 Instrukcja prywatnego repo i wyniki: docs/ODBIOR_INTERNETU_2026-11-02.md.
 Prywatne konto właściciela nadal nieweryfikowane. Brak zmian bazy/modeli.
+
+## 02.11.2026 — pierwszy 4d i automatyczna kontynuacja odpowiedzi
+Właściciel polecił następny krok i naprawę ucinania odpowiedzi. Dodano
+github_draft (lokalny diff po pełnym odczycie małego pliku) i panel tworzenia
+nowej gałęzi/PR tylko w kripusek/kripusek-autoexec. Publikacja wymaga lokalnej
+listy write_repositories i tokenu DPAPI; model nie dostaje narzędzia publikacji.
+Kontrola SHA/head, owner/CSRF, trwały dziennik SQLite i blokada ślepych powtórek.
+Tekst: do 8 automatycznych porcji po maks. 2048 tokenów, kontekst nadal 4096;
+SSE/historia wspólne, korekta niepełnej linii, zachowanie tekstu po awarii.
+Windows: 143/143 Python OK, Node 46/46 OK. CUDA: rzeczywiste 8 porcji po 128
+tokenów dało zakończoną listę 30 punktów; prawdziwy README → lokalny draft PR.
+Publikacji PR NIE URUCHOMIONO: odczyt skonfigurowany, ale zapis do autoexec
+nie jest lokalnie włączony. Wizualny UI i długie VLM nadal do odbioru.
+Struktura/start/limity/dług: docs/PR_I_DLUGIE_ODPOWIEDZI.md. Nowe generation.py,
+github_changes.py, testy i panel; bez nowych zależności i zmiany profilu GPU.
+Następnie konfiguracja zapisu/odbiór PR, kopie dziennika i uzgadnianie awarii,
+kontynuacje VLM, MCP oraz trafniejszy dostawca WWW. Start: WYLACZ/START, Ctrl+F5.

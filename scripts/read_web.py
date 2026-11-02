@@ -17,7 +17,7 @@ def main():
         import resource
         resource.setrlimit(resource.RLIMIT_AS,(256*1024**2,256*1024**2));resource.setrlimit(resource.RLIMIT_CPU,(8,8))
     request=Path('request.json')
-    if request.stat().st_size>32000:raise ValueError('request')
+    if request.stat().st_size>128000:raise ValueError('request')
     data=json.loads(request.read_text(encoding='utf-8'))
     try:result={'result':read(data['name'],data['arguments'],data['scope'])}
     except ToolError as exc:result={'error':exc.code}

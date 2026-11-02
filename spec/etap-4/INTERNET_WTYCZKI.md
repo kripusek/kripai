@@ -94,3 +94,8 @@ Natywny Windows, rzeczywisty Qwen3-8B z nowym obiegiem i UI wizualny do odbioru.
 Adaptery, panel, pliki/katalogi GitHuba i opcjonalny lokalny DPAPI PAT są zaimplementowane.
 Kontrakt, konfiguracja, testy, ograniczenia oraz kolejny zakres MCP: ../../docs/INTEGRACJE_4C.md.
 MCP i zapis 4d nadal planem. Prywatne konto właściciela nieweryfikowane.
+
+## Rozpoczęty 4d na kolejne polecenie właściciela
+Lokalny github_draft, jawna publikacja w panelu do nowej gałęzi i PR, tylko
+kripusek/kripusek-autoexec z lokalnym write_repositories/PAT. Bez merge/delete.
+Kontrakt i ograniczenia: ../../docs/PR_I_DLUGIE_ODPOWIEDZI.md. MCP nadal planem.
