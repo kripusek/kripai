@@ -90,6 +90,16 @@ class McpAdapter:
         from .mcp_client import execute
         return execute(arguments['action'],arguments.get('path',''))
 
+class McpTimeAdapter:
+    name='mcp_time'
+    def status(self):
+        from .mcp_time import status
+        return status()
+    def read(self,name,arguments,scope):
+        if name!='mcp_time' or not scope.get('mcp') or not scope.get('mcp_time_available'):raise ToolError('tool_permission_denied')
+        from .mcp_time import execute
+        return execute(arguments)
+
 class McpFilesAdapter:
     name='mcp_files'
     def status(self):
@@ -102,8 +112,8 @@ class McpFilesAdapter:
         if arguments['action']=='search':search_query(arguments.get('query',''),scope['request'])
         return execute(arguments['action'],arguments.get('path',''),scope.get('mcp_files_root'),query=arguments.get('query',''))
 
-ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter(),'mcp':McpAdapter(),'mcp_files':McpFilesAdapter(),'feeds':FeedAdapter()}
-TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web','feed_read':'feeds'}
+ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter(),'mcp':McpAdapter(),'mcp_files':McpFilesAdapter(),'feeds':FeedAdapter(),'mcp_time':McpTimeAdapter()}
+TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web','feed_read':'feeds','mcp_time':'mcp_time'}
 
 def read(name, arguments, scope):
     if name=='mcp_docs':return ADAPTERS['mcp'].read(name,arguments,scope)

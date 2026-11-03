@@ -14,8 +14,8 @@ window.KripIntegrations=(()=>{
  }
  async function refresh(){
   window.KripMcpFiles?.refresh();
-  const version=epoch;
-  try{const data=await api('/integrations');if(version!==epoch)return;const github=data.items.find(x=>x.name==='github');
+  const version=epoch,timeVersion=window.KripMcpTime?.getEpoch();
+  try{const data=await api('/integrations');if(version!==epoch)return;window.KripMcpTime?.update(data.items.find(x=>x.name==='mcp_time'),timeVersion);const github=data.items.find(x=>x.name==='github');
    const mcp=data.items.find(x=>x.name==='mcp');mcpState.textContent=mcp?.available?'Lokalny serwer dokumentacji gotowy. Włącz MCP w menu +. Dostęp tylko do odczytu.':'Lokalny serwer MCP niedostępny. Zaktualizuj program przez START.cmd.';
    state.textContent=github?.configured?'Połączono'+(github.login?' jako '+github.login:'')+' · '+github.repositories.join(', ')+((github.write_repositories||[]).length?' · tworzenie PR włączone':' · tylko odczyt. Propozycje zmian działają; publikacja PR wymaga włączenia zapisu poniżej i tokenu z uprawnieniami Contents/Pull requests: write.'):'Publiczny GitHub działa bez konta. Połącz konto do prywatnych repozytoriów i PR.';
    githubGroup?.setStatus(github?.error?'error':github?.configured?'ok':'neutral',github?.error?'Błąd konfiguracji':github?.configured?'Połączono':'Publiczny · bez konta');

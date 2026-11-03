@@ -361,6 +361,42 @@ def integrations_status(user=Depends(identity)):
     from .integrations import ADAPTERS
     return {'items':[adapter.status() for adapter in ADAPTERS.values()]}
 
+def time_session_check(user):
+    def check():
+        with connect() as conn:
+            if not conn.execute('SELECT 1 FROM sessions WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at>now()',(user['session_id'],user['id'])).fetchone():raise tools.ToolError('login_required')
+    return check
+
+@app.post('/api/v1/integrations/mcp-time/prepare')
+def mcp_time_prepare(user=Depends(identity)):
+    mcp_files_owner(user)
+    from scripts.setup_mcp_time import prepare
+    try:
+        prepare(time_session_check(user));return {'prepared':True,'read_only':True}
+    except tools.ToolError as exc:fail(401,exc.code)
+    except Exception as exc:
+        code=str(exc) if str(exc) in {'mcp_time_python_unavailable','mcp_time_installation_conflict','mcp_time_lock_invalid'} else 'mcp_time_prepare_failed'
+        fail(409,code)
+
+@app.post('/api/v1/integrations/mcp-time/test')
+def mcp_time_test(body:tools.McpTime,user=Depends(identity)):
+    check=time_session_check(user)
+    try:
+        check();scope=tools.bind_integrations(tools.policy('',mcp=True))
+        if not scope.get('mcp_time_available'):raise tools.ToolError('mcp_time_unavailable')
+        result=tools.read('mcp_time',body.model_dump(),scope,check);check()
+        return dict(result,available=True,read_only=True)
+    except tools.ToolError as exc:
+        if exc.code=='login_required':fail(401,exc.code)
+        return {'available':False,'error':exc.code,'read_only':True}
+
+@app.get('/api/v1/integrations/mcp-time/result')
+def mcp_time_result(data:str=Query(max_length=1800),user=Depends(identity)):
+    from .mcp_time import decode
+    try:snapshot=decode(data)
+    except tools.ToolError as exc:fail(422,exc.code)
+    return Response('Zapisany wynik odczytu czasu; ten link nie odświeża zegara.\n'+json.dumps(snapshot,ensure_ascii=False,indent=2),media_type='text/plain',headers={'X-Content-Type-Options':'nosniff'})
+
 @app.post('/api/v1/integrations/feeds/test')
 def feed_test(body:tools.WebRead,user=Depends(identity)):
     def check_session():

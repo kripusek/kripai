@@ -1,6 +1,6 @@
 'use strict';
 window.KripIntegrationGroups=(()=>{
- const groups=new Map(),order=['github','mcp','mcp_files','feeds'];
+ const groups=new Map(),order=['github','mcp','mcp_files','mcp_time','feeds'];
  function mount({id,title,parent}){
   if(groups.has(id))return groups.get(id);
   const element=document.createElement('details'),summary=document.createElement('summary'),name=document.createElement('span'),status=document.createElement('span'),body=document.createElement('div');

@@ -252,3 +252,5 @@ GitHub pozwala [odczytać historię commitów i zmiany konkretnego SHA](docs/GIT
 [Publiczne kanały RSS i Atom](docs/RSS_ATOM.md): test połączenia, wpisy i przygotowanie pytania w menu Połączenia, bez konta.
 
 [Panel Połączenia](docs/POLACZENIA_SEKCJE.md) ma zwijane sekcje i widoczny stan GitHuba, MCP i RSS.
+
+[Oficjalny MCP czasu](docs/MCP_CZAS.md) odczytuje godzinę i przelicza strefy dla dzisiaj, bez konta i internetu po przygotowaniu.

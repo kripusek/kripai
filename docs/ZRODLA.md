@@ -177,3 +177,10 @@ https://www.rssboard.org/rss-specification
 https://www.rfc-editor.org/rfc/rfc4287.html
 Rzeczywiste próby: https://www.djangoproject.com/rss/weblog/ oraz
 https://github.com/python/cpython/releases.atom. Własne niższe limity: RSS_ATOM.md.
+
+## Oficjalny serwer MCP czasu
+https://pypi.org/project/mcp-server-time/2026.10.28/
+https://pypi.org/pypi/mcp-server-time/2026.10.28/json
+https://github.com/modelcontextprotocol/servers/tree/main/src/time
+Zweryfikowano metadane/wheelSHA, SDK2.3, Python>=3.10(upstream), własny runtime3.13,
+readOnlyHint, initialize2025-11-25, current/convert i ograniczenie daty do dzisiaj.

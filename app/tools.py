@@ -32,6 +32,11 @@ class McpFiles(Strict):
     action:Literal['list','read','search']
     path:str=Field(default='',max_length=200)
     query:str=Field(default='',max_length=80)
+class McpTime(Strict):
+    action:Literal['now','convert']='now'
+    timezone:str=Field(default='Europe/Warsaw',min_length=1,max_length=80)
+    target_timezone:str=Field(default='',max_length=80)
+    time:str=Field(default='',max_length=5)
 class GithubFileChange(Strict):
     path:str=Field(min_length=1,max_length=200)
     content:str=Field(min_length=1,max_length=20000)
@@ -47,6 +52,7 @@ REGISTRY={
  'github_find':(GithubFind,'Search public GitHub repositories. Query must be a verbatim fragment of the current user request.')
 }
 
+REGISTRY['mcp_time']=(McpTime,'Read the current clock (action=now, timezone default Europe/Warsaw), or convert TODAY HH:MM (action=convert, timezone, target_timezone, time). IANA timezone names only. Pinned local MCP server; no network, files, accounts or writes. Conversion does not support a future calendar date. Cite the returned time snapshot.')
 REGISTRY['feed_read']=(WebRead,'Read a public HTTPS RSS 2.0 or Atom 1.0 feed URL explicitly present in the current request or actual discovered results. Up to 5 entries with short descriptions, not full articles or full archive. Use web_read on an actual entry URL to read its article. No accounts or writes.')
 REGISTRY['github_draft']=(GithubDraft,'Prepare a LOCAL pull request proposal for kripusek/kripusek-autoexec when the user asks for edits. First read every changed file with section=file; only editable=true files (at most 3000 characters, read in full) can be changed. Supply entire replacement content. Does not publish or grant write permission.')
 REGISTRY['mcp_docs']=(McpDocs,'Read local KripAI documentation via MCP. action=list discovers documents; action=read requires path from the current request or actual catalog. No account, network or writes.')
@@ -56,6 +62,8 @@ def bind_integrations(scope):
     result=dict(scope)
     if scope.get('mcp'):
         from .mcp_files import configured_id
+        from scripts.setup_mcp_time import installed as time_installed
+        result['mcp_time_available']=time_installed() is not None
         try:result['mcp_files_root']=configured_id()
         except ToolError:result['mcp_files_root']=None
     return result
@@ -64,6 +72,7 @@ def schemas(scope):
     allowed=['web_read','web_search','feed_read'] if scope['web'] else []
     if scope['github']:allowed+=['github_read','github_find']
     if scope.get('mcp'):allowed+=['mcp_docs']
+    if scope.get('mcp') and scope.get('mcp_time_available'):allowed+=['mcp_time']
     if scope.get('mcp') and scope.get('mcp_files_root'):allowed+=['mcp_files']
     if scope['github'] and scope.get('owner') and 'kripusek/kripusek-autoexec' in scope.get('repositories',[]):allowed+=['github_draft']
     return [{'type':'function','function':{'name':name,'description':REGISTRY[name][1],'parameters':REGISTRY[name][0].model_json_schema()}} for name in allowed]

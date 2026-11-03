@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.12.0
+  version: 1.13.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -9,6 +9,54 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /integrations/mcp-time/prepare:
+    post:
+      summary: Przygotuj opcjonalny przypięty SDK czasu (owner, sesja i CSRF)
+      responses:
+        '200':
+          description: prepared=true i read_only=true; program zweryfikowany, nie jest to test odczytu
+        '401':
+          description: Brak lub odwołanie sesji podczas przygotowania
+        '403':
+          description: Wymagany owner lub nieprawidłowy CSRF/Origin
+        '409':
+          description: Konflikt nieznanego runtime, nieobsługiwany Python lub błąd przygotowania; bez surowych ścieżek
+  /integrations/mcp-time/test:
+    post:
+      summary: Rzeczywisty odczyt zegara lub konwersja dzisiejszej godziny przez MCP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                action: {type: string, enum: [now, convert], default: now}
+                timezone: {type: string, minLength: 1, maxLength: 80, default: Europe/Warsaw}
+                target_timezone: {type: string, maxLength: 80, default: ''}
+                time: {type: string, maxLength: 5, default: ''}
+      responses:
+        '200':
+          description: available/read_only oraz przy sukcesie text/url/content_kind=time_snapshot i scope_note; przy błędzie available=false i error. Konwersja HH:MM wymaga obu stref, bez argumentu przyszłej daty
+        '401':
+          description: Brak lub odwołanie sesji podczas odczytu
+        '403':
+          description: Nieprawidłowy CSRF lub Origin
+        '422':
+          description: Nieprawidłowa treść JSON
+  /integrations/mcp-time/result:
+    get:
+      summary: Otwórz zapisany snapshot czasu bez ponownego uruchamiania dostawcy
+      parameters:
+      - {name: data, in: query, required: true, schema: {type: string, maxLength: 1800, pattern: '^[A-Za-z0-9_-]+$'}}
+      responses:
+        '200':
+          description: text/plain; walidowany ograniczony JSON czasu, bez poświadczeń i konfiguracji
+        '401':
+          description: Wymagane logowanie
+        '422':
+          description: Nieprawidłowa migawka
   /integrations/feeds/test:
     post:
       summary: Jednorazowo odczytaj publiczny RSS2/Atom1, bez subskrypcji i modelu

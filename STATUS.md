@@ -821,3 +821,33 @@ Potwierdzenie poprzedniej paczki RSSdb66f4b: lokalna instalacja po kopii kodu/
 bazy, odciski źródło/instalacja/backend zgodne. Zainstalowany realny worker
 odczytał5wpisówDjango; plikiJS zgodne, backend200, endpointRSS bez sesji401.
 Nie używano produkcyjnego konta. Weryfikacja wykonana przed zmianami panelu.
+
+## 03.11.2026 — 4c: drugi zewnętrzny MCP, czas i strefy
+Oficjalny mcp-server-time2026.10.28/SDK2.3.0, prywatnyPython3.13, stdio2025-11-25.
+32wheels16MB/hashlock, oddzielny runtime/inwentarz; bez pip w aplikacji, kont
+i obowiązkowej instalacji. Tylko aktualny zegar i dzisiejsza konwersjaHH:MM,
+IANAzone, brak dat przyszłych. JSON/tekst/zone/instant walidowane, readOnlyHints
+wymagane. Źródło to chroniona migawka, otwarcie nie odczytuje zegara ponownie.
+Panel przygotowania/testu w piątej zwijanej sekcji; czytelna data/godzina,
+dopisanie pytania do dokładnego szkicu bez autosend. ZgodaMCPdokumenty i czas.
+Brak nowej migracji. Job128MiB/15s, rodzic35s/256MiB, minimalne środowisko,
+brak tokenów/logówSDK. Unknownruntime zachowany; znany stary zachowany przy
+naprawie, rollback promocji. Przygotowanie owner/CSRF/check sesji,180s.
+Windows347 Python (346OK,1symlink pominięty), Node174/174. NativeSDKnow/convert,
+cancel/disconnect; installer/owner/CSRF/old snapshot i błędne dane sprawdzone.
+Realny worker09:30Warszawa→03:30NowyJork; SDK55951360B pamięci prywatnej.
+RealnyCUDA wybrał narzędzie:77znaków, faktyczneHH:MM i cytat źródła poprawne,
+VRAM7053/8192MiB. Konto/kontroler fixture, inference prawdziwe. Chromium/API/SDK:
+snapshotmatch, unknownzoneerror, szkic/fokus/MCP, mobile390, messages0/model0
+w panelu. Bez prywatnego konta/mikrofonu. Brak obietnicy pełnej obsługi MCP.
+START.cmd/Ctrl+F5. Kontrakt docs/MCP_CZAS.md i dosłowny raport TESTY.
+Dalej: przegląd i kolejny konkretny zakres pamięci wizualnej2.5c. Szersze
+MCPHTTP/OAuth, etap3 urządzeń i etapy5–6 nie są zaliczone przez ten moduł.
+
+Poprzedni panela346495 zainstalowany po kopii kodu/bazy: zgodność source/
+instalacja/backend,6plikówJS/CSS serwowanych dokładnie, health200,
+integrations bez sesji401. Produkcyjne konto nie było logowane.
+
+Rzeczywisty tokenizer: dwie migawki (now+convert) w przykładowym pytaniu zajęły
+1707tokenów wejścia, zachowano oba źródła bez przycięcia. Kontekst4096,
+rezerwacja wyjścia2048 i margines128 bez zmiany profilu GPU.

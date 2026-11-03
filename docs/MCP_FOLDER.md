@@ -73,3 +73,6 @@ usuwamy istniejącego szkicu ani zdjęcia; zdjęcie trzeba odłączyć przed tym
 wyborem dokumentu. Inne zgody wiadomości pozostają zgodne z wyborem użytkownika.
 
 Wyszukiwanie nazw i dodatkowa odczytowa metoda search_files: [kontrakt](MCP_WYSZUKIWANIE.md).
+
+Drugi konkretny dostawca stdio jest wdrożony: [czas i strefy](MCP_CZAS.md).
+Wspólna zgoda w menu ma teraz nazwę „MCP: dokumenty i czas”.

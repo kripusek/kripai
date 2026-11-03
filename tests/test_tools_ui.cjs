@@ -3,6 +3,8 @@ const {document,Node,walk}=require('./dom.cjs');
 test('błędny site i przekierowanie poza filtr mają czytelne opisy',()=>{assert.match(harness().api.activity({name:'web_search',state:'tool_search_filter_invalid'}),/samą domenę/);assert.match(harness().api.activity({name:'web_read',state:'tool_search_domain_denied'}),/poza dozwolony filtr/);});
 function harness(){const doc=document(),ctx={document:doc,window:{},URL};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/tools.js'),'utf8'),ctx);return {doc,api:ctx.window.KripTools};}
 
+test('zapisany wynik czasu ma tylko własną trasę źródła i właściwy adapter',()=>{const h=harness(),box=new Node('article'),target=new Node('div');box.append(target);const url='/api/v1/integrations/mcp-time/result?data=abc_DEF123';h.api.renderSources(target,[{name:'mcp_time',url},{name:'web_read',url},{name:'mcp_time',url:url+'&write=true'}]);const links=walk(box).filter(n=>n.tagName==='a');assert.equal(links.length,1);assert.equal(links[0].href,url);assert.match(h.api.activity({name:'mcp_time',state:'mcp_time_unavailable'}),/Przygotuj/);});
+
 test('kanał RSS ma własny stan odczytu i czytelne błędy formatu/XML',()=>{const h=harness();assert.match(h.api.activity({name:'feed_read',state:'reading'}),/RSS\/Atom/);assert.match(h.api.activity({name:'feed_read',state:'feed_format_denied'}),/nieprawidłowy kanał/);assert.match(h.api.activity({name:'feed_read',state:'feed_xml_denied'}),/niedozwoloną deklarację/);});
 
 test('commit wymaga pełnego SHA, a niezgodna rewizja ma czytelny błąd',()=>{const h=harness();assert.match(h.api.activity({name:'github_read',state:'github_commit_sha_required'}),/pełny SHA/);assert.match(h.api.activity({name:'github_read',state:'github_commit_mismatch'}),/inny commit/);});

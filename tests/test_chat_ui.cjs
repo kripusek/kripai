@@ -2,6 +2,8 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 const {document,walk}=require('./dom.cjs'),marked=require('../web/vendor/marked/marked.umd.js');
 const tick=()=>new Promise(r=>setImmediate(r));
 
+test('logout czyści stan opcjonalnego serwera czasu',async()=>{let cleared=0;const h=await harness({KripMcpTime:{configure(){},clear(){cleared++;}}});await h.doc.getElementById('logout').onclick();assert.equal(cleared,1);});
+
 test('wylogowanie zamyka grupy połączeń i czyści ich stan',async()=>{let cleared=0;const h=await harness({KripIntegrationGroups:{clear(){cleared++;}}});await h.doc.getElementById('logout').onclick();assert.equal(cleared,1);});
 
 test('odgałęzienie otwiera nowy kontekst bez wysłania wiadomości i zachowuje szkic',async()=>{

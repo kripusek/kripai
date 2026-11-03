@@ -152,3 +152,7 @@ pierwszej porcji i nieznanej liczby plików: ../../docs/GITHUB_COMMITY.md.
 
 03.11.2026: publiczny RSS2/Atom1 we wspólnym rejestrze i panel testu odczytu
 wdrożone, bez nowej zgody i zapisu zewnętrznego. Kontrakt: ../../docs/RSS_ATOM.md.
+
+03.11.2026: drugi konkretny dostawca MCP stdio — oficjalny time2026.10.28,
+odczyt zegara i konwersja dzisiejszej godziny, wdrożony i sprawdzony rzeczywiście.
+Kontrakt: ../../docs/MCP_CZAS.md. Dowolne serwery/HTTP/OAuth nadal osobno w planie.

@@ -584,3 +584,19 @@ NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, inst
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms 692.8994
+
+Installed verification before MCP Time implementation:
+{
+  "source_installed_running": "equal",
+  "served_assets": [
+    "integration-groups.js",
+    "integrations.js",
+    "mcp-files.js",
+    "feeds.js",
+    "app.js",
+    "theme.css"
+  ],
+  "backend": 200,
+  "integrations_without_login": 401,
+  "production_account_login_tested": false
+}
