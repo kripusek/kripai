@@ -4,8 +4,8 @@ test('link nowego tokenu żąda odczytu PR, zapis dopiero po zaznaczeniu',()=>{
  const doc=document(),events={};doc.addEventListener=(name,fn)=>events[name]=fn;
  const ctx={document:doc,window:{},URLSearchParams};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/integrations.js'),'utf8'),ctx);events.DOMContentLoaded();
  const nodes=walk(doc.getElementById('integrationsPanel')),link=nodes.find(n=>n.tagName==='a'&&n.href?.includes('personal-access-tokens')),write=nodes.find(n=>n.type==='checkbox');
- let query=new URL(link.href).searchParams;assert.equal(query.get('contents'),'read');assert.equal(query.get('pull_requests'),'read');
- write.checked=true;write.onchange();query=new URL(link.href).searchParams;assert.equal(query.get('contents'),'write');assert.equal(query.get('pull_requests'),'write');
+ let query=new URL(link.href).searchParams;assert.equal(query.get('contents'),'read');assert.equal(query.get('pull_requests'),'read');assert.equal(query.get('issues'),'read');
+ write.checked=true;write.onchange();query=new URL(link.href).searchParams;assert.equal(query.get('contents'),'write');assert.equal(query.get('pull_requests'),'write');assert.equal(query.get('issues'),'read');
 });
 test('propozycja jest tekstowym diffem; publikacja następuje tylko po kliknięciu',async()=>{
  const doc=document(),bar=new Node('div'),events={},calls=[];let published=false;

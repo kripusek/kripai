@@ -161,3 +161,8 @@ https://github.com/modelcontextprotocol/servers/releases
 https://github.com/modelcontextprotocol/servers/blob/main/LICENSE
 Sprawdzone: wymaganie Node >=24, CLI allowed roots, readOnlyHint, metody
 list_directory/read_text_file, protokół 2025-11-25; przypięty lock i integralność.
+
+## Zgłoszenia i komentarze GitHub, read-only
+https://docs.github.com/en/rest/issues/issues
+https://docs.github.com/en/rest/issues/comments
+https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens

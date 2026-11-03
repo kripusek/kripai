@@ -522,3 +522,20 @@ API wizualnej próby kontrolowane, brak błędów konsoli. Nowej generacji CUDA
 w tej paczce nie wykonywano. Start START.cmd; brak migracji. Kontrakt/raport:
 docs/MCP_WYSZUKIWANIE.md i MCP_WYSZUKIWANIE_TESTY.txt. Następnie: odczyt
 konkretnego zgłoszenia GitHub i dyskusji, nadal bez zapisu do serwisu.
+
+## 03.11.2026 — zgłoszenia GitHub i komentarze
+github_read section=issue/number: opis otwartego/zamkniętego zgłoszenia i do 10
+komentarzy. Metadane przed/po odczycie porównane; bez obietnicy transakcyjnej
+migawki komentarzy. Limity 4000 znaków opisu/1500 komentarza/8 etykiet, jawne
+truncated/liczniki i comments_error. PR rozpoznany jako osobny typ; brak editable.
+Lista issues filtruje PR z pierwszej porcji 21 wpisów i pokazuje do 10 zgłoszeń,
+bez wnioskowania o całym repo z pustej/niepełnej porcji. Tylko GET.
+Nowy PAT w kreatorze proponuje Issues: read; istniejący token niezmieniony,
+prywatne Issues nieweryfikowane. Publiczny odczyt nadal bez konta.
+Windows: 247 Python (246 OK, 1 symlink pominięty), Node 78/78. Rzeczywisty
+ograniczony proces: python/cpython#161233, 1/1 komentarzy, bez ucięcia/zapisu.
+Inference tej paczki kontrolowane; nowej generacji CUDA nie uruchamiano.
+Kod app/github_issues.py/network/tools, UI błędów/kreatora. Start START.cmd,
+brak deps/migracji. Kontrakt i raport docs/GITHUB_ZGLOSZENIA.md oraz plik TESTY.
+Dalej: natywna weryfikacja indeksowania i wyszukiwania E5/RAG na CPU, PL/EN;
+mikrofon i nowy zakres prywatnego konta nadal wymagają osobnego odbioru.

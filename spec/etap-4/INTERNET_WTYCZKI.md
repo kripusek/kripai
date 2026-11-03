@@ -141,3 +141,6 @@ bez nowego RPC i automatycznego wysyłania. Kontrakt: ../../docs/MCP_FOLDER.md.
 
 03.11.2026: wyszukiwanie nazw dokumentów MCP przez search_files wdrożone;
 kontrakt ../../docs/MCP_WYSZUKIWANIE.md. Nie jest to wyszukiwanie treści.
+
+03.11.2026: konkretne zgłoszenie i pierwsze komentarze GitHub wdrożone,
+lista oddziela PR. Kontrakt: ../../docs/GITHUB_ZGLOSZENIA.md.
