@@ -14,6 +14,9 @@ poprawce odróżniania PDF i zdjęć dodatkowo 31 testów backendu OK.
 NIE POTWIERDZONO rzeczywistego VLM w tym przepływie ani jakości jego
 odpowiedzi. Następny krok: sprawdzić rzeczywisty VLM oraz
 interfejs na Windows; szersza jakość wyszukiwania obrazów pozostaje do oceny.
+Instalacja 5cccabf: kopia programu i SQLite przed aktualizacją, migracja 009;
+source/install/backend zgodne, health 200, trzy pliki JS dokładne, bez sesji 401.
+Nie logowano konta właściciela; prawdziwego VLM tego przepływu nie uruchomiono.
 Aktualizacja: 03.11.2026. Ten plik opisuje bieżącą paczkę; STATUS.md zachowuje historię.
 
 Aktualny zakres MCP i wyniki Windows: końcowy wpis „MCP stdio” oraz docs/MCP.md.

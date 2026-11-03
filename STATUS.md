@@ -895,3 +895,6 @@ Windows: 390 Python (389 OK, 1 pominięty), 193 Node OK; po poprawce typu
 załącznika dodatkowo 31 testów backendu OK. VLM w testach stanowi atrapę.
 NIE POTWIERDZONO rzeczywistej inferencji VLM nowego przepływu ani jakości
 odpowiedzi. Następnie sprawdzić VLM/interfejs na Windows.
+Instalacja 5cccabf po kopii programu i SQLite: migracja 009, fingerprint
+source/install/backend zgodny, health 200, pliki JS dokładne, bez sesji 401.
+Nie logowano konta właściciela i nie uruchamiano rzeczywistego VLM.
