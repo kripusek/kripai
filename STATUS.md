@@ -752,3 +752,9 @@ kodu/bazy; backend/model200, oficjalny MCP read prawdziwym procesem z folderu
 testowego, START3.892s bez zmiany PID modelu. Odciski źródeł/zainstalowanego/
 uruchomionego kodu zgodne przed rozpoczęciem zmian kopiowania. Bez logowania
 produkcyjnego konta i bez zmiany jego folderu MCP.
+
+03.11.2026: paczka kopiowania8699f16 zainstalowana lokalnie po kopii kodu/bazy.
+Odciski źródła/instalacji/uruchomionego backendu identyczne; cztery pliki JS/CSS
+serwowane dokładnie, health200, branch bez logowania401. Model gotowy według
+API; brak nowej inferencji i brak testu produkcyjnego konta. Izolowany serwer
+przeglądarkowych testów zatrzymany; produkcyjny backend pozostaje uruchomiony.

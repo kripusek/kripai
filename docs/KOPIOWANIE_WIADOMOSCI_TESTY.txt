@@ -503,3 +503,6 @@ NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, inst
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms 662.418
+
+Installed native verification after code/data backup:
+{"source_installed_running": "equal", "served_assets": "exact", "backend": 200, "branch_without_login": 401, "production_account_login_tested": false, "new_inference_tested": false}
