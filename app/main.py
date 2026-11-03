@@ -22,9 +22,9 @@ from .db import connect, event, change_state, migrate
 from . import config
 from .context import prepare, ContextTooLarge
 from .model_process import control
-from . import voice, media, rag, tools, gpu
+from . import voice, media, rag, tools, gpu, uploads
 from fastapi.staticfiles import StaticFiles
-from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect
+from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect, UploadStart
 from .security import digest, password_hash, verify_password
 
 ORIGIN = config.ORIGIN
@@ -283,8 +283,9 @@ async def boundary(request,call_next):
     if length<0: return Response(status_code=400)
     audio_upload = request.method == 'POST' and re.fullmatch(r'/api/v1/voice/jobs/[0-9a-fA-F-]{36}/transcribe', request.url.path)
     file_upload=request.method=='POST' and re.fullmatch(r'/api/v1/media/jobs/[0-9a-fA-F-]{36}/files',request.url.path)
-    limit = media.MAX_UPLOAD if file_upload else voice.MAX_AUDIO if audio_upload else 16384
-    if audio_upload or file_upload:
+    chunk_upload=request.method=='PUT' and re.fullmatch(r'/api/v1/media/uploads/[0-9a-fA-F-]{36}/chunks',request.url.path)
+    limit = uploads.CHUNK if chunk_upload else media.MAX_UPLOAD if file_upload else voice.MAX_AUDIO if audio_upload else 16384
+    if audio_upload or file_upload or chunk_upload:
         # Duży upload dopuszczamy dopiero po autoryzacji i CSRF, przed buforowaniem.
         try:
             identity(request)
@@ -683,6 +684,31 @@ def files(user=Depends(identity)):
         rows=conn.execute('SELECT id,filename,media_type,pages,current_page,created_at FROM attachments WHERE owner_id=? ORDER BY created_at DESC LIMIT 50',(user['id'],)).fetchall()
     return {'items':rows}
 
+
+@app.post('/api/v1/media/uploads')
+def start_file_upload(body:UploadStart,user=Depends(identity)):
+    return uploads.start(body,(user['session_id'],user['id']))
+
+@app.get('/api/v1/media/uploads')
+def pending_uploads(user=Depends(identity)):
+    return uploads.list_pending((user['session_id'],user['id']))
+
+@app.post('/api/v1/media/uploads/discard')
+def discard_uploads(user=Depends(identity)):
+    try:return uploads.discard((user['session_id'],user['id']))
+    except OSError:raise media.MediaError('backup_failed',503) from None
+
+@app.get('/api/v1/media/uploads/{upload_id}')
+def file_upload_status(upload_id:UUID,user=Depends(identity)):
+    return uploads.get(str(upload_id),(user['session_id'],user['id']))
+
+@app.put('/api/v1/media/uploads/{upload_id}/chunks')
+async def file_upload_chunk(upload_id:UUID,request:Request,offset:int=Query(ge=0,le=8388608),user=Depends(identity)):
+    return await asyncio.to_thread(uploads.append,str(upload_id),offset,await request.body(),(user['session_id'],user['id']))
+
+@app.post('/api/v1/media/jobs/{job_id}/uploads/{upload_id}/complete')
+async def finish_file_upload(job_id:UUID,upload_id:UUID,user=Depends(identity)):
+    return await media_execute(uploads.finish,voice_key(user,job_id),str(upload_id))
 
 @app.post('/api/v1/media/jobs/{job_id}/files',status_code=201)
 async def upload_file(job_id:UUID,request:Request,name:str=Query(min_length=1,max_length=180),user=Depends(identity)):

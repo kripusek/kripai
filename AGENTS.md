@@ -52,3 +52,7 @@ Właściciel następnie polecił agentowi samodzielnie wykonywać dostępne test
 i sprawdzać działającą aplikację, zamiast przekazywać mu rutynowe checklisty.
 Gdy potrzebne logowanie, właściciel wpisuje dane lokalnie; nie zapisuj haseł
 w repo, skryptach ani logach. Nie omijaj sesji ani nie zmieniaj hasła do testów.
+
+03.11.2026: na kolejne polecenie właściciela dodawania nowych funkcji rozpoczęto
+2.5c: wznawialny upload PNG/JPEG/PDF i migracja 007. Wizualne embeddingi nadal
+w planie. Właściciel wyraźnie polecił pracę równoległych agentów.

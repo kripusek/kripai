@@ -70,22 +70,30 @@ def decode(data,page,key,cancelled):
 
 def quota(conn,extra,count=0):
     row=conn.execute('SELECT count(*) AS n,COALESCE(sum(length(original)+length(preview)),0) AS size FROM attachments').fetchone()
-    if row['n']+count>MAX_FILES or row['size']+extra>MAX_STORAGE:raise MediaError('file_quota',409)
+    staged=conn.execute("SELECT COALESCE(sum(length(data)),0) AS size FROM upload_sessions").fetchone()['size']
+    if row['n']+count>MAX_FILES or row['size']+staged+extra>MAX_STORAGE:raise MediaError('file_quota',409)
+
+def filename(name):
+    name=name.replace('\\','/').split('/')[-1].strip()
+    if not 1<=len(name)<=180 or any(ord(c)<32 or ord(c)==127 for c in name):raise MediaError('file_name')
+    return name
+
+def store(conn,data,name,info,preview,uid,aid=None,staged_bytes=0):
+    quota(conn,len(data)+len(preview)-staged_bytes,1)
+    aid=aid or str(uuid4())
+    conn.execute('INSERT INTO attachments(id,owner_id,filename,media_type,original,preview,pages,current_page,text_layer) VALUES (?,?,?,?,?,?,?,?,?)',
+        (aid,uid,name,info['media_type'],data,preview,info['pages'],1,info['text_layer']))
+    return metadata(owned(conn,aid,uid))
 
 
 def upload(data,name,key):
     if not 1<=len(data)<=MAX_UPLOAD:raise MediaError('file_size',413)
-    name=name.replace('\\','/').split('/')[-1].strip()
-    if not 1<=len(name)<=180 or any(ord(c)<32 or ord(c)==127 for c in name):raise MediaError('file_name')
+    name=filename(name)
     with task(key) as cancelled:
         info,preview=decode(data,1,key,cancelled)
         guard.permitted(key,cancelled)
         with connect() as conn:
-            quota(conn,len(data)+len(preview),1)
-            aid=str(uuid4())
-            conn.execute('INSERT INTO attachments(id,owner_id,filename,media_type,original,preview,pages,current_page,text_layer) VALUES (?,?,?,?,?,?,?,?,?)',
-                (aid,key[1],name,info['media_type'],data,preview,info['pages'],1,info['text_layer']))
-            return metadata(owned(conn,aid,key[1]))
+            return store(conn,data,name,info,preview,key[1])
 
 
 def render_page(aid,page,key):

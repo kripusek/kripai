@@ -35,3 +35,6 @@ Etap 4: etap-4/INTERNET_WTYCZKI.md — jawny plan internetu, GitHuba,
 wyszukiwarki WWW, dalszych konektorów/MCP i operacji zapisu z uprawnieniami.
 
 Pierwszy zakres MCP stdio: ../docs/MCP.md oraz etap-4/006-mcp.sql.
+
+Pierwszy zakres 2.5c: etap-2.5c/UPLOAD.md i 007-upload.sql — wznawialny upload.
+Wizualne embeddingi pozostają osobnym planowanym zakresem.

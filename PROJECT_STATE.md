@@ -539,3 +539,23 @@ Kod app/github_issues.py/network/tools, UI błędów/kreatora. Start START.cmd,
 brak deps/migracji. Kontrakt i raport docs/GITHUB_ZGLOSZENIA.md oraz plik TESTY.
 Dalej: natywna weryfikacja indeksowania i wyszukiwania E5/RAG na CPU, PL/EN;
 mikrofon i nowy zakres prywatnego konta nadal wymagają osobnego odbioru.
+
+## 03.11.2026 — 2.5c: wznawialne dodawanie PNG/JPEG/PDF
+Wysyłanie porcjami 512 KiB, SHA256, ponowny wybór tego samego pliku w tej samej
+sesji wznawia potwierdzony offset. SQLite upload_sessions (migracja 007, kopia
+przed zmianą), 3 aktywne wysyłki, TTL godzina, nadal 8 MiB/50 stron PDF i limit
+200 MiB obejmujący bufory. Finalny załącznik i potwierdzenie atomowe, ponowienie
+bez duplikatu. Logout czyści metadane przeglądarki; brak bajtów w sessionStorage.
+Kompozytor i panel pokazują postęp. Wstrzymanie zachowuje porcje, jawny discard
+robi kopię i zachowuje gotowe pliki. Generacja rekordu blokuje stary decoder
+po usunięciu/odtworzeniu ID; sesja/Gaming/cancel ponownie sprawdzone przy zapisie.
+Windows: 263 Python (262 OK, 1 symlink pominięty), Node 99/99. Rzeczywisty
+SQLite, dekoder i kopia z kontrolą wyścigu zapisu. Chromium/Playwright z realnym
+API i izolowaną bazą: 2252021 B PNG, kontrolowane zerwanie po 524288 B, reload
+i wznowienie od 524288, gotowy plik raz, podgląd; discard pending1→0, gotowy1
+zachowany, brak autosend. Mobile390 bez overflow. Konto/kontroler fixture;
+produkcji/GPU nie używano w tej próbie. Awaria sieci była celowo wstrzyknięta.
+Kod uploads.py/media/main, uploads.js/media/attachments. Start START.cmd;
+kontrakt spec/etap-2.5c/UPLOAD.md, raport docs/UPLOAD_WZNOWIENIE_TESTY.txt.
+Wizualne embeddingi pozostają planem. Dalej: zmiana nazwy rozmowy i eksport
+Markdown/JSON ze źródłami; przygotowane osobno, jeszcze nie uznane za wdrożone.

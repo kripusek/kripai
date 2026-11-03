@@ -112,3 +112,27 @@ test('jawne uprawnienia narzędzi trafiają do żądania, a logout je czyści',a
  h.streams[0].events['tool.sources']({data:JSON.stringify({items:[]})});assert.match(h.doc.getElementById('notice').textContent,/nie jest potwierdzona/);
  await h.doc.getElementById('logout').onclick();assert(cleared);
 });
+
+
+test('kompozytor deleguje transport, pokazuje postęp i wysyła gotowe ID dopiero po kliknięciu',async()=>{
+ const h=await harness();let sent=0,cleared=0;
+ h.ctx.window.KripUploads={clear(){cleared++;},async send(file,options){sent++;assert.equal(file.name,'x.png');assert.equal(options.csrf(),'token');assert(options.signal);assert(options.job);options.onProgress(10,20);assert.match(h.doc.getElementById('notice').textContent,/50%/);return {id:'resumed-id'};}};
+ h.paste();h.doc.getElementById('prompt').value='Pytanie';assert.equal(sent,0);
+ await h.doc.getElementById('composer').onsubmit({preventDefault(){}});
+ assert.equal(sent,1);assert.equal(cleared,0);const call=h.calls.find(([u,o])=>u.includes('/messages')&&o.method==='POST');assert.equal(JSON.parse(call[1].body).attachment_id,'resumed-id');
+ assert(!h.calls.some(([u])=>u.includes('/files?name=')));await h.doc.getElementById('logout').onclick();assert.equal(cleared,1);
+});
+
+test('anulowanie delegowanego transportu zachowuje zakładkę wznowienia i ignoruje wynik',async()=>{
+ const h=await harness();let finish,signal,cleared=0;
+ h.ctx.window.KripUploads={clear(){cleared++;},send(file,options){signal=options.signal;return new Promise(r=>finish=r);}};
+ h.paste();h.doc.getElementById('prompt').value='Szkic';const pending=h.doc.getElementById('composer').onsubmit({preventDefault(){}});
+ await h.doc.getElementById('cancel').onclick();assert(signal.aborted);assert.equal(cleared,0);finish({id:'late'});await pending;
+ assert.equal(h.doc.getElementById('prompt').value,'Szkic');assert(!h.calls.some(([u,o])=>u.includes('/messages')&&o.method==='POST'));
+});
+
+test('błąd transportu zachowuje szkic i miniaturę do ponowienia',async()=>{
+ const h=await harness();h.ctx.window.KripUploads={async send(){throw Error('Utracono połączenie. Wybierz ponownie plik.');}};
+ h.paste();h.doc.getElementById('prompt').value='Szkic pytania';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});
+ assert(h.ctx.KripAttachments.has());assert.equal(h.doc.getElementById('prompt').value,'Szkic pytania');assert.match(h.doc.getElementById('notice').textContent,/Utracono/);assert.equal(h.doc.getElementById('send').disabled,false);
+});

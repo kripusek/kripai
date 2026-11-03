@@ -6,6 +6,12 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr
 class Strict(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
+class UploadStart(Strict):
+    id:UUID
+    name:str=Field(min_length=1,max_length=180)
+    size:int=Field(ge=1,le=8388608,strict=True)
+    sha256:str=Field(pattern=r'^[a-f0-9]{64}$')
+
 class Login(Strict):
     username: str = Field(min_length=1,max_length=128)
     password: str = Field(min_length=1,max_length=1024)

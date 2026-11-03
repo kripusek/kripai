@@ -9,6 +9,85 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /media/uploads:
+    post:
+      summary: Rozpocznij lub odtwórz wznawialny upload PNG/JPEG/PDF (sesja i CSRF)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [id, name, size, sha256]
+              properties:
+                id: {type: string, format: uuid}
+                name: {type: string, minLength: 1, maxLength: 180}
+                size: {type: integer, minimum: 1, maximum: 8388608}
+                sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+      responses:
+        '200':
+          description: id, filename, size, sha256, received, status, attachment_id, expires_at i chunk_size=524288; identyczne id/metadane idempotentne
+        '409':
+          description: Inne metadane tego ID, Gaming lub limit aktywnych wysyłek
+        '410':
+          description: Wygasłe potwierdzenie albo usunięty finalny plik; nowa wysyłka wymaga nowego ID
+    get:
+      summary: Niedokończone wysyłki zalogowanego właściciela
+      responses:
+        '200':
+          description: items z id, filename, size, received i expires_at; bez bajtów pliku
+  /media/uploads/{upload_id}:
+    get:
+      summary: Potwierdzony stan uploadu przypisanego do bieżącej sesji
+      parameters:
+      - {name: upload_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: Metadane postępu; nigdy surowe bajty
+        '404':
+          description: Brak ID lub inny właściciel/sesja
+        '410':
+          description: Wygasł lub plik finalny usunięto
+  /media/uploads/{upload_id}/chunks:
+    put:
+      summary: Dopisz fragment lub potwierdź dokładnie takie samo ponowienie (sesja, CSRF i normal)
+      parameters:
+      - {name: upload_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: offset, in: query, required: true, schema: {type: integer, minimum: 0, maximum: 8388608}}
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: {type: string, format: binary}
+      responses:
+        '200':
+          description: Potwierdzony received po zapisie; fragment 1–524288 bajtów
+        '409':
+          description: Konflikt offsetu/bajtów, zakończony upload lub Gaming
+        '413':
+          description: Fragment za duży lub przekracza rozmiar deklarowanego pliku
+  /media/jobs/{job_id}/uploads/{upload_id}/complete:
+    post:
+      summary: Sprawdź SHA256, zdekoduj i atomowo zatwierdź plik oraz potwierdzenie (sesja i CSRF)
+      parameters:
+      - {name: job_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: upload_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: Metadane załącznika; ponowienie zakończonego ID nie tworzy duplikatu
+        '409':
+          description: Niepełny upload, anulowanie, konflikt generacji, Gaming lub limit plików
+        '422':
+          description: Niezgodne SHA256 lub nieprawidłowy plik
+  /media/uploads/discard:
+    post:
+      summary: Usuń nieukończone wysyłki właściciela po wykonaniu kopii (sesja i CSRF)
+      responses:
+        '200':
+          description: discarded; finalne pliki pozostają
+        '503':
+          description: Nie udało się zrobić kopii; bajty zachowane
   /integrations/mcp-files/config:
     get:
       summary: Lokalna konfiguracja folderu MCP (tylko owner; ścieżka nie trafia do modelu)

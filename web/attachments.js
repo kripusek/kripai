@@ -10,9 +10,11 @@ window.KripAttachments=(()=>{
  }
  async function upload(){
   if(!pending)return null;if(pending.id)return pending.id;const selected=pending,version=epoch;job=crypto.randomUUID();request=new AbortController();
-  try{const response=await fetch('/api/v1/media/jobs/'+job+'/files?name='+encodeURIComponent(selected.file.name||'wklejony-obraz.png'),{method:'POST',headers:{'X-CSRF-Token':options.csrf()},body:selected.file,signal:request.signal});
+  try{let data;
+   if(window.KripUploads)data=await window.KripUploads.send(selected.file,{csrf:options.csrf,signal:request.signal,job,onProgress:(received,total)=>{if(version===epoch)options.notice('Wysyłanie zdjęcia: '+Math.floor(received/Math.max(1,total)*100)+'% ('+received+' z '+total+' bajtów).');}});
+   else{const response=await fetch('/api/v1/media/jobs/'+job+'/files?name='+encodeURIComponent(selected.file.name||'wklejony-obraz.png'),{method:'POST',headers:{'X-CSRF-Token':options.csrf()},body:selected.file,signal:request.signal});
    if(!response.ok)throw Error('Nie udało się przesłać zdjęcia. Sprawdź plik, tryb Gaming i limit plików w panelu Zdjęcia i PDF.');
-   const data=await response.json();if(version!==epoch)throw Error('Wysyłanie anulowano.');selected.id=data.id;return data.id;
+   data=await response.json();}if(version!==epoch)throw Error('Wysyłanie anulowano.');selected.id=data.id;return data.id;
   }finally{if(version===epoch){job=null;request=null;}}
  }
  function configure(value){options=value;$('attachButton').onclick=()=>$('imagePicker').click();$('imagePicker').onchange=()=>add($('imagePicker').files[0]);$('removeImage').onclick=()=>{if(!locked)clear();};

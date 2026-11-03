@@ -235,3 +235,6 @@ i otwiera stronę bez restartu modelu: [zasady](docs/SZYBKIE_OTWIERANIE.md).
 
 Opcjonalnie: [MCP — odczyt własnego folderu dokumentów](docs/MCP_FOLDER.md).
 Konfiguracja i test w menu **+ → Połączenia**; pozostałe funkcje działają bez Node.js.
+
+Dodawanie PNG/JPEG/PDF można wznowić po przerwaniu i ponownym wyborze tego
+samego pliku w tej samej sesji: [wznawialny upload](spec/etap-2.5c/UPLOAD.md).
