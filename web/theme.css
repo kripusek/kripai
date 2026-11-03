@@ -104,3 +104,5 @@ input[type=checkbox]{accent-color:var(--accent)}
  .message.user{margin-left:6%}
  .welcome h1{font-size:38px}
 }
+
+.mcp-browser{overflow-wrap:anywhere}.mcp-browser button{max-width:100%;white-space:normal;margin:4px}.mcp-document-row{padding:12px 0;border-bottom:1px solid var(--line,#333)}.mcp-document-row p{margin:4px 0}.mcp-document-row a{margin-right:12px}

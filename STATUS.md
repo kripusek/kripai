@@ -587,3 +587,20 @@ Sterownik po próbie: cała karta 6846/8192 MiB. Konto/kontroler tej rozmowy by�
 odizolowanymi fixture; inference i proces Node rzeczywiste. Bez hasła owner.
 NIE URUCHOMIONO: nowe prywatne konto/PR z zapisem, pełna nowa instalacja,
 mikrofon PL/EN i test wszystkich stron WWW. Nie są zaliczone przez te próby.
+
+## 03.11.2026 — wybór dokumentów z folderu MCP
+Połączenia → Przeglądaj dokumenty: katalog główny/podkatalogi/powrót,
+oryginalne źródło i Zapytaj o dokument. Wybór dopisuje względną ścieżkę do
+istniejącego szkicu, włącza MCP i przywraca fokus wiadomości; bez autosend.
+Zdjęcie nie jest usuwane; przed takim wyborem trzeba je odłączyć. Zmiana root
+i logout odrzucają stare wyniki/przyciski. Błąd nie udaje pustego katalogu.
+Brak nowych narzędzi, zgód backendu, zależności i migracji; nadal tylko odczyt.
+Windows: 231 Python (230 OK, 1 symlink pominięty), Node 74/74. Nowy test API
+z rzeczywistym Node/MCP: główny katalog, docs i polski plik ze spacjami oraz
+odczyt jego źródła. Chrome/Playwright: nawigacja, źródło i wybór, fokus szkicu,
+MCP checked, desktop/390px; API tej próby UI kontrolowane, bez konta owner.
+Nowej generacji na CUDA nie uruchamiano: zmiana dotyczy UI; przepływ MCP/CUDA
+potwierdzony w poprzedniej paczce. Kod web/mcp-files.js/theme.css. Start
+START.cmd i Ctrl+F5, wymagany wcześniej wybrany folder. Raport:
+docs/MCP_PRZEGLADANIE_TESTY.txt. Dalej: drugi odczytowy dostawca MCP;
+mikrofon PL/EN i nowe prywatne konto nadal wymagają osobnego odbioru.

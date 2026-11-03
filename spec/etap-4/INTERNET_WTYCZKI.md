@@ -135,3 +135,6 @@ docs/GITHUB_PR_ODCZYT.md w katalogu głównym. To nie publikacja review/merge.
 03.11.2026: zewnętrzny oficjalny serwer MCP filesystem 2.1.0 wdrożony: folder
 wybrany lokalnie, tylko .md/.txt i list/read; Node opcjonalny. Dawne zapisy
 „zewnętrzni dostawcy nadal plan” historyczne. Kontrakt: ../../docs/MCP_FOLDER.md.
+
+03.11.2026: przeglądanie folderu MCP i wybór dokumentu do szkicu wdrożone;
+bez nowego RPC i automatycznego wysyłania. Kontrakt: ../../docs/MCP_FOLDER.md.

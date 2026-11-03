@@ -56,3 +56,18 @@ POST (owner, sesja i CSRF przy zmianach), `/catalog` i `/document` GET (sesja,
 Nie jest to dowolny katalog serwerów MCP, OAuth ani dostęp do prywatnego konta.
 Kolejny zakres: drugi konkretny dostawca odczytowy z własnym kontraktem zgód,
 limitem danych i rzeczywistym testem, przed ewentualnym ogólnym rejestrem.
+
+## Wybór dokumentu bez wpisywania ścieżki
+
+W **+ → Połączenia → Przeglądaj dokumenty** przechodź do podkatalogów lub
+użyj **Katalog wyżej** i **Folder główny**. **Otwórz źródło** otwiera tekst
+w nowej karcie wymagającej sesji. **Zapytaj o dokument** dopisuje względną
+ścieżkę do bieżącego szkicu (albo przygotowuje pytanie o podsumowanie), włącza
+MCP i przenosi fokus do wiadomości. Wysyłasz ją samodzielnie. Przeglądanie
+katalogu nie uruchamia modelu ani nie czyta automatycznie treści plików.
+
+Obowiązują dotychczasowe limity i identyfikator wybranego folderu. Pominięte
+pozycje są zliczane; błąd serwera jest pokazany zamiast rzekomo pustej listy.
+Przy wylogowaniu/zmianie root lista i stare przyciski są unieważniane. Nie
+usuwamy istniejącego szkicu ani zdjęcia; zdjęcie trzeba odłączyć przed tym
+wyborem dokumentu. Inne zgody wiadomości pozostają zgodne z wyborem użytkownika.

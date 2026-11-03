@@ -129,3 +129,13 @@ class FilesAPITests(unittest.TestCase):
         response=base.client.get('/api/v1'+route+'document',params={'root':result['root_id'],'path':'memo.md'})
         self.assertEqual(response.status_code,200,response.text);self.assertEqual(response.text,'API real MCP fixture')
         self.assertEqual(base.post(route+'disconnect',{}).status_code,204)
+    def test_real_catalog_navigation_and_unicode_source_url(self):
+        if not setup.node() or not setup.installed():self.skipTest('opcjonalny Node/serwer nieprzygotowany')
+        directory=self.root/'docs';directory.mkdir();name='docs/zażółć gęślą.txt';(self.root/name).write_text('Dokument z katalogu',encoding='utf-8')
+        base=self.base;route='/integrations/mcp-files/'
+        identity=base.post(route+'config',{'root':str(self.root)}).json()['root_id']
+        response=base.client.get('/api/v1'+route+'catalog',params={'root':identity,'path':''});self.assertEqual(response.status_code,200,response.text)
+        self.assertIn('[DIR] docs',response.json()['text'])
+        response=base.client.get('/api/v1'+route+'catalog',params={'root':identity,'path':'docs'});self.assertEqual(response.status_code,200,response.text)
+        self.assertEqual(response.json()['paths'],[name]);self.assertNotIn(str(self.root),response.text)
+        response=base.client.get('/api/v1'+route+'document',params={'root':identity,'path':name});self.assertEqual(response.text,'Dokument z katalogu')
