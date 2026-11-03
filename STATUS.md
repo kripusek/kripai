@@ -604,3 +604,10 @@ potwierdzony w poprzedniej paczce. Kod web/mcp-files.js/theme.css. Start
 START.cmd i Ctrl+F5, wymagany wcześniej wybrany folder. Raport:
 docs/MCP_PRZEGLADANIE_TESTY.txt. Dalej: drugi odczytowy dostawca MCP;
 mikrofon PL/EN i nowe prywatne konto nadal wymagają osobnego odbioru.
+
+03.11.2026: lokalną aktualizację przeglądania MCP zastosowano po kopii kodu
+i bazy, z zachowaniem konfiguracji właściciela. Serwowane JS/CSS zgodne
+z zainstalowanymi plikami; backend i model health=200, konfiguracja bez sesji
+401. Odczyt przez zainstalowany Node/MCP poprawny. Ponowne START.ps1
+-NoBrowser: 3.798 s, PID modelu bez zmiany; to otwarcie działającej
+aplikacji. Bez nowej generacji AI, bez hasła owner i bez zmiany jego folderu.
