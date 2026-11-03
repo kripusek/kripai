@@ -876,4 +876,7 @@ użycia wyników w rozmowie pozostają do dalszej pracy. Etap3 urządzeń, szers
 MCPHTTP/OAuth oraz etapy5–6 nadal nieodebrane. START.cmd, następnie Ctrl+F5.
 Końcowy Windows:386Python(385OK,1symlink pominięty), Node189/189.
 Chromium/realCPU:4pliki/6stron, opisPL→strona3PDF, mobile390/logoureset,
-wiadomości/VLM0. Realcancel0,033s, runtimeverifyTRUE. Instalacja jeszcze niepotwierdzona.
+wiadomości/VLM0. Realcancel0,033s, runtimeverifyTRUE.
+Instalacja480a429 po kopii programu/bazy: schema8, source/install/backend zgodne,
+runtimeverifyTRUE, rzeczywisty zainstalowany encoder obraz+opis działa i kończy
+proces. Health200/assety zgodne/bezsesji401. Bez loginu właściciela/inferenceCUDA.

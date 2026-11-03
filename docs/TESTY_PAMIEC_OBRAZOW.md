@@ -50,3 +50,12 @@ Końcowy pełny przebieg po poprawkach: 386 Python w217,412s, OK(skipped=1);
 Node189/189. Rzeczywisty transport z przypiętym runtime: opisPL→3072B,
 400znaków/>64tokeny→visual_query_too_large, przerwanie kontekstu zamknęło
 żywy proces w0,033s; pełne verify instalacji po procesie nadalTRUE.
+
+Potwierdzenie instalacji480a429: wykonano kopię kodu i SQLite przed aktualizacją;
+backend wystartował z migracją8, source/install/running fingerprint zgodne.
+Przygotowany runtime skopiowano do własnego nowego katalogu w program/runtime,
+zweryfikowano pełny inwentarz. Zainstalowany proces CPU rzeczywiście zakodował
+PNG i opis do3072B i zakończył się po zadaniu. Health200, dokładne pliki
+HTML/JS, visual/status i search bez sesji401. Nie logowano konta właściciela;
+nie uruchamiano nowej inferenceCUDA. Wcześniejsze testy interfejsu pozostają
+testami na izolowanej bazie/kontrolerze, co opisano wyżej.

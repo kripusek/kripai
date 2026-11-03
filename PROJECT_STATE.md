@@ -770,4 +770,8 @@ MCPHTTP/OAuth oraz etapy5–6 nadal nieodebrane. START.cmd, następnie Ctrl+F5.
 Końcowy Windows:386Python(385OK,1symlink pominięty), Node189/189.
 Chromium/realCPU:4pliki/6stron, polski opis→właściwa strona3PDF i realny podgląd;
 mobile390 bez overflow, logout czyści, wiadomości/VLM0. Realcancel0,033s,
-runtimeverify po procesieTRUE. Produkcyjna instalacja tej paczki jeszcze niepotwierdzona.
+runtimeverify po procesieTRUE.
+Instalacja480a429 potwierdzona po kopii programu/bazy: schema8, odciski źródło/
+instalacja/backend zgodne, opcjonalny runtime zweryfikowany, rzeczywisty encoder
+zainstalowanej kopii zakodował obraz i opis. Proces zakończony, health200,
+assety zgodne, bez sesji401. Bez logowania konta właściciela i nowej inferenceCUDA.
