@@ -144,3 +144,6 @@ kontrakt ../../docs/MCP_WYSZUKIWANIE.md. Nie jest to wyszukiwanie treści.
 
 03.11.2026: konkretne zgłoszenie i pierwsze komentarze GitHub wdrożone,
 lista oddziela PR. Kontrakt: ../../docs/GITHUB_ZGLOSZENIA.md.
+
+03.11.2026: historia commitów i odczyt patchy pełnego SHA wdrożone. Ograniczenia
+pierwszej porcji i nieznanej liczby plików: ../../docs/GITHUB_COMMITY.md.

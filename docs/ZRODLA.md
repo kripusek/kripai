@@ -166,3 +166,8 @@ list_directory/read_text_file, protokół 2025-11-25; przypięty lock i integral
 https://docs.github.com/en/rest/issues/issues
 https://docs.github.com/en/rest/issues/comments
 https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+
+## Historia i zawartość commitów GitHub (GET)
+https://docs.github.com/en/rest/commits/commits
+Sprawdzone: Contents read, publiczne bez konta, sha/per_page, niepełne patche
+i paginacja plików; wdrożenie ma własne niższe limity opisane w GITHUB_COMMITY.md.

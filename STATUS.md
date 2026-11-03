@@ -758,3 +758,23 @@ Odciski źródła/instalacji/uruchomionego backendu identyczne; cztery pliki JS/
 serwowane dokładnie, health200, branch bez logowania401. Model gotowy według
 API; brak nowej inferencji i brak testu produkcyjnego konta. Izolowany serwer
 przeglądarkowych testów zatrzymany; produkcyjny backend pozostaje uruchomiony.
+
+## 03.11.2026 — historia commitów i odczyt konkretnego SHA GitHuba
+github_read section=commits: pierwsza porcja do10 z opcjonalnym ref. section=commit:
+pełny SHA40/64, weryfikacja zgodności, opis4000/statystyki/rodzice, do20plików,
+patch6000, razem130000 znaków. Jawne brakujące/binarne/pominięte patche, filtry
+poświadczeń dla obu nazw po rename, total_files=null zamiast wymyślonej całości.
+Źródła kanoniczne. Bez editable, uprawnień do draft i nowych metod zapisu.
+Planer oznacza przycięcie tekstu800 i nie dubluje listy przez items w kontekście.
+Publiczne bez konta, prywatne istniejące DPAPI/allowlist/Contentsread; prywatne
+konto nowego zakresu NIE PRZETESTOWANE. Brak migracji, zależności i zmiany GPU.
+Windows:314 Python (313 OK,1 symlink pominięty), Node146/146. Realny worker GET
+odczytał10commitów i3patche wybranego SHA bez konta. Rzeczywisty llama-serverCUDA
+wybrał narzędzie i zakończył odpowiedź395znaków z zapisanym właściwym źródłem;
+konto/kontroler fixture, model prawdziwy. VRAM po odpowiedzi7119/8192MiB,
+pojedynczy pomiar. Bez zewnętrznych zapisów. Testy UI komunikatów w Node;
+nowej próby przeglądarkowej tego zakresu nie wykonywano.
+Start START.cmd, Ctrl+F5. Kontrakt docs/GITHUB_COMMITY.md i raport TESTY.
+Dalej: kolejne konkretne integracje odczytowe według planu4c; pamięć wizualna
+2.5c pozostaje osobnym niezrealizowanym zakresem. Historia rozmów nie zalicza
+głosu, nowego prywatnego konta ani pozostałych etapów.

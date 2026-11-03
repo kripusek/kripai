@@ -2,6 +2,8 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 const {document,Node,walk}=require('./dom.cjs');
 test('błędny site i przekierowanie poza filtr mają czytelne opisy',()=>{assert.match(harness().api.activity({name:'web_search',state:'tool_search_filter_invalid'}),/samą domenę/);assert.match(harness().api.activity({name:'web_read',state:'tool_search_domain_denied'}),/poza dozwolony filtr/);});
 function harness(){const doc=document(),ctx={document:doc,window:{},URL};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/tools.js'),'utf8'),ctx);return {doc,api:ctx.window.KripTools};}
+
+test('commit wymaga pełnego SHA, a niezgodna rewizja ma czytelny błąd',()=>{const h=harness();assert.match(h.api.activity({name:'github_read',state:'github_commit_sha_required'}),/pełny SHA/);assert.match(h.api.activity({name:'github_read',state:'github_commit_mismatch'}),/inny commit/);});
 test('zmienione zgłoszenie i pomylony numer PR mają czytelne komunikaty',()=>{const h=harness();assert.match(h.api.activity({name:'github_read',state:'github_issue_changed'}),/zmieniło się/);assert.match(h.api.activity({name:'github_read',state:'github_issue_is_pull_request'}),/Ten numer jest PR/);});
 test('źródło wyszukiwania nazw MCP zachowuje query i odrzuca obcą trasę',()=>{
  const h=harness(),box=new Node('article'),target=new Node('div');box.append(target);const url='/api/v1/integrations/mcp-files/search?root=12345678-1234-1234-1234-123456789abc&query=g%C4%99%C5%9Bl%C4%85+raport';
