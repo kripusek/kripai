@@ -415,3 +415,10 @@ NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, inst
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms 528.1955
+
+03.11.2026: upload zainstalowany lokalnie po kopii programu/bazy. Rzeczywista
+baza właściciela ma migrację 7 i upload_sessions, JS jest serwowany zgodnie
+z plikiem instalacji, endpoint bez sesji zwraca401; backend/model health200.
+Kod źródłowy/zainstalowany/uruchomiony zgodne (reuse_running exit0).
+Nie logowano produkcyjnego konta do uploadu; pełny przepływ przeglądarkowy
+został sprawdzony na izolowanym prawdziwym API opisanym w raporcie powyżej.

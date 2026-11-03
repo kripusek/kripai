@@ -559,3 +559,10 @@ Kod uploads.py/media/main, uploads.js/media/attachments. Start START.cmd;
 kontrakt spec/etap-2.5c/UPLOAD.md, raport docs/UPLOAD_WZNOWIENIE_TESTY.txt.
 Wizualne embeddingi pozostają planem. Dalej: zmiana nazwy rozmowy i eksport
 Markdown/JSON ze źródłami; przygotowane osobno, jeszcze nie uznane za wdrożone.
+
+03.11.2026: upload zainstalowany lokalnie po kopii programu/bazy. Rzeczywista
+baza właściciela ma migrację 7 i upload_sessions, JS jest serwowany zgodnie
+z plikiem instalacji, endpoint bez sesji zwraca401; backend/model health200.
+Kod źródłowy/zainstalowany/uruchomiony zgodne (reuse_running exit0).
+Nie logowano produkcyjnego konta do uploadu; pełny przepływ przeglądarkowy
+został sprawdzony na izolowanym prawdziwym API opisanym w raporcie powyżej.
