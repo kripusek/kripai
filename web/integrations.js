@@ -13,6 +13,7 @@ window.KripIntegrations=(()=>{
   return response.status===204?null:response.json();
  }
  async function refresh(){
+  window.KripMcpFiles?.refresh();
   const version=epoch;
   try{const data=await api('/integrations');if(version!==epoch)return;const github=data.items.find(x=>x.name==='github');
    const mcp=data.items.find(x=>x.name==='mcp');mcpState.textContent=mcp?.available?'Lokalny serwer dokumentacji gotowy. Włącz MCP w menu +. Dostęp tylko do odczytu.':'Lokalny serwer MCP niedostępny. Zaktualizuj program przez START.cmd.';

@@ -24,7 +24,7 @@ from .context import prepare, ContextTooLarge
 from .model_process import control
 from . import voice, media, rag, tools, gpu
 from fastapi.staticfiles import StaticFiles
-from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect
+from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect
 from .security import digest, password_hash, verify_password
 
 ORIGIN = config.ORIGIN
@@ -123,6 +123,7 @@ def infer(run):
             def activity(name,state):
                 with connect() as conn:event(conn,rid,'tool.activity',{'name':name,'state':state})
             scope=tools.policy(history[-1]['content'],run['allow_web'],run['allow_github'],run.get('allow_mcp',False))
+            scope=tools.bind_integrations(scope)
             with connect() as conn:scope['owner']=conn.execute('SELECT owner_id FROM conversations WHERE id=?',(run['conversation_id'],)).fetchone()['owner_id']
             with httpx.Client(timeout=30,headers=config.llm_headers(),trust_env=False) as planner:
                 # Planer nie dostaje prywatnej historii ani PDF; tylko bieżącą prośbę.
@@ -376,6 +377,65 @@ def mcp_document(path:str=Query(max_length=200),user=Depends(identity)):
     from .mcp_documents import document
     try:return Response(document(config.ROOT,path)['text'],media_type='text/plain')
     except tools.ToolError as exc:fail(404,exc.code)
+
+def mcp_files_owner(user):
+    if user['username']!='owner':fail(403,'integration_owner_required')
+
+@app.get('/api/v1/integrations/mcp-files/config')
+def mcp_files_config(user=Depends(identity)):
+    mcp_files_owner(user)
+    from . import mcp_files
+    try:
+        data=mcp_files.settings()
+        return dict(mcp_files.status(),root=str(data['root']) if data else '')
+    except tools.ToolError as exc:fail(409,exc.code)
+    except OSError:fail(503,'mcp_files_configuration_invalid')
+
+@app.post('/api/v1/integrations/mcp-files/config')
+def mcp_files_connect(body:McpFilesConnect,user=Depends(identity)):
+    mcp_files_owner(user)
+    from .mcp_files import configure
+    try:return configure(body.root,body.label)
+    except tools.ToolError as exc:fail(422,exc.code)
+    except OSError:fail(422,'mcp_files_configuration_invalid')
+
+@app.post('/api/v1/integrations/mcp-files/disconnect',status_code=204)
+def mcp_files_disconnect(user=Depends(identity)):
+    mcp_files_owner(user)
+    from .mcp_files import disconnect
+    try:disconnect()
+    except tools.ToolError as exc:fail(409,exc.code)
+    except OSError:fail(503,'mcp_files_configuration_invalid')
+    return Response(status_code=204)
+
+@app.post('/api/v1/integrations/mcp-files/prepare')
+def mcp_files_prepare(user=Depends(identity)):
+    mcp_files_owner(user)
+    from scripts.setup_mcp_filesystem import prepare
+    from .mcp_files import status
+    try:prepare();return status()
+    except Exception:fail(503,'mcp_files_install_failed')
+
+@app.post('/api/v1/integrations/mcp-files/test')
+def mcp_files_test(user=Depends(identity)):
+    mcp_files_owner(user)
+    from .mcp_files import execute,configured_id
+    try:
+        result=execute('list',root_id=configured_id())
+        return {'available':True,'documents':len(result['paths']),'read_only':True,'omitted_entries':result['omitted_entries']}
+    except tools.ToolError as exc:return {'available':False,'error':exc.code}
+    except OSError:return {'available':False,'error':'mcp_files_document_missing'}
+
+@app.get('/api/v1/integrations/mcp-files/catalog')
+@app.get('/api/v1/integrations/mcp-files/document')
+def mcp_files_source(request:Request,root:UUID,path:str=Query(default='',max_length=200),user=Depends(identity)):
+    from .mcp_files import execute
+    try:
+        document=request.url.path.endswith('/document')
+        result=execute('read' if document else 'list',path,str(root))
+        return Response(result['document'],media_type='text/plain') if document else result
+    except tools.ToolError as exc:fail(404,exc.code)
+    except OSError:fail(404,'mcp_files_document_missing')
 
 @app.get('/api/v1/integrations/github/drafts')
 def github_drafts(user=Depends(identity)):

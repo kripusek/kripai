@@ -232,3 +232,6 @@ Wyszukiwanie respektuje site:domena i -site:domena z bieżącej wiadomości:
 
 Ponowne uruchomienie START rozpoznaje działającą, niezmienioną paczkę
 i otwiera stronę bez restartu modelu: [zasady](docs/SZYBKIE_OTWIERANIE.md).
+
+Opcjonalnie: [MCP — odczyt własnego folderu dokumentów](docs/MCP_FOLDER.md).
+Konfiguracja i test w menu **+ → Połączenia**; pozostałe funkcje działają bez Node.js.

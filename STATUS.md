@@ -554,3 +554,21 @@ Windows: 217 Python (216 OK, 1 symlink pominięty), Node 65/65. Chrome desktop/
 API podglądu kontrolowane, bez hasła owner. Kod sidebar.js/app.js/HTML/CSS,
 bez deps/migracji; start START.cmd i Ctrl+F5. Szczegóły/raport:
 docs/MOBILNA_NAWIGACJA.md i MOBILNA_NAWIGACJA_TESTY.txt. Dalej: zewnętrzny MCP.
+
+## 03.11.2026 — zewnętrzny MCP i folder dokumentów
+Opcjonalny oficjalny filesystem MCP 2.1.0 działa przez rzeczywisty Node/stdio.
+Wybór folderu, przygotowanie pakietu, odłączenie i test w Połączeniach. Tylko
+list_directory/read_text_file; .md/.txt do 32 KiB, 12000 znaków, katalog do 200
+pozycji. Domyślna zgoda MCP nadal false. Brak uprawnień zapisu, dowolnego RPC,
+komend modelu i nowych kont/tokenów. Zmiana root unieważnia stare źródła.
+Node 24+ opcjonalny; npm ci z przypiętym lockiem, pustym npmrc, bez scripts.
+Windows: 230 Python (229 OK, 1 symlink pominięty), Node 70/70. Rzeczywisty
+oficjalny serwer: list/read, polskie nazwy, proces zagnieżdżony i API z sesją;
+junction, wyjście ze ścieżki, zmiana folderu, brak runtime, brak CSRF, stare
+źródło i zmieniony pakiet odrzucone. Chrome przez Playwright: wybór/test panelu
+desktop i 390px z kontrolowanym API; nie jest to logowanie kontem właściciela.
+Start START.cmd; brak migracji i obowiązkowych zależności. Kod mcp_files.py,
+setup_mcp_filesystem.py, mcp-files.js. Kontrakt i raport docs/MCP_FOLDER.md oraz
+MCP_FOLDER_TESTY.txt. Folder właściciela wymaga jawnego wyboru w panelu.
+Dalej: drugi konkretny dostawca odczytowy MCP z kontraktem i testem, przed
+ogólną konfiguracją serwerów; głos PL/EN nadal wymaga osobnego odbioru.

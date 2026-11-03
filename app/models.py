@@ -35,6 +35,10 @@ class GPUReport(Strict):
     vram_bytes_free: int | None = Field(ge=0)
     measured_at: datetime
 
+class McpFilesConnect(Strict):
+    root:str=Field(min_length=1,max_length=1024)
+    label:str=Field(default='Moje dokumenty',min_length=1,max_length=60)
+
 class MediaPage(Strict):
     page: int = Field(ge=1,le=50)
 

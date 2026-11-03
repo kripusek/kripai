@@ -82,11 +82,23 @@ class McpAdapter:
         from .mcp_client import execute
         return execute(arguments['action'],arguments.get('path',''))
 
-ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter(),'mcp':McpAdapter()}
+class McpFilesAdapter:
+    name='mcp_files'
+    def status(self):
+        from .mcp_files import status
+        return status()
+    def read(self,name,arguments,scope):
+        if not scope.get('mcp'):raise ToolError('tool_permission_denied')
+        if arguments['action']=='read' and arguments['path'] not in scope.get('local_documents',[]):raise ToolError('tool_resource_not_authorized')
+        from .mcp_files import execute
+        return execute(arguments['action'],arguments.get('path',''),scope.get('mcp_files_root'))
+
+ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter(),'mcp':McpAdapter(),'mcp_files':McpFilesAdapter()}
 TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web'}
 
 def read(name, arguments, scope):
     if name=='mcp_docs':return ADAPTERS['mcp'].read(name,arguments,scope)
+    if name=='mcp_files':return ADAPTERS['mcp_files'].read(name,arguments,scope)
     if name=='github_draft':
         from .github_changes import draft
         return draft(arguments,scope)

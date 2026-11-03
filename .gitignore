@@ -34,3 +34,5 @@ KripAI-backups/
 node_modules/
 .venv/
 tools-tmp/
+.playwright-cli/
+output/playwright/

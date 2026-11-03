@@ -259,7 +259,9 @@ def policy(text,web=False,github=False,mcp=False):
         pair=match[1].rstrip('.,;!')
         if valid_repo(pair):repos.add(pair.lower())
     documents=re.findall(r'(?<![\w./-])([A-Za-z0-9_./-]+\.md)(?![\w./-])',text)
-    return {'web':bool(web),'github':bool(github),'mcp':bool(mcp),'documents':list(dict.fromkeys(documents)),'urls':urls,'repositories':sorted(repos),'request':text}
+    local_documents=re.findall(r'(?<![\w./-])([\w./-]+\.(?:md|txt))(?![\w./-])',text,re.I)
+    local_documents+=re.findall(r'["“]([^"”\r\n]{1,200}\.(?:md|txt))["”]',text,re.I)
+    return {'web':bool(web),'github':bool(github),'mcp':bool(mcp),'documents':list(dict.fromkeys(documents)),'local_documents':list(dict.fromkeys(local_documents)),'urls':urls,'repositories':sorted(repos),'request':text}
 
 def valid_repo(value):
     return isinstance(value,str) and bool(re.fullmatch(r'[A-Za-z0-9_.-]{1,100}/[A-Za-z0-9_.-]{1,100}',value)) and all(part not in {'.','..'} for part in value.split('/'))

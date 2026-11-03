@@ -15,7 +15,9 @@ PROTOCOL='2025-11-25'
 MAX_FRAME=65536
 
 class StdioClient:
-    def __init__(self,check=lambda:None,command=None,root=None,timeout=10):
+    def __init__(self,check=lambda:None,command=None,root=None,timeout=10,max_frame=MAX_FRAME):
+        if max_frame not in {MAX_FRAME,262144}:raise ToolError('mcp_protocol_invalid')
+        self.max_frame=max_frame
         self.check=check;self.deadline=time.monotonic()+timeout;self.serial=0
         self.queue=queue.Queue(maxsize=4);self.stopped=threading.Event();self.job=ModelJob(memory_limit=128*1024**2);self.process=None
         root=root or config.ROOT
@@ -30,9 +32,9 @@ class StdioClient:
     def receive(self):
         try:
             while not self.stopped.is_set():
-                line=self.process.stdout.readline(MAX_FRAME+1)
+                line=self.process.stdout.readline(self.max_frame+1)
                 if not line:raise ToolError('mcp_disconnected')
-                if len(line)>MAX_FRAME or not line.endswith(b'\n'):raise ToolError('mcp_protocol_invalid')
+                if len(line)>self.max_frame or not line.endswith(b'\n'):raise ToolError('mcp_protocol_invalid')
                 value=json.loads(line.decode('utf-8'))
                 while not self.stopped.is_set():
                     try:self.queue.put(value,timeout=.1);break
@@ -47,7 +49,7 @@ class StdioClient:
         self.check()
         if time.monotonic()>self.deadline:raise ToolError('mcp_timeout')
         raw=json.dumps(message,ensure_ascii=False).encode('utf-8')+b'\n'
-        if len(raw)>MAX_FRAME:raise ToolError('mcp_protocol_invalid')
+        if len(raw)>self.max_frame:raise ToolError('mcp_protocol_invalid')
         try:self.process.stdin.write(raw);self.process.stdin.flush()
         except OSError:raise ToolError('mcp_disconnected') from None
 
@@ -69,13 +71,14 @@ class StdioClient:
             return value['result']
         raise ToolError('mcp_protocol_invalid')
 
-    def initialize(self):
+    def initialize(self,required=None):
         result=self.request('initialize',{'protocolVersion':PROTOCOL,'capabilities':{},'clientInfo':{'name':'KripAI','version':'1.0.0'}})
         if result.get('protocolVersion')!=PROTOCOL or not isinstance(result.get('capabilities',{}).get('tools'),dict):raise ToolError('mcp_protocol_invalid')
         self.send({'jsonrpc':'2.0','method':'notifications/initialized'})
         catalog=self.request('tools/list',{})
         names={tool.get('name') for tool in catalog.get('tools',[]) if isinstance(tool,dict)}
-        if not {'list_documents','read_document'}<=names:raise ToolError('mcp_protocol_invalid')
+        if not (required if required is not None else {'list_documents','read_document'})<=names:raise ToolError('mcp_protocol_invalid')
+        return catalog
 
     def close(self):
         self.stopped.set()

@@ -9,6 +9,75 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /integrations/mcp-files/config:
+    get:
+      summary: Lokalna konfiguracja folderu MCP (tylko owner; ścieżka nie trafia do modelu)
+      responses:
+        '200':
+          description: configured, available, read_only, label, root_id i root
+    post:
+      summary: Wybór folderu i unieważnienie wcześniejszego zakresu (owner i CSRF)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [root]
+              properties:
+                root: {type: string, minLength: 1, maxLength: 1024}
+                label: {type: string, minLength: 1, maxLength: 60, default: Moje dokumenty}
+      responses:
+        '200':
+          description: Konfiguracja zapisana; poprzednia kopia zachowana
+        '422':
+          description: Niedozwolony lub nieistniejący folder
+  /integrations/mcp-files/prepare:
+    post:
+      summary: Przygotuj przypięty pakiet filesystem 2.1.0 z npm (owner i CSRF)
+      responses:
+        '200':
+          description: Stan serwera; nie uruchamia modelu i nie wybiera folderu
+        '503':
+          description: Brak Node 24+, dostępu do npm lub błąd instalacji
+  /integrations/mcp-files/test:
+    post:
+      summary: Rzeczywisty handshake i listowanie wybranego folderu (owner i CSRF)
+      responses:
+        '200':
+          description: available, documents, omitted_entries, read_only albo jawny error
+  /integrations/mcp-files/disconnect:
+    post:
+      summary: Odłącz folder, zachowaj kopię konfiguracji i unieważnij źródła (owner i CSRF)
+      responses:
+        '204':
+          description: Odłączono
+  /integrations/mcp-files/catalog:
+    get:
+      summary: Katalog bieżącego folderu MCP (sesja)
+      parameters:
+      - {name: root, in: query, required: true, schema: {type: string, format: uuid}}
+      - {name: path, in: query, schema: {type: string, maxLength: 200, default: ''}}
+      responses:
+        '200':
+          description: Filtrowana lista .md/.txt i katalogów, bez absolutnych ścieżek
+        '404':
+          description: Nieaktualny root lub niedostępna ścieżka
+  /integrations/mcp-files/document:
+    get:
+      summary: Oryginalny dokument .md/.txt do 12000 znaków (sesja)
+      parameters:
+      - {name: root, in: query, required: true, schema: {type: string, format: uuid}}
+      - {name: path, in: query, required: true, schema: {type: string, maxLength: 200}}
+      responses:
+        '200':
+          description: Tekst UTF-8; większe dokumenty jawnie przycięte w wyniku narzędzia
+          content:
+            text/plain:
+              schema: {type: string}
+        '404':
+          description: Nieaktualny root lub niedozwolony dokument
   /system/gpu:
     get:
       summary: Pomiar VRAM całych kart NVIDIA, cache 5 s (sesja, tylko odczyt)

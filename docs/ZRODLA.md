@@ -153,3 +153,11 @@ https://docs.github.com/en/rest/pulls/pulls
 https://docs.nvidia.com/deploy/nvidia-smi/index.html
 Lokalnie sprawdzone: --query-gpu=index,name,memory.used,memory.total,memory.free
 oraz --format=csv,noheader,nounits.
+
+## Oficjalny zewnętrzny MCP filesystem
+https://registry.npmjs.org/@modelcontextprotocol%2fserver-filesystem/2.1.0
+https://github.com/modelcontextprotocol/servers/blob/main/src/filesystem/README.md
+https://github.com/modelcontextprotocol/servers/releases
+https://github.com/modelcontextprotocol/servers/blob/main/LICENSE
+Sprawdzone: wymaganie Node >=24, CLI allowed roots, readOnlyHint, metody
+list_directory/read_text_file, protokół 2025-11-25; przypięty lock i integralność.
