@@ -465,3 +465,18 @@ setup_mcp_filesystem.py, mcp-files.js. Kontrakt i raport docs/MCP_FOLDER.md oraz
 MCP_FOLDER_TESTY.txt. Folder właściciela wymaga jawnego wyboru w panelu.
 Dalej: drugi konkretny dostawca odczytowy MCP z kontraktem i testem, przed
 ogólną konfiguracją serwerów; głos PL/EN nadal wymaga osobnego odbioru.
+
+03.11.2026 — odbiór lokalnej aktualizacji powyższych pięciu paczek:
+Wykonano kopię kodu i bazy, zachowano poświadczenia i istniejącą konfigurację.
+Zainstalowane wszystkie zmiany od 60c504b, oficjalny runtime MCP przygotowany.
+Rzeczywisty odczyt przez pakiet z folderu instalacji poprawny; folder właściciela
+pozostawiono bez zmian (własny folder wymaga wyboru w Połączeniach).
+Backend/model i zasoby UI działają; prywatna konfiguracja bez sesji zwraca 401.
+START.ps1 -NoBrowser (ścieżka używana przez START.cmd): 3.609 s, PID modelu bez
+zmiany. To ponowne otwarcie uruchomionej aplikacji, nie czas zimnego startu.
+Rzeczywisty Qwen3-8B/CUDA wybrał mcp_files, odczytał memo.md przez zewnętrzny
+serwer, zwrócił poprawny kod kontrolny i źródło; run completed, 65 znaków.
+Sterownik po próbie: cała karta 6846/8192 MiB. Konto/kontroler tej rozmowy były
+odizolowanymi fixture; inference i proces Node rzeczywiste. Bez hasła owner.
+NIE URUCHOMIONO: nowe prywatne konto/PR z zapisem, pełna nowa instalacja,
+mikrofon PL/EN i test wszystkich stron WWW. Nie są zaliczone przez te próby.
