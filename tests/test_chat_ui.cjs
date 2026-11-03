@@ -2,6 +2,15 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 const {document,walk}=require('./dom.cjs'),marked=require('../web/vendor/marked/marked.umd.js');
 const tick=()=>new Promise(r=>setImmediate(r));
 
+test('odgałęzienie otwiera nowy kontekst bez wysłania wiadomości i zachowuje szkic',async()=>{
+ let configured;const contexts=[],h=await harness({KripConversationBranch:{configure(value){configured=value;},setContext:(...args)=>contexts.push(args),setBusy(){},clear(){},attach(){}}});h.doc.getElementById('prompt').value='Szkic nowej wersji';await configured.onBranch({id:'fork-cid',title:'Gałąź'});
+ assert(contexts.some(([id,reset])=>id==='fork-cid'&&reset===true));assert(h.calls.some(([url])=>url==='/api/v1/conversations/fork-cid/messages?limit=50'));assert.equal(h.doc.getElementById('prompt').value,'Szkic nowej wersji');assert(!h.calls.some(([url,options])=>url.includes('/messages')&&options.method==='POST'));
+});
+test('logout podczas otwierania gałęzi blokuje późny komunikat i zawartość',async()=>{
+ let configured,resolve;const h=await harness({KripConversationBranch:{configure(value){configured=value;},setContext(){},setBusy(){},clear(){},attach(){}}}),original=h.ctx.fetch;
+ h.ctx.fetch=(url,options)=>url.includes('/fork-cid/messages')?new Promise(r=>resolve=r):original(url,options);const pending=configured.onBranch({id:'fork-cid',title:'Prywatna'});await h.doc.getElementById('logout').onclick();resolve({ok:true,status:200,json:async()=>({items:[],next_cursor:null})});await pending;assert.equal(h.doc.getElementById('messages').children.length,0);assert.equal(h.doc.getElementById('notice').textContent,'');assert.equal(h.doc.getElementById('workspace').hidden,true);
+});
+
 test('wybór wyniku szuka dokładnego at, Najnowsze wraca do końca i szkic pozostaje',async()=>{
  let configured,cleared=0;const h=await harness({KripConversationSearch:{configure(value){configured=value;},clear(){cleared++;}}});h.doc.getElementById('prompt').value='Niewysłany szkic';await configured.onSelect({conversation_id:'cid',title:'Historia',seq:7});
  assert(h.calls.some(([url])=>url==='/api/v1/conversations/cid/messages?limit=50&at=7'));assert.equal(h.doc.getElementById('latest').hidden,false);assert.equal(h.doc.getElementById('prompt').value,'Niewysłany szkic');
@@ -156,4 +165,15 @@ test('błąd transportu zachowuje szkic i miniaturę do ponowienia',async()=>{
  const h=await harness();h.ctx.window.KripUploads={async send(){throw Error('Utracono połączenie. Wybierz ponownie plik.');}};
  h.paste();h.doc.getElementById('prompt').value='Szkic pytania';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});
  assert(h.ctx.KripAttachments.has());assert.equal(h.doc.getElementById('prompt').value,'Szkic pytania');assert.match(h.doc.getElementById('notice').textContent,/Utracono/);assert.equal(h.doc.getElementById('send').disabled,false);
+});
+
+test('utworzona gałąź z błędem odczytu pokazuje prawdziwy wynik zamiast sukcesu otwarcia',async()=>{
+ let configured;const h=await harness({KripConversationBranch:{configure(value){configured=value;},setContext(){},setBusy(){},clear(){},attach(){}}}),original=h.ctx.fetch;
+ h.ctx.fetch=(url,options)=>url.includes('/fork-cid/messages')?Promise.reject(Error('fixture offline')):original(url,options);
+ h.doc.getElementById('messages').append(h.doc.createElement('article'));await configured.onBranch({id:'fork-cid',title:'Gałąź'});assert.match(h.doc.getElementById('notice').textContent,/utworzona, ale nie udało/);assert.match(h.doc.getElementById('notice').textContent,/Najnowsze/);assert.equal(h.doc.getElementById('messages').children.length,0);assert.equal(h.doc.getElementById('latest').hidden,false);assert(h.calls.some(([url])=>url.startsWith('/api/v1/conversations?')));assert(!h.calls.some(([url,options])=>url.includes('/messages')&&options.method==='POST'));
+});
+test('późny błąd otwarcia gałęzi nie wraca po logout',async()=>{
+ let configured,reject;const h=await harness({KripConversationBranch:{configure(value){configured=value;},setContext(){},setBusy(){},clear(){},attach(){}}}),original=h.ctx.fetch;
+ h.ctx.fetch=(url,options)=>url.includes('/fork-cid/messages')?new Promise((_,r)=>reject=r):original(url,options);
+ const pending=configured.onBranch({id:'fork-cid',title:'Gałąź'});await h.doc.getElementById('logout').onclick();reject(Error('fixture offline'));await pending;assert.equal(h.doc.getElementById('notice').textContent,'');
 });

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.10.0
+  version: 1.11.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -22,6 +22,37 @@ paths:
           description: Wymagane logowanie
         '422':
           description: Nieprawidłowe q lub kursor
+  /conversations/{cid}/branch:
+    post:
+      summary: Utwórz nową własną rozmowę do wskazanej odpowiedzi włącznie, bez generacji
+      parameters:
+      - {name: cid, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: Idempotency-Key, in: header, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [message_id]
+              properties:
+                message_id: {type: string, format: uuid}
+      responses:
+        '201':
+          description: id, title, created_at i copied_messages; prefiks z nowymi ID i źródłami. Oryginał bez zmian. Idempotencja 24 h. Pliki współdzielone referencjami
+        '401':
+          description: Sesja nieaktywna
+        '403':
+          description: Nieprawidłowy CSRF lub Origin
+        '404':
+          description: Brak własnej rozmowy lub punktu, także usunięta gałąź przy ponowieniu
+        '409':
+          description: Aktywna generacja w oryginale lub inne dane tego klucza
+        '413':
+          description: Ponad 1000 wiadomości lub 8 MiB tekstu UTF-8; nic nie skopiowano
+        '422':
+          description: Punkt musi być zapisaną odpowiedzią assistant; wymagane poprawne UUID
   /conversations/{cid}/export:
     get:
       summary: Pobierz jedną własną rozmowę w całości jako Markdown lub JSON v1

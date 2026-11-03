@@ -22,6 +22,9 @@ class ConversationCreate(Strict):
 class ConversationRename(Strict):
     title:str=Field(min_length=1,max_length=200)
 
+class ConversationBranch(Strict):
+    message_id:UUID
+
 class MessageCreate(Strict):
     text: str = Field(min_length=1,max_length=4000)
     client_message_id: UUID

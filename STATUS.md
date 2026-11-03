@@ -710,3 +710,24 @@ Brak migracji. Kod conversation_search.py, conversation-search.js, sidebar/app.
 Start START.cmd i Ctrl+F5. Kontrakt docs/WYSZUKIWANIE_HISTORII.md i plik TESTY.
 Dalej: nowa rozmowa od wybranej odpowiedzi, bez naruszania oryginału i bez
 automatycznej generacji; przygotowywana osobno przez agentów.
+
+## 03.11.2026 — nowa rozmowa od wybranej odpowiedzi
+Przycisk pod zapisaną odpowiedzią tworzy osobną rozmowę z prefiksem do tej
+odpowiedzi włącznie. Nowe ID, zachowane role/teksty/daty/W/D/obrazy, oryginał
+bez zmian. Własne pliki współdzielone referencjami, nie snapshot binariów;
+ich usunięcie/zmiana dotyczy obu rozmów. Bieżąca sesja obrazu zamiast dawnej.
+Bez kopiowania runs/zezwoleń i bez generacji/wysyłania wiadomości. Zachowany
+tekst szkicu; niewysłany obraz czyszczony przy zmianie rozmowy jak dotychczas.
+SQLite kopiuje atomowo z potwierdzeniem idempotencji24h. Równoległe ponowienia
+i utrata odpowiedzi nie duplikują operacji w tym zakresie. Owner/session/CSRF,
+tylko assistant, blokada aktywnej generacji źródła, limity1000/8MiBUTF8 tekstu
+bez cichego skrócenia. Błąd GET po201 ma prawdziwy komunikat, pusty bezpieczny
+widok, odświeżoną listę i Najnowsze do ponowienia odczytu bez kolejnej kopii.
+Windows:302 Python (301 OK,1 pominięty symlink), Node134/134. Realny Chromium,
+HTTP i SQLite: zgubiony201/retry ten sam ID, prefix2/original4/W1/freshIDs,
+szkic, mobile390, brak messagesPOST/model; awaria otwarcia i odzysk odczytu.
+Konto/kontroler fixture, brak nowej inferencji GPU; głos nie sprawdzany tutaj.
+Start START.cmd i Ctrl+F5. Brak migracji/deps. Kod conversation_branch.py,
+conversation-branch.js i app/main. Kontrakt docs/ROZMOWY_GALEZIE.md, raport TESTY.
+Następnie: kopiowanie pełnych wiadomości jednym przyciskiem z obsługą błędów
+schowka, bez uruchamiania modelu i bez zmiany historii.

@@ -24,7 +24,7 @@ from .context import prepare, ContextTooLarge
 from .model_process import control
 from . import voice, media, rag, tools, gpu, uploads
 from fastapi.staticfiles import StaticFiles
-from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect, UploadStart, ConversationRename
+from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect, UploadStart, ConversationRename, ConversationBranch
 from .security import digest, password_hash, verify_password
 
 ORIGIN = config.ORIGIN
@@ -91,9 +91,9 @@ def idempotent(conn,uid,route,key,body):
     return None
 
 
-def remember(conn,uid,route,key,result):
+def remember(conn,uid,route,key,result,status=202):
     conn.execute('UPDATE idempotency_keys SET response_json=? WHERE owner_id=? AND route=? AND key=?',(json.dumps(result),uid,route,key))
-    return JSONResponse(result,status_code=202)
+    return JSONResponse(result,status_code=status)
 
 
 def infer(run):
@@ -532,6 +532,20 @@ def export_conversation(cid:UUID,format:str=Query(default='md'),user=Depends(ide
     try:result=render(str(cid),user['id'],format)
     except ExportError as exc:fail(exc.status,exc.code)
     return Response(result['body'],media_type=result['media_type'],headers={'Content-Disposition':'attachment; filename="'+result['filename']+'"','X-Content-Type-Options':'nosniff'})
+
+@app.post('/api/v1/conversations/{cid}/branch',status_code=201)
+def branch_conversation(cid:UUID,body:ConversationBranch,request:Request,user=Depends(identity)):
+    from .conversation_branch import branch,BranchError
+    key=key_from(request);route=request.url.path
+    with connect() as conn:
+        if not conn.execute('SELECT 1 FROM sessions WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at>now()',(user['session_id'],user['id'])).fetchone():fail(401,'login_required')
+        cached=idempotent(conn,user['id'],route,key,body.model_dump(mode='json'))
+        if cached is not None:
+            owned(conn,cached['id'],user['id'])
+            return JSONResponse(cached,201)
+        try:result=branch(conn,str(cid),user['id'],str(body.message_id),user['session_id'])
+        except BranchError as exc:fail(exc.status,exc.code)
+        return remember(conn,user['id'],route,key,result,status=201)
 
 @app.get('/api/v1/conversations/{cid}/messages')
 def messages(cid:UUID,limit:int=Query(20,ge=1,le=100),cursor:str|None=None,at:int|None=Query(default=None,ge=1,le=9223372036854775807),user=Depends(identity)):
