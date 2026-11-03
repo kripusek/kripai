@@ -778,3 +778,8 @@ Start START.cmd, Ctrl+F5. Kontrakt docs/GITHUB_COMMITY.md i raport TESTY.
 Dalej: kolejne konkretne integracje odczytowe według planu4c; pamięć wizualna
 2.5c pozostaje osobnym niezrealizowanym zakresem. Historia rozmów nie zalicza
 głosu, nowego prywatnego konta ani pozostałych etapów.
+
+03.11.2026: paczka commitów9ab600c zainstalowana lokalnie po kopii kodu/bazy.
+Odciski źródeł/instalacji/uruchomionego backendu zgodne, tools.js serwowany
+dokładnie, nowe sekcje zaakceptowane przez zainstalowany schemat. Health200,
+historia bez sesji401, rzeczywisty model gotowy. Nie logowano konta właściciela.

@@ -513,3 +513,13 @@ NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, inst
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms 681.0177
+
+Installed native after code/data backup:
+{
+  "source_installed_running": "equal",
+  "installed_commit_schema": "accepted",
+  "tools_js": "exact",
+  "backend": 200,
+  "conversations_without_login": 401,
+  "owner_login_tested": false
+}
