@@ -69,7 +69,7 @@ class ConversationExportTests(DataCase):
             conn.execute('INSERT INTO message_sources VALUES (?,?,?,?,?)',(mid,1,aid,2,'Cytat D'))
             conn.execute('INSERT INTO message_sources VALUES (?,?,?,?,?)',(mid,2,other,1,'PRIVATE_FOREIGN_SOURCE'))
         value=self.result();row=json.loads(value['body'])['messages'][0]
-        self.assertEqual(row['attachments'],[{'id':aid,'filename':'Źródło 🐈.pdf','media_type':'application/pdf','pages':2}])
+        self.assertEqual(row['attachments'],[{'id':aid,'filename':'Źródło 🐈.pdf','media_type':'application/pdf','pages':2,'page':1}])
         self.assertEqual([item['label'] for item in row['sources']],['W1','D1'])
         self.assertEqual(row['sources'][1]['attachment_id'],aid)
         for format in ('md','json'):

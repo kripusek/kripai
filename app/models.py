@@ -29,6 +29,7 @@ class MessageCreate(Strict):
     text: str = Field(min_length=1,max_length=4000)
     client_message_id: UUID
     attachment_id: UUID | None = None
+    attachment_page: int | None = Field(default=None,ge=1,le=50,strict=True)
     document_ids: list[UUID] = Field(default_factory=list,max_length=5)
     allow_web: bool = False
     allow_github: bool = False

@@ -58,8 +58,8 @@ class ConversationBranchTests(DataCase):
         with connect() as conn:
             conn.execute("INSERT INTO tool_sources VALUES (?,1,'web','https://example.invalid/','title','literal source')",(self.ids[1],))
             for ordinal,aid in enumerate((owned,foreign),1):conn.execute('INSERT INTO message_sources VALUES (?,?,?,?,?)',(self.ids[1],ordinal,aid,1,'document excerpt'))
-            conn.execute('INSERT INTO message_images VALUES (?,?,?)',(self.ids[0],owned,old_session))
-            conn.execute('INSERT INTO message_images VALUES (?,?,?)',(self.ids[1],foreign,old_session))
+            conn.execute('INSERT INTO message_images(message_id,attachment_id,session_id,page) VALUES (?,?,?,2)',(self.ids[0],owned,old_session))
+            conn.execute('INSERT INTO message_images(message_id,attachment_id,session_id,page) VALUES (?,?,?,2)',(self.ids[1],foreign,old_session))
             attachments=conn.execute('SELECT * FROM attachments ORDER BY id').fetchall()
         result=self.fork()
         with connect() as conn:
@@ -68,7 +68,7 @@ class ConversationBranchTests(DataCase):
             sources=conn.execute('SELECT s.* FROM message_sources s JOIN messages m ON m.id=s.message_id WHERE m.conversation_id=?',(result['id'],)).fetchall()
             self.assertEqual(len(sources),1);self.assertEqual(sources[0]['attachment_id'],owned);self.assertEqual(sources[0]['message_id'],mids[1])
             images=conn.execute('SELECT i.* FROM message_images i JOIN messages m ON m.id=i.message_id WHERE m.conversation_id=?',(result['id'],)).fetchall()
-            self.assertEqual(images,[{'message_id':mids[0],'attachment_id':owned,'session_id':self.sid}])
+            self.assertEqual(images,[{'message_id':mids[0],'attachment_id':owned,'session_id':self.sid,'page':2}])
             web=conn.execute('SELECT * FROM tool_sources WHERE message_id=?',(mids[1],)).fetchall();self.assertEqual(len(web),1);self.assertEqual(web[0]['excerpt'],'literal source')
     def test_ownership_point_roles_and_current_session(self):
         other=self.other_user();other_sid=self.session(other);other_cid=self.conversation()

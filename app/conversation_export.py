@@ -86,11 +86,11 @@ def render(cid:str,uid:str,format:str):
                 write(',"attachments":[')
             else:write('\n## '+('Użytkownik' if message['role']=='user' else 'Asystent')+' · '+_date(message['created_at'])+'\n\n'+message['content']+'\n')
             first=True
-            for item in _bounded_query(conn,'message_images i JOIN attachments a ON a.id=i.attachment_id',('a.id','a.filename','a.media_type','a.pages'),'i.message_id=? AND a.owner_id=?',(mid,uid)):
+            for item in _bounded_query(conn,'message_images i JOIN attachments a ON a.id=i.attachment_id',('a.id','a.filename','a.media_type','a.pages','i.page'),'i.message_id=? AND a.owner_id=?',(mid,uid)):
                 if format=='json':
                     if not first:write(',')
                     json_value(item)
-                else:write('\nZałącznik: '+item['filename']+' ('+item['id']+'), '+item['media_type']+'\n')
+                else:write('\nZałącznik: '+item['filename']+' ('+item['id']+'), '+item['media_type']+', strona '+str(item['page'])+'\n')
                 first=False
             if format=='json':write('],"sources":[')
             first=True

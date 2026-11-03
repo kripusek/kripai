@@ -54,12 +54,55 @@ class ChatImageTests(DataCase):
 
     def test_missing_model_other_owner_pdf_no_partial_message(self):
         aid=self.upload();(self.models/'vision-model.gguf').unlink();self.assertEqual(self.send(aid).status_code,503)
-        (self.models/'vision-model.gguf').write_bytes(b'fixture');self.assertEqual(self.send(self.upload(pdf())).status_code,422)
+        (self.models/'vision-model.gguf').write_bytes(b'fixture');self.assertEqual(self.send(self.upload(pdf()),{'text':'x','client_message_id':str(uuid4()),'attachment_page':2}).status_code,422)
         with connect() as conn:
             conn.execute("INSERT INTO users VALUES ('other','other','test',0)")
             conn.execute("UPDATE attachments SET owner_id='other' WHERE id=?",(aid,))
         self.assertEqual(self.send(aid).status_code,404)
         with connect() as conn:self.assertEqual(conn.execute('SELECT count(*) AS n FROM messages').fetchone()['n'],0)
+
+    def test_pdf_page_is_stable_and_does_not_modify_attachment(self):
+        aid=self.upload(pdf());body={'text':'Co na stronie?', 'client_message_id':str(uuid4()), 'attachment_id':aid, 'attachment_page':2}
+        with connect() as conn:before=conn.execute('SELECT preview,current_page,analysis FROM attachments WHERE id=?',(aid,)).fetchone()
+        rid=self.send(aid,body).json()['run_id'];self.controller()
+        def model(preview,question,key,cancelled,on_delta=None,check=None):
+            self.assertNotEqual(preview,before['preview'])
+            return 'Strona druga'
+        with patch.object(media,'ask_model',model):main.infer(self.run_row(rid))
+        self.assertEqual(self.run_row(rid)['status'],'completed')
+        with connect() as conn:self.assertEqual(conn.execute('SELECT preview,current_page,analysis FROM attachments WHERE id=?',(aid,)).fetchone(),before)
+        items=self.client.get('/api/v1/conversations/'+self.cid+'/messages').json()['items']
+        self.assertEqual((items[0]['attachment_id'],items[0]['attachment_page']),(aid,2))
+        self.assertEqual(items[0]['attachment_media_type'],'application/pdf')
+
+    def test_page_validation_and_owner(self):
+        aid=self.upload(pdf())
+        for page in (0,3,51,True):
+            result=self.send(aid,{'text':'x','client_message_id':str(uuid4()),'attachment_id':aid,'attachment_page':page})
+            self.assertEqual(result.status_code,422)
+        with connect() as conn:
+            conn.execute("INSERT INTO users VALUES ('other','other','test',0)")
+            conn.execute("UPDATE attachments SET owner_id='other' WHERE id=?",(aid,))
+        self.assertEqual(self.send(aid,{'text':'x','client_message_id':str(uuid4()),'attachment_id':aid,'attachment_page':2}).status_code,404)
+        with connect() as conn:self.assertEqual(conn.execute('SELECT count(*) AS n FROM messages').fetchone()['n'],0)
+
+    def test_page_logout_before_generation_does_not_infer(self):
+        aid=self.upload(pdf());body={'text':'x','client_message_id':str(uuid4()),'attachment_id':aid,'attachment_page':2}
+        rid=self.send(aid,body).json()['run_id']
+        self.client.post('/api/v1/auth/logout')
+        with patch.object(media,'ask_model',side_effect=AssertionError('must not infer')):main.infer(self.run_row(rid))
+        self.assertNotEqual(self.run_row(rid)['status'],'completed')
+
+    def test_v8_page_migration_requires_backup_and_preserves_existing_image(self):
+        aid=self.upload();self.send(aid)
+        with connect() as conn:
+            conn.execute('ALTER TABLE message_images DROP COLUMN page')
+            conn.execute('DELETE FROM schema_migrations WHERE version=9')
+        with patch.object(maintenance,'backup',side_effect=OSError('disk full')):
+            with self.assertRaises(OSError):migrate()
+        with connect() as conn:self.assertNotIn('page',[r['name'] for r in conn.execute('PRAGMA table_info(message_images)')])
+        migrate()
+        with connect() as conn:self.assertEqual(conn.execute('SELECT attachment_id,page FROM message_images').fetchone(),{'attachment_id':aid,'page':1})
 
     def test_stream_before_completion_then_history(self):
         aid=self.upload();rid=self.send(aid).json()['run_id'];self.controller()

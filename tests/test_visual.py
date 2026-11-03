@@ -341,7 +341,8 @@ class VisualDataTests(DataCase):
         with connect() as conn:
             for table in ('visual_vectors', 'visual_pages', 'visual_documents'):
                 conn.execute('DROP TABLE '+table)
-            conn.execute('DELETE FROM schema_migrations WHERE version=8')
+            conn.execute('ALTER TABLE message_images DROP COLUMN page')
+            conn.execute('DELETE FROM schema_migrations WHERE version>=8')
         with patch.object(maintenance, 'backup', side_effect=OSError('synthetic disk full')):
             with self.assertRaises(OSError):
                 migrate()

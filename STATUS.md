@@ -880,3 +880,18 @@ wiadomości/VLM0. Realcancel0,033s, runtimeverifyTRUE.
 Instalacja480a429 po kopii programu/bazy: schema8, source/install/backend zgodne,
 runtimeverifyTRUE, rzeczywisty zainstalowany encoder obraz+opis działa i kończy
 proces. Health200/assety zgodne/bezsesji401. Bez loginu właściciela/inferenceCUDA.
+
+## 04.11.2026 — strona z pamięci obrazów w rozmowie
+
+Przycisk „Zapytaj o obraz” wybiera wynik PNG/JPEG/PDF do wiadomości. Po wysłaniu
+VLM dostaje jedną wskazaną stronę; osobne dekodowanie nie zmienia podglądu.
+Migracja 009 utrwala numer strony w wiadomości, historii, eksporcie i gałęzi.
+Struktura: app/media.py, main.py, models.py, conversation_branch.py,
+conversation_export.py, web/visual.js, attachments.js, app.js i migracja 009.
+Bez nowych modeli i zależności; start START.cmd, Ctrl+F5. Obraz pozostaje
+rozdzielony od jednoczesnego RAG i narzędzi. Kontrakt: docs/PAMIEC_OBRAZOW.md.
+
+Windows: 390 Python (389 OK, 1 pominięty), 193 Node OK; po poprawce typu
+załącznika dodatkowo 31 testów backendu OK. VLM w testach stanowi atrapę.
+NIE POTWIERDZONO rzeczywistej inferencji VLM nowego przepływu ani jakości
+odpowiedzi. Następnie sprawdzić VLM/interfejs na Windows.

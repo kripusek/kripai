@@ -217,7 +217,7 @@ def infer_image(run,image):
         question=conn.execute('SELECT content FROM messages WHERE id=?',(run['user_message_id'],)).fetchone()['content']
         change_state(conn,rid,'generating')
     key=(image['session_id'],image['owner_id'],str(rid))
-    result=media.analyze(image['attachment_id'],'question',question,key,run_id=rid,on_delta=delta,check=check)
+    result=media.analyze(image['attachment_id'],'question',question,key,run_id=rid,on_delta=delta,check=check,page=image['page'])
     check()
     with connect() as conn:
         state=conn.execute('SELECT status FROM runs WHERE id=?',(rid,)).fetchone()['status']
@@ -607,7 +607,7 @@ def messages(cid:UUID,limit:int=Query(20,ge=1,le=100),cursor:str|None=None,at:in
         owned(conn,cid,user['id'])
         if at is not None and not conn.execute('SELECT 1 FROM messages WHERE conversation_id=? AND seq=?',(cid,at)).fetchone():fail(404,'message_not_found')
         comparison='<=' if at is not None else '<'
-        rows=conn.execute('SELECT m.seq,m.id,m.role,m.content,m.created_at,i.attachment_id FROM messages m LEFT JOIN message_images i ON i.message_id=m.id WHERE m.conversation_id=? AND m.seq'+comparison+'? ORDER BY m.seq DESC LIMIT ?',(cid,at if at is not None else before,limit+1)).fetchall()
+        rows=conn.execute('SELECT m.seq,m.id,m.role,m.content,m.created_at,i.attachment_id,i.page AS attachment_page,a.media_type AS attachment_media_type FROM messages m LEFT JOIN message_images i ON i.message_id=m.id LEFT JOIN attachments a ON a.id=i.attachment_id AND a.owner_id=? WHERE m.conversation_id=? AND m.seq'+comparison+'? ORDER BY m.seq DESC LIMIT ?',(user['id'],cid,at if at is not None else before,limit+1)).fetchall()
         for row in rows:
             row['sources']=rag.sources(conn,row['id'],user['id'])
             row['tool_sources']=tools.sources(conn,row['id'])
@@ -620,25 +620,27 @@ def send(cid:UUID,body:MessageCreate,request:Request,user=Depends(identity)):
     with connect() as conn:
         owned(conn,cid,user['id'])
         # Nowa flaga false ma identyczne znaczenie jak brak flagi w starym UI.
-        cached=idempotent(conn,user['id'],route,key,body.model_dump(mode='json',exclude={'allow_mcp'} if not body.allow_mcp else set()))
+        cached=idempotent(conn,user['id'],route,key,body.model_dump(mode='json',exclude=({'allow_mcp'} if not body.allow_mcp else set()) | ({'attachment_page'} if body.attachment_page is None else set())))
         if cached is not None: return JSONResponse(cached,202)
         if conn.execute('SELECT requested_mode FROM system_mode').fetchone()['requested_mode']!='normal': fail(503,'gaming_mode')
         if conn.execute('SELECT requested_profile FROM system_mode').fetchone()['requested_profile']!='text':fail(409,'vision_busy')
         if conn.execute('SELECT controller_state FROM system_mode').fetchone()['controller_state']!='ready':fail(503,'model_unavailable')
         if conn.execute("SELECT 1 FROM runs WHERE status NOT IN ('completed','cancelled','failed','expired','outcome_unknown') LIMIT 1").fetchone(): fail(409,'generation_busy')
         if conn.execute('SELECT 1 FROM messages WHERE conversation_id=? AND client_message_id=?',(cid,body.client_message_id)).fetchone(): fail(409,'client_message_conflict')
+        if body.attachment_page is not None and not body.attachment_id:fail(422,'file_page')
         if body.attachment_id and (body.allow_web or body.allow_github or body.allow_mcp):fail(422,'tool_image_combination')
         if body.document_ids:
             if body.attachment_id:fail(422,'rag_image_combination')
             rag.validate_selection(conn,body.document_ids,user['id'])
         if body.attachment_id:
             attachment=media.owned(conn,body.attachment_id,user['id'])
-            if attachment['media_type'] not in {'image/png','image/jpeg'}:fail(422,'chat_image_format')
+            if attachment['media_type'] not in {'image/png','image/jpeg','application/pdf'}:fail(422,'chat_image_format')
+            if (body.attachment_page or 1)>attachment['pages']:fail(422,'file_page')
             if not all((config.DATA/'models'/name).is_file() for name in ('vision-model.gguf','vision-mmproj.gguf')):fail(503,'vision_not_installed')
         mid=uuid4();rid=uuid4()
         conn.execute('INSERT INTO messages(id,conversation_id,role,content,client_message_id) VALUES (?,?,\'user\',?,?)',(mid,cid,body.text,body.client_message_id))
         if body.attachment_id:
-            conn.execute('INSERT INTO message_images VALUES (?,?,?)',(mid,body.attachment_id,user['session_id']))
+            conn.execute('INSERT INTO message_images(message_id,attachment_id,session_id,page) VALUES (?,?,?,?)',(mid,body.attachment_id,user['session_id'],body.attachment_page or 1))
         conn.execute('INSERT INTO runs(id,conversation_id,user_message_id,status) VALUES (?,?,?,\'queued\')',(rid,cid,mid))
         conn.execute('UPDATE runs SET rag_selection=?,allow_web=?,allow_github=?,allow_mcp=?,tool_session_id=? WHERE id=?',(json.dumps([str(x) for x in body.document_ids]),int(body.allow_web),int(body.allow_github),int(body.allow_mcp),user['session_id'] if body.allow_web or body.allow_github or body.allow_mcp else None,rid))
         conn.execute("UPDATE conversations SET updated_at=now(),title=CASE WHEN title='' THEN ? ELSE title END WHERE id=?",(body.text[:60],cid))

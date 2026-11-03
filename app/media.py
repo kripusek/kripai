@@ -164,9 +164,14 @@ def ask_model(preview,question,key,cancelled,on_delta=None,check=None):
     return result['text']
 
 
-def analyze(aid,mode,question,key,run_id=None,on_delta=None,check=None):
+def analyze(aid,mode,question,key,run_id=None,on_delta=None,check=None,page=None):
     with task(key) as cancelled:
         with connect() as conn:row=owned(conn,aid,key[1])
+        if page is not None:
+            if not 1<=page<=row['pages']:raise MediaError('file_page')
+            _,preview=decode(row['original'],page,key,cancelled)
+            guard.permitted(key,cancelled)
+        else:preview=row['preview']
         if mode=='ocr' and row['text_layer']:
             return {'text':row['text_layer'],'source':'pdf_text'}
         if not all((config.DATA/'models'/name).is_file() for name in ('vision-model.gguf','vision-mmproj.gguf')):
@@ -187,12 +192,13 @@ def analyze(aid,mode,question,key,run_id=None,on_delta=None,check=None):
                 if time.monotonic()>deadline:raise MediaError('media_timeout',504)
                 cancelled.wait(.1)
             prompt='Przepisz wyłącznie tekst widoczny na obrazie. Oznacz nieczytelne miejsca jako [nieczytelne].' if mode=='ocr' else question
-            text=ask_model(row['preview'],prompt,key,cancelled,on_delta=on_delta,check=check) if run_id else ask_model(row['preview'],prompt,key,cancelled)
+            text=ask_model(preview,prompt,key,cancelled,on_delta=on_delta,check=check) if run_id else ask_model(preview,prompt,key,cancelled)
             guard.permitted(key,cancelled)
             with connect() as conn:
                 current=owned(conn,aid,key[1])
-                if current['current_page']!=row['current_page']:raise MediaError('file_changed',409)
-                conn.execute('UPDATE attachments SET analysis=? WHERE id=?',(text,aid))
+                if page is None:
+                    if current['current_page']!=row['current_page']:raise MediaError('file_changed',409)
+                    conn.execute('UPDATE attachments SET analysis=? WHERE id=?',(text,aid))
             return {'text':text,'source':'vision','truncated':getattr(text,'finish_reason',None)=='length'}
         finally:
             cancelled.set()

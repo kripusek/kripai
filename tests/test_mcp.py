@@ -139,7 +139,7 @@ class McpAPITests(unittest.TestCase):
         key=str(uuid4());body={'text':'Hej','client_message_id':str(uuid4())}
         cid,response=self.base.send(key=key,body=body)
         self.assertEqual(response.status_code,202)
-        old=MessageCreate.model_validate(body).model_dump(mode='json',exclude={'allow_mcp'})
+        old=MessageCreate.model_validate(body).model_dump(mode='json',exclude={'allow_mcp','attachment_page'})
         with connect() as conn:stored=conn.execute('SELECT request_sha256 FROM idempotency_keys WHERE key=?',(key,)).fetchone()['request_sha256']
         self.assertEqual(bytes(stored),digest(json.dumps(old,sort_keys=True,ensure_ascii=False,separators=(',',':'))))
         route='/conversations/'+cid+'/messages'

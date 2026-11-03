@@ -3,8 +3,22 @@
 Panel **Pamięć obrazów** jest dostępny w historii oraz pod przyciskiem „+”.
 Dodaj własny PNG, JPEG albo PDF w panelu plików. Przygotuj opcjonalny koder CPU,
 zindeksuj pliki, zaznacz do pięciu gotowych i wpisz krótki opis. Wyniki otwierają
-oryginalny załącznik i właściwą stronę PDF przez istniejący dekoder. Nie wysyłają
-wiadomości ani nie uruchamiają VLM. Samo podobieństwo nie potwierdza zawartości.
+oryginalny załącznik i właściwą stronę PDF przez istniejący dekoder. Przycisk
+„Zapytaj o obraz” dodaje wybraną stronę do pola wiadomości; dopiero jej wysłanie
+uruchamia VLM. Samo podobieństwo nie potwierdza zawartości.
+
+Do jednej wiadomości można dodać jedną stronę PNG, JPEG albo PDF. Dekoder tworzy
+obraz wskazanej strony bez zmiany podglądu pliku; model otrzymuje piksele tej
+strony i pytanie. Numer strony pozostaje w historii, eksporcie i gałęzi rozmowy.
+To nie jest automatyczne przeszukanie wielu stron ani OCR całego PDF. Obraz w
+wiadomości nadal nie może być łączony z wyborem RAG ani narzędziami sieciowymi.
+Migracja 009 zapisuje numer strony; dla starszych wiadomości przyjmuje stronę 1.
+Zwykłe dodawanie pliku przy polu rozmowy nadal przyjmuje PNG/JPEG; stronę PDF
+wybiera się z wyników pamięci obrazów.
+
+Testy wybranego zakresu: 61 testów backendu i 192 testy Node OK. Pełna regresja
+Python w toku. NIE POTWIERDZONO rzeczywistego VLM dla nowego przepływu; wyniki
+tych testów nie stanowią odbioru CUDA ani jakości odpowiedzi modelu.
 
 Koder SigLIP2 base patch16/224 INT8 pochodzi z przypiętego eksportu ONNX
 `onnx-community/siglip2-base-patch16-224-ONNX`, revision

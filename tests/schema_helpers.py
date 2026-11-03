@@ -1,5 +1,7 @@
 """Odtworzenie starszego schematu w testach migracji, bez pozostałości nowych kolumn."""
 def drop_tools(conn):
+    columns={row['name'] for row in conn.execute('PRAGMA table_info(message_images)')}
+    if 'page' in columns:conn.execute('ALTER TABLE message_images DROP COLUMN page')
     conn.execute('DROP TABLE IF EXISTS visual_vectors')
     conn.execute('DROP TABLE IF EXISTS visual_pages')
     conn.execute('DROP TABLE IF EXISTS visual_documents')

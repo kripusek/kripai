@@ -1,4 +1,19 @@
 # KripAI — stan projektu
+
+## 04.11.2026 — pytanie o stronę z pamięci obrazów
+
+Wynik wyszukiwania ma przycisk „Zapytaj o obraz”: wybiera jedną stronę
+PNG/JPEG/PDF do wiadomości, którą użytkownik następnie wysyła. VLM dostaje
+zdekodowaną wskazaną stronę bez zmiany podglądu pliku. Migracja 009 zapisuje
+stronę w historii; numer jest zachowany także w eksporcie i gałęzi rozmowy.
+Istniejące ograniczenie jednej strony oraz rozdzielenie obrazu od RAG i narzędzi
+pozostaje. Szczegóły: docs/PAMIEC_OBRAZOW.md. Start: START.cmd, Ctrl+F5.
+
+Windows: pełna regresja 390 Python (389 OK, 1 pominięty), Node 193/193; po
+poprawce odróżniania PDF i zdjęć dodatkowo 31 testów backendu OK.
+NIE POTWIERDZONO rzeczywistego VLM w tym przepływie ani jakości jego
+odpowiedzi. Następny krok: sprawdzić rzeczywisty VLM oraz
+interfejs na Windows; szersza jakość wyszukiwania obrazów pozostaje do oceny.
 Aktualizacja: 03.11.2026. Ten plik opisuje bieżącą paczkę; STATUS.md zachowuje historię.
 
 Aktualny zakres MCP i wyniki Windows: końcowy wpis „MCP stdio” oraz docs/MCP.md.

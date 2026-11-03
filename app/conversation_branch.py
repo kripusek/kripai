@@ -34,5 +34,5 @@ def branch(conn,cid,uid,message_id,session_id):
         conn.execute('INSERT INTO tool_sources(message_id,ordinal,name,url,title,excerpt) SELECT ?,ordinal,name,url,title,excerpt FROM tool_sources WHERE message_id=?',(mid,row['id']))
         # Wspoldzielimy tylko referencje do wlasnych plikow, nigdy bajty ani stare sesje.
         conn.execute('INSERT INTO message_sources(message_id,ordinal,attachment_id,page,excerpt) SELECT ?,s.ordinal,s.attachment_id,s.page,s.excerpt FROM message_sources s JOIN attachments a ON a.id=s.attachment_id WHERE s.message_id=? AND a.owner_id=?',(mid,row['id'],uid))
-        conn.execute('INSERT INTO message_images(message_id,attachment_id,session_id) SELECT ?,i.attachment_id,? FROM message_images i JOIN attachments a ON a.id=i.attachment_id WHERE i.message_id=? AND a.owner_id=?',(mid,session_id,row['id'],uid))
+        conn.execute('INSERT INTO message_images(message_id,attachment_id,session_id,page) SELECT ?,i.attachment_id,?,i.page FROM message_images i JOIN attachments a ON a.id=i.attachment_id WHERE i.message_id=? AND a.owner_id=?',(mid,session_id,row['id'],uid))
     return result|{'copied_messages':size['n']}

@@ -4,6 +4,26 @@ const tick=()=>new Promise(r=>setImmediate(r));
 
 test('logout czyści stan opcjonalnego serwera czasu',async()=>{let cleared=0;const h=await harness({KripMcpTime:{configure(){},clear(){cleared++;}}});await h.doc.getElementById('logout').onclick();assert.equal(cleared,1);});
 
+test('wynik wizualny przygotowuje stronę PDF do rozmowy, wysyłka jest jawna',async()=>{
+ let visual;const h=await harness({KripVisual:{configure:value=>visual=value,hide(){},stop(){},setBlocked(){}}}),original=h.ctx.fetch;
+ h.ctx.fetch=async(url,options)=>url==='/api/v1/files/pdf-id'?{ok:true,status:200,json:async()=>({id:'pdf-id',filename:'dokument.pdf',pages:3,media_type:'application/pdf'})}:original(url,options);
+ h.doc.getElementById('prompt').value='Co jest na stronie?';await visual.askPage('pdf-id',2);
+ assert.equal(h.doc.getElementById('attachmentLabel').textContent,'dokument.pdf · str. 2');assert.equal(h.doc.getElementById('prompt').value,'Co jest na stronie?');assert(!h.calls.some(([u,o])=>u.includes('/messages')&&o.method==='POST'));
+ await h.doc.getElementById('composer').onsubmit({preventDefault(){}});const body=JSON.parse(h.calls.find(([u,o])=>u.includes('/messages')&&o.method==='POST')[1].body);
+ assert.equal(body.attachment_id,'pdf-id');assert.equal(body.attachment_page,2);assert(walk(h.doc.getElementById('messages')).some(n=>n.textContent==='Załączony plik · str. 2'));
+});
+test('historia zachowuje miniaturę starego zdjęcia i link do pierwszej strony PDF',async()=>{
+ const h=await harness(),original=h.ctx.fetch;h.ctx.fetch=async(url,options)=>url.includes('/messages?limit=50')?{ok:true,status:200,json:async()=>({items:[{role:'user',content:'zdjęcie',attachment_id:'image-id',attachment_page:1,attachment_media_type:'image/png'},{role:'user',content:'PDF',attachment_id:'pdf-id',attachment_page:1,attachment_media_type:'application/pdf'}],next_cursor:null})}:original(url,options);
+ await vm.runInContext("load('cid')",h.ctx);const nodes=walk(h.doc.getElementById('messages'));
+ assert(nodes.some(n=>n.tagName==='img'&&n.src==='/api/v1/files/image-id/preview'));
+ assert(nodes.some(n=>n.tagName==='a'&&n.href==='/api/v1/files/pdf-id/download'&&n.textContent==='Załączony plik · str. 1'));
+});
+test('błąd wyboru strony zachowuje poprzedni załącznik oraz blokuje mieszanie narzędzi',async()=>{
+ let visual;const h=await harness({KripVisual:{configure:value=>visual=value,hide(){},stop(){},setBlocked(){}}});h.paste();h.ctx.fetch=async()=>({ok:false,status:404});
+ await visual.askPage('missing',2);assert.equal(h.doc.getElementById('attachedImage').src,'blob:preview');assert.match(h.doc.getElementById('notice').textContent,/Nie udało/);
+ h.ctx.window.KripTools={permissions:()=>({allow_web:true})};h.doc.getElementById('prompt').value='Pytanie';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});assert.match(h.doc.getElementById('notice').textContent,/osobno/);assert.equal(h.ctx.KripAttachments.has(),true);
+});
+
 test('wylogowanie zamyka grupy połączeń i czyści ich stan',async()=>{let cleared=0;const h=await harness({KripIntegrationGroups:{clear(){cleared++;}}});await h.doc.getElementById('logout').onclick();assert.equal(cleared,1);});
 
 test('odgałęzienie otwiera nowy kontekst bez wysłania wiadomości i zachowuje szkic',async()=>{

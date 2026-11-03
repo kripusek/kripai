@@ -153,6 +153,7 @@ class UploadTests(test_native.DataCase):
     def test_v6_upgrade_backup_failure_preserves_old_schema_then_migrates(self):
         with connect() as conn:
             for name in ('visual_vectors','visual_pages','visual_documents','upload_sessions'):conn.execute('DROP TABLE '+name)
+            conn.execute('ALTER TABLE message_images DROP COLUMN page')
             conn.execute('DELETE FROM schema_migrations WHERE version>=7')
         with patch.object(maintenance,'backup',side_effect=OSError('disk full')),self.assertRaises(OSError):migrate()
         with connect() as conn:self.assertEqual(conn.execute('SELECT max(version) AS n FROM schema_migrations').fetchone()['n'],6)

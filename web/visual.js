@@ -80,7 +80,8 @@ window.KripVisual=(()=>{
     for(const row of data.items){
      if(!attachment_ids.includes(row.attachment_id)||!Number.isInteger(row.page)||row.page<1||row.page>50)continue;
      const result=node('section');result.className='visual-result';result.append(node('p',row.filename+' · str. '+row.page));
-     const open=node('button','Otwórz stronę');open.type='button';open.onclick=()=>{if(working||blocked||version!==epoch||change!==revision)return;close();options.openPage?.(row.attachment_id,row.page);};result.append(open);$('visualResults').append(result);
+     const open=node('button','Otwórz stronę');open.type='button';open.onclick=()=>{if(working||blocked||version!==epoch||change!==revision)return;close();options.openPage?.(row.attachment_id,row.page);};
+     const ask=node('button','Zapytaj o obraz');ask.type='button';ask.onclick=()=>{if(working||blocked||version!==epoch||change!==revision)return;close();options.askPage?.(row.attachment_id,row.page);};result.append(open,ask);$('visualResults').append(result);
     }
     notice($('visualResults').children.length?'Najbliższe wyniki. Sprawdź podgląd — podobieństwo nie gwarantuje zgodności.':'Brak wyników w wybranych plikach.');
    },'Szukam w wybranych obrazach…');

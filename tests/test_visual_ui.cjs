@@ -11,11 +11,11 @@ test('rzeczywisty HTML zawiera wszystkie kontrolki modułu i obie drogi otwarcia
 });
 const row=(id='image',status='ready')=>({id,filename:id+'.png',pages:1,status,next_page:status==='ready'?2:1,images:status==='ready'?1:0});
 function harness(items=[row()]){
- const doc=document(),calls=[],opened=[],timers=[],ctx={document:doc,window:{addEventListener(){}},confirm:()=>true,AbortController,setTimeout:fn=>{timers.push(fn);return timers.length;},clearTimeout(){},encodeURIComponent};
+ const doc=document(),calls=[],opened=[],asked=[],timers=[],ctx={document:doc,window:{addEventListener(){}},confirm:()=>true,AbortController,setTimeout:fn=>{timers.push(fn);return timers.length;},clearTimeout(){},encodeURIComponent};
  ctx.fetch=async(url,options)=>{calls.push([url,options]);return response(url.endsWith('/status')?{installed:true}:url.endsWith('/search')?{items:[{attachment_id:'image',filename:'image.png',page:1,distance:.2}]}:{items});};
  vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/visual.js'),'utf8'),ctx);
- const api=ctx.window.KripVisual;api.configure({csrf:()=> 'csrf',openPage:(...args)=>opened.push(args)});
- return {ctx,doc,calls,opened,timers,api,get:id=>doc.getElementById(id)};
+ const api=ctx.window.KripVisual;api.configure({csrf:()=> 'csrf',openPage:(...args)=>opened.push(args),askPage:(...args)=>asked.push(args)});
+ return {ctx,doc,calls,opened,asked,timers,api,get:id=>doc.getElementById(id)};
 }
 function response(data,status=200){return {ok:status<400,status,json:async()=>data};}
 function boxes(h){return walk(h.get('visualList')).filter(n=>n.tagName==='input');}
@@ -27,6 +27,11 @@ test('otwarcie pamięci obrazów tylko odczytuje stan i listę, nic nie pobiera 
  const h=harness();h.get('visualButton').onclick();await tick();
  assert.equal(h.calls.length,2);assert(h.calls.every(([,o])=>o.method==='GET'));assert.equal(boxes(h)[0].checked,false);
  assert.equal(h.get('visualSearch').disabled,true);assert.match(h.get('visualState').textContent,/CPU/);assert.equal(h.timers.length,0);
+});
+test('pytanie o wynik otwiera właściwą stronę bez wysyłania; nieaktualny wynik nie działa',async()=>{
+ const h=harness();await select(h);await submit(h);const ask=walk(h.get('visualResults')).find(n=>n.textContent==='Zapytaj o obraz');
+ ask.onclick();assert.deepEqual(h.asked,[['image',1]]);assert.equal(h.get('visualDialog').open,false);assert(!h.calls.some(([u])=>/analyze|messages/.test(u)));
+ ask.onclick();assert.equal(h.asked.length,1);
 });
 test('jawny wybór ograniczony do pięciu gotowych plików; niegotowy jest niedostępny',async()=>{
  const h=harness([...Array.from({length:6},(_,i)=>row('i'+i)),row('pending','paused')]);h.get('visualButton').onclick();await tick();
@@ -75,7 +80,7 @@ test('odpytywanie postępu nie sprawdza plików kodera ponownie; ręczne odświe
 });
 test('nazwy wyników są tekstem; obcy plik i nieprawidłowa strona nie mają przycisku',async()=>{
  const h=harness();await select(h);h.ctx.fetch=async()=>response({items:[{attachment_id:'image',filename:'<script>bad()</script>',page:1},{attachment_id:'other',filename:'other',page:1},{attachment_id:'image',filename:'bad',page:51}]});await submit(h);
- const nodes=walk(h.get('visualResults'));assert.equal(nodes.filter(n=>n.tagName==='button').length,1);assert(!nodes.some(n=>n.tagName==='script'));assert.match(h.get('visualResults').textContent,/<script>/);
+ const nodes=walk(h.get('visualResults'));assert.equal(nodes.filter(n=>n.tagName==='button').length,2);assert(!nodes.some(n=>n.tagName==='script'));assert.match(h.get('visualResults').textContent,/<script>/);
  const open=nodes.find(n=>n.tagName==='button');h.api.hide();open.onclick();assert.equal(h.opened.length,0);
 });
 test('błąd szukania odblokowuje panel, zmiana opisu i wyczyszczenie wyboru usuwają wyniki',async()=>{

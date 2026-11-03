@@ -680,8 +680,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      description: Tekst i opcjonalne attachment_id istniejącego PNG/JPEG właściciela.
-        Odpowiedź VLM w zwykłym run/SSE i historii. Idempotencja obejmuje obraz.
+      description: Tekst i opcjonalne attachment_id istniejącego PNG/JPEG/PDF właściciela.
+        attachment_page wybiera stronę (domyślnie 1). Odpowiedź VLM w zwykłym
+        run/SSE i historii. Idempotencja obejmuje załącznik i numer strony.
   /runs/{run_id}:
     parameters:
     - $ref: '#/components/parameters/RunId'
@@ -1492,6 +1493,11 @@ components:
             format: uuid
           - type: 'null'
           title: Attachment Id
+        attachment_page:
+          anyOf:
+          - {type: integer, minimum: 1, maximum: 50}
+          - {type: 'null'}
+          description: Strona załącznika; wymaga attachment_id, domyślnie 1.
         allow_web:
           type: boolean
           default: false
@@ -1541,6 +1547,16 @@ components:
           - type: string
             format: uuid
           - type: 'null'
+        attachment_page:
+          anyOf:
+          - {type: integer, minimum: 1, maximum: 50}
+          - {type: 'null'}
+          description: Numer strony załącznika w wiadomości.
+        attachment_media_type:
+          anyOf:
+          - {type: string}
+          - {type: 'null'}
+          description: Typ własnego załącznika; pozwala odróżnić zdjęcie od PDF.
         sources:
           type: array
           items:
