@@ -24,7 +24,7 @@ from .context import prepare, ContextTooLarge
 from .model_process import control
 from . import voice, media, rag, tools, gpu, uploads
 from fastapi.staticfiles import StaticFiles
-from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect, UploadStart
+from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect, UploadStart, ConversationRename
 from .security import digest, password_hash, verify_password
 
 ORIGIN = config.ORIGIN
@@ -513,6 +513,19 @@ def conversations(limit:int=Query(20,ge=1,le=100),cursor:str|None=None,user=Depe
 @app.get('/api/v1/conversations/{cid}')
 def conversation(cid:UUID,user=Depends(identity)):
     with connect() as conn: return owned(conn,cid,user['id'])
+
+@app.patch('/api/v1/conversations/{cid}')
+def rename_conversation(cid:UUID,body:ConversationRename,user=Depends(identity)):
+    from .conversations import rename,ConversationError
+    try:return rename(str(cid),user['id'],body.title)
+    except ConversationError as exc:fail(exc.status,exc.code)
+
+@app.get('/api/v1/conversations/{cid}/export')
+def export_conversation(cid:UUID,format:str=Query(default='md'),user=Depends(identity)):
+    from .conversation_export import render,ExportError
+    try:result=render(str(cid),user['id'],format)
+    except ExportError as exc:fail(exc.status,exc.code)
+    return Response(result['body'],media_type=result['media_type'],headers={'Content-Disposition':'attachment; filename="'+result['filename']+'"','X-Content-Type-Options':'nosniff'})
 
 @app.get('/api/v1/conversations/{cid}/messages')
 def messages(cid:UUID,limit:int=Query(20,ge=1,le=100),cursor:str|None=None,user=Depends(identity)):

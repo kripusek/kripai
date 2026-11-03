@@ -2,6 +2,16 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 const {document,walk}=require('./dom.cjs'),marked=require('../web/vendor/marked/marked.umd.js');
 const tick=()=>new Promise(r=>setImmediate(r));
 
+test('nowa rozmowa ustawia działania dla właściwego ID, a logout je czyści',async()=>{
+ const h=await harness(),selected=[];let clears=0;h.ctx.window.KripConversations={setCurrent:(...args)=>selected.push(args),clear:()=>clears++};
+ h.doc.getElementById('prompt').value='Niewysłany szkic';await h.doc.getElementById('newChat').onclick();assert(selected.some(([id])=>id==='cid'));assert.equal(h.doc.getElementById('prompt').value,'Niewysłany szkic');await h.doc.getElementById('logout').onclick();assert.equal(clears,1);
+});
+test('spóźnione utworzenie rozmowy nie odtwarza działań po logout',async()=>{
+ const h=await harness(),selected=[],original=h.ctx.fetch;let resolve;h.ctx.window.KripConversations={setCurrent:(...args)=>selected.push(args),clear(){}};
+ h.ctx.fetch=(url,options)=>url==='/api/v1/conversations'&&options.method==='POST'?new Promise(r=>resolve=r):original(url,options);
+ const pending=h.doc.getElementById('newChat').onclick();await h.doc.getElementById('logout').onclick();resolve({ok:true,status:201,json:async()=>({id:'old-private-cid'})});await pending;assert.equal(selected.length,0);assert.equal(h.doc.getElementById('workspace').hidden,true);
+});
+
 test('MCP jest jawną flagą wiadomości, bez konieczności włączania internetu',async()=>{
  const h=await harness();h.ctx.window.KripTools={permissions:()=>({allow_mcp:true}),renderSources(){},clear(){}};
  h.doc.getElementById('prompt').value='Przeczytaj README.md przez MCP';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});

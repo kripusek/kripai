@@ -19,6 +19,9 @@ class Login(Strict):
 class ConversationCreate(Strict):
     title: str = Field(default='',max_length=200)
 
+class ConversationRename(Strict):
+    title:str=Field(min_length=1,max_length=200)
+
 class MessageCreate(Strict):
     text: str = Field(min_length=1,max_length=4000)
     client_message_id: UUID

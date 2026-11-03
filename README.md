@@ -238,3 +238,5 @@ Konfiguracja i test w menu **+ → Połączenia**; pozostałe funkcje działają
 
 Dodawanie PNG/JPEG/PDF można wznowić po przerwaniu i ponownym wyborze tego
 samego pliku w tej samej sesji: [wznawialny upload](spec/etap-2.5c/UPLOAD.md).
+
+Menu **Rozmowa**: [zmiana nazwy i eksport Markdown/JSON ze źródłami](docs/ROZMOWY_NAZWA_EKSPORT.md).

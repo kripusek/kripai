@@ -9,6 +9,23 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /conversations/{cid}/export:
+    get:
+      summary: Pobierz jedną własną rozmowę w całości jako Markdown lub JSON v1
+      parameters:
+      - {name: cid, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: format, in: query, schema: {type: string, enum: [md, json], default: md}}
+      responses:
+        '200':
+          description: Content-Disposition attachment z nazwą kripai-UUID.md/json; pełne teksty, metadane załączników i źródła W/D, bez binariów
+        '401':
+          description: Wymagane logowanie
+        '404':
+          description: Brak rozmowy lub inny właściciel
+        '413':
+          description: Przekroczono 8 MiB wyniku lub 10000 wiadomości; bez częściowego pliku
+        '422':
+          description: Nieobsługiwany format
   /media/uploads:
     post:
       summary: Rozpocznij lub odtwórz wznawialny upload PNG/JPEG/PDF (sesja i CSRF)
@@ -387,6 +404,25 @@ paths:
   /conversations/{conversation_id}:
     parameters:
     - $ref: '#/components/parameters/ConversationId'
+    patch:
+      summary: Zmień wyłącznie tytuł własnej rozmowy (sesja, Origin i CSRF)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [title]
+              properties:
+                title: {type: string, minLength: 1, maxLength: 200}
+      responses:
+        '200':
+          description: id, title po przycięciu i updated_at; historia/źródła/generacja zachowane
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Pusta/za długa nazwa, znak sterujący lub separator linii
     get:
       responses:
         '200':

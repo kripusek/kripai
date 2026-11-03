@@ -31,7 +31,12 @@ class Engine(BaseHTTPRequestHandler):
 
 class CutoffTests(DataCase):
     def setUp(self):
-        super().setUp();self.server=ThreadingHTTPServer(('127.0.0.1',0),Engine);self.server.budgets=[]
+        super().setUp()
+        # Ten fixture steruje inferencją bez lifespan aplikacji. Nie dziedziczy
+        # flag shutdown pozostawionych przez poprzedni TestClient z lifespan.
+        self.stack.enter_context(patch.object(main,'stop_worker',threading.Event()))
+        self.stack.enter_context(patch.object(media.guard,'stopping',threading.Event()))
+        self.server=ThreadingHTTPServer(('127.0.0.1',0),Engine);self.server.budgets=[]
         thread=threading.Thread(target=self.server.serve_forever);thread.start();self.addCleanup(lambda:(self.server.shutdown(),thread.join(),self.server.server_close()))
         url='http://127.0.0.1:'+str(self.server.server_port)
         self.stack.enter_context(patch.object(config,'LLM',url));self.stack.enter_context(patch.object(main,'LLM',url))

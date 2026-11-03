@@ -673,3 +673,21 @@ z plikiem instalacji, endpoint bez sesji zwraca401; backend/model health200.
 Kod źródłowy/zainstalowany/uruchomiony zgodne (reuse_running exit0).
 Nie logowano produkcyjnego konta do uploadu; pełny przepływ przeglądarkowy
 został sprawdzony na izolowanym prawdziwym API opisanym w raporcie powyżej.
+
+## 03.11.2026 — nazwa rozmowy i eksport Markdown/JSON
+Menu Rozmowa w nagłówku: zmiana tytułu oraz pobranie wybranej rozmowy jako
+Markdown/JSON v1. Całe teksty, metadane załączników i źródła W/D, bez binariów
+i sekretów konfiguracji. 8 MiB/10000 wiadomości daje jawny błąd, bez ucięcia.
+Eksport czyta snapshot bez blokady zapisu; rename sprawdza właściciela/CSRF,
+zachowuje wiadomości, źródła, szkic i aktywną generację. Brak migracji/deps.
+UI epoki blokują stare wyniki po zmianie rozmowy/logout. Nowa rozmowa z odpowiedzi
+starej sesji nie odtwarza widoku. Test_cutoff odizolowany od flag shutdown innego
+fixture TestClient; nie zmieniono przez to zachowania produkcyjnej inferencji.
+Windows: 282 Python (281 OK, 1 symlink pominięty), Node 107/107. Rzeczywisty
+SQLite/HTTP i Chromium: polski tytuł, PATCH1, pełne pobrania 16404 znaków+W1,
+szkic zachowany, messages POST0; mobile390, Escape/fokus/logout poprawne.
+Konto/kontroler fixture, produkcja/GPU nietknięte w QA; brak nowej generacji AI.
+Kod conversation_export.py/conversations.py/main i conversation-actions.js.
+Start START.cmd, Ctrl+F5. Kontrakt docs/ROZMOWY_NAZWA_EKSPORT.md, raport
+ROZMOWY_EKSPORT_TESTY.txt. Następnie: wyszukiwanie w treści własnej historii
+z otwieraniem konkretnej starszej wiadomości, bez modelu i usług zewnętrznych.
