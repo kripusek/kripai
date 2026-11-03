@@ -650,3 +650,16 @@ NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, inst
 
 Actual tokenizer check for two recorded time results:
 {"context": 4096, "reserved_output": 2048, "input_tokens": 1707, "retained_sources": 2, "truncated": [false, false]}
+
+Installed native SDK verification:
+{
+  "source_installed_running": "equal",
+  "installed_provider": "mcp-server-time2026.10.28",
+  "verified_runtime": true,
+  "real_nested_clock_read": true,
+  "timezone": "Europe/Warsaw",
+  "backend": 200,
+  "without_login": 401,
+  "served_assets": "exact",
+  "owner_account_login_tested": false
+}

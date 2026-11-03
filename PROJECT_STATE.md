@@ -744,3 +744,9 @@ integrations bez sesji401. Produkcyjne konto nie było logowane.
 Rzeczywisty tokenizer: dwie migawki (now+convert) w przykładowym pytaniu zajęły
 1707tokenów wejścia, zachowano oba źródła bez przycięcia. Kontekst4096,
 rezerwacja wyjścia2048 i margines128 bez zmiany profilu GPU.
+
+03.11.2026: MCPTime50e1337 zainstalowany po kopii programu/bazy. Opcjonalny SDK
+przygotowany również w lokalnym program/runtime i zweryfikowany; realny worker
+zainstalowanej kopii odczytał zegarWarszawy. Source/instalacja/backend zgodne,
+JS serwowane dokładnie, backend200 i test czasu bez sesji401. Bez loginu
+produkcyjnego konta i bez nowej inferencji podczas tej próby instalacji.
