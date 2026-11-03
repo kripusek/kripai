@@ -691,3 +691,22 @@ Kod conversation_export.py/conversations.py/main i conversation-actions.js.
 Start START.cmd, Ctrl+F5. Kontrakt docs/ROZMOWY_NAZWA_EKSPORT.md, raport
 ROZMOWY_EKSPORT_TESTY.txt. Następnie: wyszukiwanie w treści własnej historii
 z otwieraniem konkretnej starszej wiadomości, bez modelu i usług zewnętrznych.
+
+## 03.11.2026 — wyszukiwanie treści historii i dokładny punkt wiadomości
+Panel historii: jawne wyszukiwanie literalnej treści własnych wiadomości,
+Unicode casefold, fragmenty240 znaków. Do2000 sprawdzonych/20trafień na porcję,
+kursor do starszych bez pomijania rekordów, także przy pustej porcji. Snapshot
+readonly bez rezerwacji zapisu, owner ACL przed LIMIT; bez modeli/indeksu/deps.
+Kliknięcie otwiera dokładne seq przez messages?at=, wyróżnia punkt; Najnowsze
+wraca do końca. Szkic zachowany, generowanie blokuje zmianę widoku. Wyszukiwanie
+nie zamyka mobilnego sidebar, wybór wyniku zamyka go jawnie. Headerstarszych
+stron zawija kontrolki na telefonie zamiast wychodzić poza ekran.
+Windows:291 Python (290 OK,1 symlink pominięty), Node120/120. Rzeczywisty SQLite
+i HTTP: ACL, kursory, Unicode, braki trafień z next, dokładny starypunkt.
+Chromium/Playwright z realnym API i130wiadomościami: seq61 poza latest50,
+wyróżnienie/powrót, 2porcje wyników, mobile390/fokus/logout/late response,
+szkic zachowany, messages POST0 i model0. Konto/kontroler fixture; GPU bez użycia.
+Brak migracji. Kod conversation_search.py, conversation-search.js, sidebar/app.
+Start START.cmd i Ctrl+F5. Kontrakt docs/WYSZUKIWANIE_HISTORII.md i plik TESTY.
+Dalej: nowa rozmowa od wybranej odpowiedzi, bez naruszania oryginału i bez
+automatycznej generacji; przygotowywana osobno przez agentów.

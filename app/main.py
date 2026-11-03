@@ -510,6 +510,12 @@ def conversations(limit:int=Query(20,ge=1,le=100),cursor:str|None=None,user=Depe
         rows=conn.execute('SELECT id,title,created_at FROM conversations WHERE owner_id=? ORDER BY updated_at DESC,id DESC LIMIT ? OFFSET ?',(user['id'],limit+1,start)).fetchall()
     return {'items':rows[:limit],'next_cursor':str(start+limit) if len(rows)>limit else None}
 
+@app.get('/api/v1/conversations/search')
+def search_conversations(q:str=Query(min_length=2,max_length=120),cursor:str|None=None,user=Depends(identity)):
+    from .conversation_search import search,SearchError
+    try:return search(user['id'],q,cursor)
+    except SearchError as exc:fail(exc.status,exc.code)
+
 @app.get('/api/v1/conversations/{cid}')
 def conversation(cid:UUID,user=Depends(identity)):
     with connect() as conn: return owned(conn,cid,user['id'])
@@ -528,11 +534,14 @@ def export_conversation(cid:UUID,format:str=Query(default='md'),user=Depends(ide
     return Response(result['body'],media_type=result['media_type'],headers={'Content-Disposition':'attachment; filename="'+result['filename']+'"','X-Content-Type-Options':'nosniff'})
 
 @app.get('/api/v1/conversations/{cid}/messages')
-def messages(cid:UUID,limit:int=Query(20,ge=1,le=100),cursor:str|None=None,user=Depends(identity)):
+def messages(cid:UUID,limit:int=Query(20,ge=1,le=100),cursor:str|None=None,at:int|None=Query(default=None,ge=1,le=9223372036854775807),user=Depends(identity)):
+    if at is not None and cursor is not None:fail(422,'invalid_cursor')
     before=offset(cursor) if cursor else 9223372036854775807
     with connect() as conn:
         owned(conn,cid,user['id'])
-        rows=conn.execute('SELECT m.seq,m.id,m.role,m.content,m.created_at,i.attachment_id FROM messages m LEFT JOIN message_images i ON i.message_id=m.id WHERE m.conversation_id=? AND m.seq<? ORDER BY m.seq DESC LIMIT ?',(cid,before,limit+1)).fetchall()
+        if at is not None and not conn.execute('SELECT 1 FROM messages WHERE conversation_id=? AND seq=?',(cid,at)).fetchone():fail(404,'message_not_found')
+        comparison='<=' if at is not None else '<'
+        rows=conn.execute('SELECT m.seq,m.id,m.role,m.content,m.created_at,i.attachment_id FROM messages m LEFT JOIN message_images i ON i.message_id=m.id WHERE m.conversation_id=? AND m.seq'+comparison+'? ORDER BY m.seq DESC LIMIT ?',(cid,at if at is not None else before,limit+1)).fetchall()
         for row in rows:
             row['sources']=rag.sources(conn,row['id'],user['id'])
             row['tool_sources']=tools.sources(conn,row['id'])

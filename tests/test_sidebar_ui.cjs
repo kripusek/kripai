@@ -9,6 +9,12 @@ function harness(mobile=true){
  function key(key,shiftKey=false){const e={key,shiftKey,preventDefault(){this.prevented=true;}};events.keydown(e);return e;}
  return {doc,media,focused,key,api:ctx.window.KripSidebar,menuClosed:()=>menuClosed};
 }
+
+test('wyszukiwanie i zmiana strony wyników pozostają w otwartej mobilnej historii',()=>{
+ const h=harness(),d=h.doc,search=d.getElementById('conversationSearch'),button=d.createElement('button');search.append(button);search.contains=node=>walk(search).includes(node);button.closest=()=>button;d.getElementById('sidebar').append(search);
+ d.getElementById('sidebarToggle').onclick();d.getElementById('sidebar').listeners.click({target:button});assert.equal(d.getElementById('sidebar').hidden,false);assert.equal(d.getElementById('chatMain').inert,true);
+ h.api.close();assert.equal(d.getElementById('sidebar').hidden,true);
+});
 test('mobilna historia domyślnie zamknięta, Escape i tło przywracają fokus',()=>{
  const h=harness(),d=h.doc;assert.equal(d.getElementById('sidebar').hidden,true);d.getElementById('sidebarToggle').onclick();
  assert.equal(d.getElementById('sidebar').hidden,false);assert.equal(d.getElementById('chatMain').inert,true);assert.equal(d.getElementById('sidebar').attributes['aria-modal'],'true');assert.equal(h.menuClosed(),1);

@@ -9,6 +9,19 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /conversations/search:
+    get:
+      summary: Literalnie szukaj w treści własnych wiadomości, bez modelu
+      parameters:
+      - {name: q, in: query, required: true, schema: {type: string, minLength: 2, maxLength: 120}}
+      - {name: cursor, in: query, schema: {type: string}}
+      responses:
+        '200':
+          description: Do 20 items z conversation_id/title/seq/role/excerpt/created_at; next_cursor, scanned_messages do2000 i partial. Pusta porcja może mieć kursor
+        '401':
+          description: Wymagane logowanie
+        '422':
+          description: Nieprawidłowe q lub kursor
   /conversations/{cid}/export:
     get:
       summary: Pobierz jedną własną rozmowę w całości jako Markdown lub JSON v1
@@ -442,6 +455,10 @@ paths:
       parameters:
       - $ref: '#/components/parameters/Limit'
       - $ref: '#/components/parameters/Cursor'
+      - name: at
+        in: query
+        description: Dokładny seq własnej wiadomości jako koniec strony; nie łączyć z cursor
+        schema: {type: integer, minimum: 1, maximum: 9223372036854775807}
       responses:
         '200':
           description: Strona historii

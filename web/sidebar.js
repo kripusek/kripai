@@ -14,6 +14,7 @@ window.KripSidebar=(()=>{
   $('sidebarToggle').onclick=toggle;$('sidebarClose').onclick=()=>close(true);$('sidebarBackdrop').onclick=()=>close(true);
   $('sidebar').addEventListener('click',event=>{
    const button=event.target.closest?.('button,a');if(!opened||!button||button.id==='sidebarClose')return;
+   if($('conversationSearch')?.contains?.(button))return;
    close();if(!document.querySelector('dialog[open]'))$('prompt').focus();
   });
   document.addEventListener('keydown',event=>{

@@ -2,6 +2,17 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 const {document,walk}=require('./dom.cjs'),marked=require('../web/vendor/marked/marked.umd.js');
 const tick=()=>new Promise(r=>setImmediate(r));
 
+test('wybór wyniku szuka dokładnego at, Najnowsze wraca do końca i szkic pozostaje',async()=>{
+ let configured,cleared=0;const h=await harness({KripConversationSearch:{configure(value){configured=value;},clear(){cleared++;}}});h.doc.getElementById('prompt').value='Niewysłany szkic';await configured.onSelect({conversation_id:'cid',title:'Historia',seq:7});
+ assert(h.calls.some(([url])=>url==='/api/v1/conversations/cid/messages?limit=50&at=7'));assert.equal(h.doc.getElementById('latest').hidden,false);assert.equal(h.doc.getElementById('prompt').value,'Niewysłany szkic');
+ h.doc.getElementById('latest').onclick();await tick();await tick();assert.equal(h.doc.getElementById('latest').hidden,true);assert(!h.calls.some(([url,options])=>url.includes('/messages')&&options.method==='POST'));
+ await h.doc.getElementById('logout').onclick();assert.equal(cleared,1);
+});
+test('wynik wyszukiwania nie przerywa bieżącego streamu odpowiedzi',async()=>{
+ let configured;const h=await harness({KripConversationSearch:{configure(value){configured=value;},clear(){}}});h.doc.getElementById('prompt').value='Pytanie';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});await configured.onSelect({conversation_id:'other',title:'Inna',seq:8});
+ assert(!h.calls.some(([url])=>url.includes('&at=')));assert.equal(h.doc.getElementById('latest').disabled,true);assert.match(h.doc.getElementById('notice').textContent,/Poczekaj/);
+});
+
 test('nowa rozmowa ustawia działania dla właściwego ID, a logout je czyści',async()=>{
  const h=await harness(),selected=[];let clears=0;h.ctx.window.KripConversations={setCurrent:(...args)=>selected.push(args),clear:()=>clears++};
  h.doc.getElementById('prompt').value='Niewysłany szkic';await h.doc.getElementById('newChat').onclick();assert(selected.some(([id])=>id==='cid'));assert.equal(h.doc.getElementById('prompt').value,'Niewysłany szkic');await h.doc.getElementById('logout').onclick();assert.equal(clears,1);
@@ -52,9 +63,9 @@ test('stare 401 nie wylogowuje ponownie zalogowanej sesji',async()=>{
  resolve({ok:false,status:401,json:async()=>({error:{code:'login_required'}})});await oldEntry;
  assert.equal(h.doc.getElementById('workspace').hidden,false);assert.equal(h.doc.getElementById('login').hidden,true);
 });
-async function harness(){
+async function harness(features={}){
  const doc=document(),calls=[],streams=[],saved=new Map(),revoked=[];doc.cookie='assistant_csrf=token';doc.querySelectorAll=()=>[];
- const ctx={document:doc,window:{addEventListener(){}},marked,URL:{createObjectURL:()=> 'blob:preview',revokeObjectURL:u=>revoked.push(u)},crypto:{randomUUID:()=>Math.random().toString(36)},AbortController,setTimeout,clearTimeout,setInterval(){},navigator:{clipboard:{writeText:async()=>{}}},sessionStorage:{getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v),removeItem:k=>saved.delete(k)},KripVoice:{stop(){},configure(){},setBlocked(){},speak(){}},KripMedia:{hide(){},stop(){},configure(){},setBlocked(){}},EventSource:function(){this.events={};this.addEventListener=(k,fn)=>this.events[k]=fn;this.close=()=>{};streams.push(this);},fetch:async(url,options={})=>{
+ const ctx={document:doc,window:{addEventListener(){},...features},marked,URL:{createObjectURL:()=> 'blob:preview',revokeObjectURL:u=>revoked.push(u)},crypto:{randomUUID:()=>Math.random().toString(36)},AbortController,setTimeout,clearTimeout,setInterval(){},navigator:{clipboard:{writeText:async()=>{}}},sessionStorage:{getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v),removeItem:k=>saved.delete(k)},KripVoice:{stop(){},configure(){},setBlocked(){},speak(){}},KripMedia:{hide(){},stop(){},configure(){},setBlocked(){}},EventSource:function(){this.events={};this.addEventListener=(k,fn)=>this.events[k]=fn;this.close=()=>{};streams.push(this);},fetch:async(url,options={})=>{
   calls.push([url,options]);let data={};if(url==='/api/v1/me')data={id:'owner'};
   else if(url.includes('/system/status'))data={controller:'ready',profile:'text',mode:'normal',backup:'ready'};
   else if(url.startsWith('/api/v1/media/jobs/'))data={id:'image-id'};
