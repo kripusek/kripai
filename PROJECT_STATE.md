@@ -750,3 +750,24 @@ przygotowany również w lokalnym program/runtime i zweryfikowany; realny worker
 zainstalowanej kopii odczytał zegarWarszawy. Source/instalacja/backend zgodne,
 JS serwowane dokładnie, backend200 i test czasu bez sesji401. Bez loginu
 produkcyjnego konta i bez nowej inferencji podczas tej próby instalacji.
+
+## 03.11.2026 — 2.5c: wyszukiwanie obrazów i stron PDF po opisie
+
+Własne PNG/JPEG/PDF można indeksować i wyszukiwać w panelu Pamięć obrazów
+(historia oraz +). Wynik otwiera właściwą stronę, bez wysłania wiadomości/VLM.
+Opcjonalny przypięty SigLIP2 ONNX INT8 na CPU, prywatny runtime; obrazy i opisy
+nie opuszczają komputera. Migracja008, osobne wektory768d, owner/document/space
+wewnątrz KNN. Checkpoint strony, generacja zadania, sesja i Gaming sprawdzane
+także atomowo przed zapisem. Wstrzymanie/wznowienie, wspólny limit E5/dekodera,
+kopie przed przebudową/usunięciem, walidacja backupu i czyszczenie po pliku.
+12/12 opisów PL/EN na6syntetycznych ilustracjach, nie ogólna ocena jakości.
+Rzeczywisty CPU:4,531s cały benchmark, peakcommit1026715648B, child zamknięty.
+Realny instalator:25,516s/526458449B/1976plików, verifyTRUE; bez kont/GPU.
+Kontrakt docs/PAMIEC_OBRAZOW.md, dosłowny raport TESTY_PAMIEC_OBRAZOW.md.
+2.5c ma działające wyszukiwanie wizualne; szersza jakość realnych zdjęć i wygoda
+użycia wyników w rozmowie pozostają do dalszej pracy. Etap3 urządzeń, szerszy
+MCPHTTP/OAuth oraz etapy5–6 nadal nieodebrane. START.cmd, następnie Ctrl+F5.
+Końcowy Windows:386Python(385OK,1symlink pominięty), Node189/189.
+Chromium/realCPU:4pliki/6stron, polski opis→właściwa strona3PDF i realny podgląd;
+mobile390 bez overflow, logout czyści, wiadomości/VLM0. Realcancel0,033s,
+runtimeverify po procesieTRUE. Produkcyjna instalacja tej paczki jeszcze niepotwierdzona.

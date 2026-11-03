@@ -54,3 +54,9 @@ HTTP: POST/GET `/media/uploads`, GET `/{id}`, PUT `/{id}/chunks?offset=N`,
 POST `/media/jobs/{job}/uploads/{id}/complete`, POST `/media/uploads/discard`.
 Sesja, Host, Origin i CSRF obowiązują; duży PUT jest autoryzowany przed buforowaniem.
 Narzędzia modelu nie otrzymują żadnego z tych uprawnień ani dowolnych ścieżek.
+# Aktualizacja 03.11.2026
+
+Wyszukiwanie obrazów i stron PDF po opisie jest wdrożone jako osobny moduł CPU:
+`docs/PAMIEC_OBRAZOW.md`, migracja008, realne testy Windows/ONNX/Chromium w
+`docs/TESTY_PAMIEC_OBRAZOW.md`. Historyczne zapisy o planowanych embeddingach
+we wcześniejszych sekcjach opisują stan sprzed tej paczki. Szersza ocena zdjęć nadal pozostaje.

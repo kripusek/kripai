@@ -151,11 +151,14 @@ class UploadTests(test_native.DataCase):
                     self.assertEqual(error.exception.code,'upload_not_found')
                 with closing(sqlite3.connect(saved[0])) as conn:self.assertEqual(conn.execute('SELECT data FROM upload_sessions WHERE id=?',(identity,)).fetchone()[0],self.data)
     def test_v6_upgrade_backup_failure_preserves_old_schema_then_migrates(self):
-        with connect() as conn:conn.execute('DROP TABLE upload_sessions');conn.execute('DELETE FROM schema_migrations WHERE version=7')
+        with connect() as conn:
+            for name in ('visual_vectors','visual_pages','visual_documents','upload_sessions'):conn.execute('DROP TABLE '+name)
+            conn.execute('DELETE FROM schema_migrations WHERE version>=7')
         with patch.object(maintenance,'backup',side_effect=OSError('disk full')),self.assertRaises(OSError):migrate()
         with connect() as conn:self.assertEqual(conn.execute('SELECT max(version) AS n FROM schema_migrations').fetchone()['n'],6)
         migrate()
-        with connect() as conn:self.assertEqual(conn.execute('SELECT max(version) AS n FROM schema_migrations').fetchone()['n'],7)
+        from app.db import migration_checksums
+        with connect() as conn:self.assertEqual(conn.execute('SELECT max(version) AS n FROM schema_migrations').fetchone()['n'],len(migration_checksums()))
 
 class UploadAPITests(unittest.TestCase):
     def setUp(self):

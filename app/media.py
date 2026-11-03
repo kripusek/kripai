@@ -114,8 +114,9 @@ def delete(aid,uid):
     maintenance.backup()
     with connect() as conn:
         owned(conn,aid,uid)
-        from . import rag
+        from . import rag, visual
         rag.clear(conn,aid,uid)
+        visual.clear(conn,aid,uid)
         conn.execute('DELETE FROM attachments WHERE id=?',(aid,))
 
 

@@ -22,9 +22,9 @@ from .db import connect, event, change_state, migrate
 from . import config
 from .context import prepare, ContextTooLarge
 from .model_process import control
-from . import voice, media, rag, tools, gpu, uploads
+from . import voice, media, rag, tools, gpu, uploads, visual
 from fastapi.staticfiles import StaticFiles
-from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect, UploadStart, ConversationRename, ConversationBranch
+from .models import Login, ConversationCreate, MessageCreate, Mode, GPUReport, Speech, MediaPage, ImageQuestion, RagIndex, GithubConnect, McpFilesConnect, UploadStart, ConversationRename, ConversationBranch, VisualSearch
 from .security import digest, password_hash, verify_password
 
 ORIGIN = config.ORIGIN
@@ -256,9 +256,11 @@ async def lifespan(app):
             change_state(conn,row['id'],'failed','server_restarted')
     stop_worker.clear()
     rag.start()
+    visual.start()
     thread=threading.Thread(target=worker,daemon=True);thread.start()
     model_thread=threading.Thread(target=control,args=(stop_worker,),daemon=True);model_thread.start()
     yield
+    visual.shutdown()
     rag.shutdown()
     voice.service.shutdown()
     media.guard.shutdown()
@@ -865,6 +867,68 @@ def rag_remove(aid:UUID,user=Depends(identity)):
     try:rag.remove(str(aid),user['id'])
     except OSError:raise rag.RagError('backup_failed',503) from None
     return Response(status_code=204)
+
+
+@app.exception_handler(visual.VisualError)
+async def visual_error(request,exc):
+    return JSONResponse({'error':{'code':exc.code,'message':exc.code}},exc.status)
+
+
+def visual_check(user):
+    def check():
+        with connect() as conn:
+            if not conn.execute('SELECT 1 FROM sessions WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at>now()',
+                                (user['session_id'],user['id'])).fetchone():raise visual.VisualError('login_required',401)
+            if conn.execute('SELECT requested_mode FROM system_mode').fetchone()['requested_mode']!='normal':raise visual.VisualError('gaming_mode')
+        if visual.STOP.is_set():raise visual.VisualError('visual_paused')
+    return check
+
+
+@app.get('/api/v1/visual/status')
+def visual_status(user=Depends(identity)):
+    from scripts.setup_visual import installed
+    return {'installed':installed() is not None,'space':visual.SPACE,'dimensions':768,'cpu_only':True}
+
+
+@app.post('/api/v1/visual/prepare')
+def visual_prepare(user=Depends(identity)):
+    mcp_files_owner(user)
+    from scripts.setup_visual import prepare
+    try:
+        prepare(visual_check(user))
+    except visual.VisualError:raise
+    except Exception:
+        raise visual.VisualError('visual_prepare_failed',503) from None
+    return {'installed':True,'space':visual.SPACE,'dimensions':768,'cpu_only':True}
+
+
+@app.get('/api/v1/visual/documents')
+def visual_documents(user=Depends(identity)):
+    return visual.list_documents(user['id'])
+
+
+@app.post('/api/v1/visual/documents/{aid}/index',status_code=202)
+def visual_index(aid:UUID,body:RagIndex,user=Depends(identity)):
+    return visual.queue(str(aid),user,body.rebuild)
+
+
+@app.post('/api/v1/visual/documents/{aid}/pause',status_code=204)
+def visual_pause(aid:UUID,user=Depends(identity)):
+    visual.pause(str(aid),user['id']);return Response(status_code=204)
+
+
+@app.delete('/api/v1/visual/documents/{aid}',status_code=204)
+def visual_remove(aid:UUID,user=Depends(identity)):
+    try:visual.remove(str(aid),user['id'])
+    except OSError:raise visual.VisualError('backup_failed',503) from None
+    return Response(status_code=204)
+
+
+@app.post('/api/v1/visual/search')
+def visual_search(body:VisualSearch,user=Depends(identity)):
+    check=visual_check(user);check()
+    items=visual.retrieve([str(aid) for aid in body.attachment_ids],user['id'],body.query,check)
+    check();return {'items':items}
 
 
 app.mount('/',StaticFiles(directory=config.ROOT/'web',html=True),name='web')

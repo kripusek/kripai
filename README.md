@@ -254,3 +254,7 @@ GitHub pozwala [odczytać historię commitów i zmiany konkretnego SHA](docs/GIT
 [Panel Połączenia](docs/POLACZENIA_SEKCJE.md) ma zwijane sekcje i widoczny stan GitHuba, MCP i RSS.
 
 [Oficjalny MCP czasu](docs/MCP_CZAS.md) odczytuje godzinę i przelicza strefy dla dzisiaj, bez konta i internetu po przygotowaniu.
+
+Pamięć obrazów: lokalne wyszukiwanie własnych PNG/JPEG i stron PDF po opisie,
+opcjonalny koder CPU, osobny indeks i otwieranie wskazanej strony. Szczegóły
+i ograniczenia: [PAMIEC_OBRAZOW.md](docs/PAMIEC_OBRAZOW.md).

@@ -89,5 +89,18 @@ window.KripMedia=(()=>{
   };
   window.addEventListener('pagehide',stop);controls();
  }
- return {configure,stop,hide,setBlocked(value){blocked=value;if(value)stop();controls();}};
+ async function openPage(aid,page){
+  if(working||blocked){options.notice?.(blocked?'Wyłącz Gaming, aby otworzyć stronę.':'Poczekaj na zakończenie zadania pliku.');return;}
+  if(typeof aid!=='string'||!aid||!Number.isInteger(page)||page<1||page>50)return;
+  if(!$('filesDialog').open)$('filesDialog').showModal();
+  selected=null;$('filePreview').removeAttribute('src');$('filePreview').hidden=true;$('fileDownload').hidden=true;$('fileResult').value='';$('fileName').textContent='';
+  return run(async(signal,id,version)=>{
+   let row=await request('/files/'+encodeURIComponent(aid),'GET',undefined,signal);
+   if(version!==epoch)return;
+   if(page>row.pages)throw Error('Ta strona nie jest dostępna. Odśwież wyniki wyszukiwania.');
+   if(row.current_page!==page)row=await request('/media/jobs/'+id+'/files/'+encodeURIComponent(aid)+'/page','POST',{page},signal);
+   if(version!==epoch)return;show(row);await list(signal);
+  });
+ }
+ return {configure,stop,hide,openPage,setBlocked(value){blocked=value;if(value)stop();controls();}};
 })();

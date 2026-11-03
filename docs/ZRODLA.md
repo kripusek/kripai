@@ -184,3 +184,13 @@ https://pypi.org/pypi/mcp-server-time/2026.10.28/json
 https://github.com/modelcontextprotocol/servers/tree/main/src/time
 Zweryfikowano metadane/wheelSHA, SDK2.3, Python>=3.10(upstream), własny runtime3.13,
 readOnlyHint, initialize2025-11-25, current/convert i ograniczenie daty do dzisiaj.
+
+## Lokalny koder obrazu i tekstu
+https://huggingface.co/google/siglip2-base-patch16-224
+https://arxiv.org/abs/2502.14786
+https://huggingface.co/onnx-community/siglip2-base-patch16-224-ONNX/tree/ba1f3b0843f24bc5417d38e19c37b287d719b2f4
+https://pypi.org/pypi/onnxruntime/1.31.1/json
+https://pypi.org/pypi/tokenizers/0.23.3/json
+https://pypi.org/pypi/numpy/2.5.4/json
+Metadane, SHA i rzeczywiste modele sprawdzone; lokalny test PL/EN na syntetycznych
+ilustracjach nie potwierdza ogólnej jakości zdjęć. Własne limity: PAMIEC_OBRAZOW.md.

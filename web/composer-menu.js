@@ -9,7 +9,7 @@ window.KripMenu=(()=>{
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){close();button.focus();}});
   document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)&&!button.contains(e.target))close();});
   for(const name of ['allowWeb','allowGithub','allowMcp'])$(name).addEventListener('change',summary);
-  for(const [source,target] of [['menuFiles','filesButton'],['menuRag','ragButton']])$(source).onclick=()=>{close();$(target).click();};
+  for(const [source,target] of [['menuFiles','filesButton'],['menuRag','ragButton'],['menuVisual','visualButton']])$(source).onclick=()=>{close();$(target).click();};
   $('attachButton').addEventListener('click',close);
   $('composer').addEventListener('submit',close);
   $('menuIntegrations').onclick=()=>{close();$('integrationsDialog').showModal();window.KripIntegrations?.refresh();};

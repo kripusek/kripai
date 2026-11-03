@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.13.0
+  version: 1.14.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -9,6 +9,74 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /visual/status:
+    get:
+      summary: Dostępność opcjonalnego kodera CPU
+      responses:
+        '200': {description: installed oraz space i dimensions}
+  /visual/prepare:
+    post:
+      summary: Pobierz przypięty koder CPU (owner, sesja i CSRF)
+      responses:
+        '200': {description: Koder przygotowany i zweryfikowany}
+        '503': {description: Nieudane przygotowanie bez danych prywatnych w błędzie}
+  /visual/documents:
+    get:
+      summary: Własne pliki i stan indeksowania wizualnego
+      responses:
+        '200': {description: Lista z checkpointem strony i statusem}
+  /visual/documents/{aid}/index:
+    parameters:
+    - {in: path, name: aid, required: true, schema: {type: string, format: uuid}}
+    post:
+      summary: Kolejkuj lub wznów indeks (rebuild wymaga kopii)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                rebuild: {type: boolean, default: false}
+      responses:
+        '202': {description: Kolejka lub gotowy istniejący indeks}
+  /visual/documents/{aid}/pause:
+    parameters:
+    - {in: path, name: aid, required: true, schema: {type: string, format: uuid}}
+    post:
+      summary: Wstrzymaj indeks własnego pliku
+      responses:
+        '204': {description: Zapisano pauzę i unieważniono starą generację}
+  /visual/documents/{aid}:
+    parameters:
+    - {in: path, name: aid, required: true, schema: {type: string, format: uuid}}
+    delete:
+      summary: Usuń indeks po udanej kopii (oryginał pozostaje)
+      responses:
+        '204': {description: Metadane i wektory usunięte}
+  /visual/search:
+    post:
+      summary: Wyszukaj maksymalnie trzy strony w wybranych własnych indeksach
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [query, attachment_ids]
+              properties:
+                query: {type: string, minLength: 1, maxLength: 500}
+                attachment_ids:
+                  type: array
+                  minItems: 1
+                  maxItems: 5
+                  items: {type: string, format: uuid}
+      responses:
+        '200': {description: Własny attachment_id z filename/page/distance}
+        '409': {description: Indeks niegotowy lub inny encoder zajęty}
+        '422': {description: Nieprawidłowy opis lub przekroczone 64 tokeny}
   /integrations/mcp-time/prepare:
     post:
       summary: Przygotuj opcjonalny przypięty SDK czasu (owner, sesja i CSRF)

@@ -49,6 +49,31 @@ test('błąd API odblokowuje panel i pokazuje opis',async()=>{
  h.get('filesButton').onclick();await tick();assert.equal(h.get('filePick').disabled,false);assert.match(h.get('fileNotice').textContent,/Model obrazu/);
 });
 
+test('wynik pamięci obrazów otwiera wskazaną stronę przez istniejący dekoder bez VLM ani wiadomości',async()=>{
+ const h=harness();h.row.pages=3;
+ const original=h.context.fetch;h.context.fetch=async(url,options)=>{
+  if(url.endsWith('/page')){h.calls.push([url,options]);return {ok:true,status:200,json:async()=>({...h.row,current_page:2})};}
+  return original(url,options);
+ };
+ await h.api.openPage('file-id',2);
+ assert.equal(h.get('filesDialog').open,true);assert.equal(h.get('filePage').value,2);assert.equal(h.get('filePreview').hidden,false);
+ const [,options]=h.calls.find(([u])=>u.endsWith('/page'));assert.equal(options.headers['X-CSRF-Token'],'token');assert.deepEqual(JSON.parse(options.body),{page:2});
+ assert(!h.calls.some(([u])=>/analyze|messages/.test(u)));
+});
+
+test('otwarcie wyniku respektuje Gaming, granice stron i błąd uprawnień',async()=>{
+ const h=harness();h.api.setBlocked(true);await h.api.openPage('file-id',1);assert.equal(h.calls.length,0);
+ h.api.setBlocked(false);await h.api.openPage('file-id',0);assert.equal(h.calls.length,0);
+ h.context.fetch=async()=>({ok:false,status:404,json:async()=>({error:{code:'file_not_found'}})});await h.api.openPage('other',1);
+ assert.equal(h.get('filePreview').src,undefined);assert.match(h.get('fileNotice').textContent,/usunięty/);assert.equal(h.get('fileRender').disabled,true);
+});
+
+test('wylogowanie podczas otwierania strony nie przywraca starego podglądu',async()=>{
+ const h=harness();let release;h.context.fetch=(url)=>url.endsWith('/cancel')?Promise.resolve({ok:true,status:204}):new Promise(resolve=>release=resolve);
+ const pending=h.api.openPage('file-id',1);h.api.hide();release({ok:true,status:200,json:async()=>h.row});await pending;
+ assert.equal(h.get('filePreview').src,undefined);assert.equal(h.get('fileName').textContent,'');assert.equal(h.get('filesDialog').open,false);
+});
+
 
 function transport(h){
  const saved=new Map();h.context.crypto=require('node:crypto').webcrypto;

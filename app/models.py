@@ -61,6 +61,10 @@ class ImageQuestion(Strict):
 class RagIndex(Strict):
     rebuild: bool = False
 
+class VisualSearch(Strict):
+    query:str=Field(min_length=1,max_length=500)
+    attachment_ids:list[UUID]=Field(min_length=1,max_length=5)
+
 class GithubConnect(Strict):
     repositories:list[str]=Field(min_length=1,max_length=5)
     token:SecretStr=Field(min_length=1,max_length=512)

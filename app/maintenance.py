@@ -38,6 +38,8 @@ def validate(path):
         if conn.execute("SELECT 1 FROM sqlite_master WHERE type IN ('trigger','view')").fetchone():raise ValueError('Nieoczekiwany schemat kopii')
         from .rag import validate_storage
         validate_storage(conn)
+        from .visual import validate_storage as validate_visual_storage
+        validate_visual_storage(conn)
     finally:conn.close()
 
 
