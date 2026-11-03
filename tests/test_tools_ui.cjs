@@ -3,6 +3,8 @@ const {document,Node,walk}=require('./dom.cjs');
 test('błędny site i przekierowanie poza filtr mają czytelne opisy',()=>{assert.match(harness().api.activity({name:'web_search',state:'tool_search_filter_invalid'}),/samą domenę/);assert.match(harness().api.activity({name:'web_read',state:'tool_search_domain_denied'}),/poza dozwolony filtr/);});
 function harness(){const doc=document(),ctx={document:doc,window:{},URL};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/tools.js'),'utf8'),ctx);return {doc,api:ctx.window.KripTools};}
 
+test('kanał RSS ma własny stan odczytu i czytelne błędy formatu/XML',()=>{const h=harness();assert.match(h.api.activity({name:'feed_read',state:'reading'}),/RSS\/Atom/);assert.match(h.api.activity({name:'feed_read',state:'feed_format_denied'}),/nieprawidłowy kanał/);assert.match(h.api.activity({name:'feed_read',state:'feed_xml_denied'}),/niedozwoloną deklarację/);});
+
 test('commit wymaga pełnego SHA, a niezgodna rewizja ma czytelny błąd',()=>{const h=harness();assert.match(h.api.activity({name:'github_read',state:'github_commit_sha_required'}),/pełny SHA/);assert.match(h.api.activity({name:'github_read',state:'github_commit_mismatch'}),/inny commit/);});
 test('zmienione zgłoszenie i pomylony numer PR mają czytelne komunikaty',()=>{const h=harness();assert.match(h.api.activity({name:'github_read',state:'github_issue_changed'}),/zmieniło się/);assert.match(h.api.activity({name:'github_read',state:'github_issue_is_pull_request'}),/Ten numer jest PR/);});
 test('źródło wyszukiwania nazw MCP zachowuje query i odrzuca obcą trasę',()=>{

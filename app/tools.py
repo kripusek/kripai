@@ -47,6 +47,7 @@ REGISTRY={
  'github_find':(GithubFind,'Search public GitHub repositories. Query must be a verbatim fragment of the current user request.')
 }
 
+REGISTRY['feed_read']=(WebRead,'Read a public HTTPS RSS 2.0 or Atom 1.0 feed URL explicitly present in the current request or actual discovered results. Up to 5 entries with short descriptions, not full articles or full archive. Use web_read on an actual entry URL to read its article. No accounts or writes.')
 REGISTRY['github_draft']=(GithubDraft,'Prepare a LOCAL pull request proposal for kripusek/kripusek-autoexec when the user asks for edits. First read every changed file with section=file; only editable=true files (at most 3000 characters, read in full) can be changed. Supply entire replacement content. Does not publish or grant write permission.')
 REGISTRY['mcp_docs']=(McpDocs,'Read local KripAI documentation via MCP. action=list discovers documents; action=read requires path from the current request or actual catalog. No account, network or writes.')
 REGISTRY['mcp_files']=(McpFiles,'Read .md/.txt from the folder selected locally by the owner through external filesystem MCP. action=list lists path; action=search finds a literal filename fragment using query copied from the current request (path must be empty), at most 20 documents; action=read requires path from this request or an actual list/search result. No absolute paths or writes. This is the owner folder, not built-in KripAI documentation.')
@@ -60,7 +61,7 @@ def bind_integrations(scope):
     return result
 
 def schemas(scope):
-    allowed=['web_read','web_search'] if scope['web'] else []
+    allowed=['web_read','web_search','feed_read'] if scope['web'] else []
     if scope['github']:allowed+=['github_read','github_find']
     if scope.get('mcp'):allowed+=['mcp_docs']
     if scope.get('mcp') and scope.get('mcp_files_root'):allowed+=['mcp_files']
@@ -199,6 +200,10 @@ def plan(client,messages,scope,check,activity):
                     if name=='github_read' and arguments.get('section')=='file' and not arguments.get('ref') and raw.get('sha') and len(raw.get('document',''))<=3000 and not raw.get('truncated'):
                         scope['github_files'][arguments['repository'].lower()+'/'+arguments.get('path','')]=raw['sha']
                         raw['editable']=True
+                if name=='feed_read':
+                    for item in raw.get('items',[])[:5]:
+                        url=canonical(item['url'])
+                        if url not in scope['urls']:scope['urls'].append(url)
                 if name=='web_search':
                     feedback=[]
                     for item in raw.get('items',[])[:5]:
@@ -223,7 +228,7 @@ def plan(client,messages,scope,check,activity):
                     else:results[index]=source
                     feedback={k:v for k,v in raw.items() if k not in {'document','excerpt'}}
                     # Lista ma już SHA i tytuły w text; nie dublujemy jej w kontekście 4k.
-                    if raw.get('content_kind')=='commit_list':feedback.pop('items',None)
+                    if raw.get('content_kind') in {'commit_list','syndication_feed'}:feedback.pop('items',None)
                     if 'text' in feedback and not raw.get('editable'):
                         feedback['feedback_text_truncated']=len(feedback['text'])>800
                         feedback['text']=feedback['text'][:800]

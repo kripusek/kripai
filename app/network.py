@@ -102,7 +102,7 @@ def fetch(url,partial=False,token=None,sites=None):
             if response.status in (401,403,429):raise ToolError('tool_remote_denied')
             if response.status!=200:raise ToolError('tool_http_error')
             content_type=response.getheader('Content-Type','');kind=content_type.split(';')[0].strip().lower()
-            if kind not in {'text/html','text/plain','application/json','application/vnd.github+json','text/xml','application/xml','application/rss+xml'}:raise ToolError('tool_format_denied')
+            if kind not in {'text/html','text/plain','application/json','application/vnd.github+json','text/xml','application/xml','application/rss+xml','application/atom+xml'}:raise ToolError('tool_format_denied')
             data,truncated=body(response,partial)
             charset=re.search(r'charset=[\"\']?([A-Za-z0-9_-]+)',content_type,re.I)
             return {'url':current,'kind':kind,'data':data,'download_truncated':truncated,'charset':charset[1] if charset else None}

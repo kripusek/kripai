@@ -1,4 +1,4 @@
-# Internet i integracje — aktualny zakres 4a + pierwszy moduł 4b
+# Internet i integracje — wdrożone zakresy i dalszy plan
 
 Właściciel wymaga funkcji zbliżonych do ChatGPT: wyszukiwania i czytania stron,
 GitHuba, a następnie kolejnych integracji. 02.11.2026 zgłosił działanie 4a poza
@@ -10,11 +10,13 @@ logowanie, CAPTCHA, blokady, JavaScript i formaty binarne pozostają ograniczeni
 |---|---|---|
 | 4a — odczyt | WWW i publiczny GitHub, poprawiony odczyt dużych stron | Model i sieć na Windows, cancel/Gaming, SSRF, źródła, offline bez żądań |
 | 4b — wyszukiwarka WWW | Pierwszy adapter Bing RSS bez klucza i bez płatnego API, następnie odczyt wyników | Jakość/rate limits na Windows; inni dostawcy/oficjalne API pozostają do rozbudowy |
-| 4c — konektory/MCP | Plan: prywatny GitHub i kolejne usługi po podłączeniu właściciela | Własne poświadczenia KripAI, magazyn/revoke/ACL; bez wykonywania dowolnych serwerów z treści |
-| 4d — zapis | Plan: commity/PR/issues i inne zmiany w zakresie zgody właściciela | Trwałe ograniczone uprawnienia, idempotencja i audyt, brak zgód z treści stron |
+| 4c — konektory/MCP | Częściowo wdrożone: lokalne połączenie GitHub, MCP dokumentacji i oficjalny filesystem, publiczne RSS/Atom | Kontrakty i wykonane próby w docs; kolejny dostawca MCP/HTTP/OAuth nadal planem, prywatny dostęp zależy od lokalnych uprawnień |
+| 4d — zapis | Ograniczone propozycje i gałęzie/PR tylko w kripusek/kripusek-autoexec po osobnej zgodzie; szerszy zakres nadal planem | Lokalne uprawnienia i jawne zatwierdzenie, idempotencja/audyt; brak merge/delete/force i brak zgód z treści stron |
 
-Wtyczki ChatGPT i ich tokeny nie przenoszą się do KripAI. Obecny GitHub jest
-publiczny i bez logowania; prywatne repo/zapis wymagają własnej integracji.
+Wtyczki ChatGPT i ich tokeny nie przenoszą się do KripAI. Publiczny GitHub działa
+bez konta; dostęp prywatny używa własnej lokalnej konfiguracji DPAPI i listy repo.
+Starsze sekcje opisujące MCP jako plan zachowano jako historię prac; aktualne
+kontrakty wdrożonych modułów są wskazane w dopiskach poniżej.
 Lokalne modele, Windows, SQLite i profil GPU pozostają bez zmian.
 
 ## Korzystanie
@@ -147,3 +149,6 @@ lista oddziela PR. Kontrakt: ../../docs/GITHUB_ZGLOSZENIA.md.
 
 03.11.2026: historia commitów i odczyt patchy pełnego SHA wdrożone. Ograniczenia
 pierwszej porcji i nieznanej liczby plików: ../../docs/GITHUB_COMMITY.md.
+
+03.11.2026: publiczny RSS2/Atom1 we wspólnym rejestrze i panel testu odczytu
+wdrożone, bez nowej zgody i zapisu zewnętrznego. Kontrakt: ../../docs/RSS_ATOM.md.

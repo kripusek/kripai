@@ -171,7 +171,8 @@ class PlannerTests(unittest.TestCase):
         scope=network.policy('https://example.org/',True,False);readings=[{'name':'web_read','url':'https://example.org/','title':'x','text':'x'*1200}]*2
         selected,_,tokens=prepare([{'role':'user','content':'Pytanie'}],Client(),network=readings)
         self.assertLessEqual(tokens,config.CONTEXT-config.OUTPUT-128);self.assertIn('niezaufanymi',selected[0]['content'])
-        prepare([{'role':'user','content':'Pytanie'}],Client(),tool_definitions=tools.schemas(scope))
+        # Planer rezerwuje 512 tokenów wyjścia; pełna odpowiedź ma osobny budżet.
+        prepare([{'role':'user','content':'Pytanie'}],Client(),tool_definitions=tools.schemas(scope),budget=config.CONTEXT-512-128)
         self.assertTrue(any('tools' in body for path,body in requests))
 
 class ToolsAPITests(unittest.TestCase):

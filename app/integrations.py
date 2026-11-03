@@ -73,6 +73,14 @@ class WebAdapter:
         return {'name': self.name, 'configured': True, 'provider': 'Bing RSS', 'read_only': True}
 
 
+class FeedAdapter:
+    name='feeds'
+    def status(self):return {'name':self.name,'available':True,'configured':True,'read_only':True,'provider':'Publiczne RSS 2.0 / Atom 1.0','authentication':'none'}
+    def read(self,name,arguments,scope):
+        from .feeds import execute
+        return execute(name,arguments,scope)
+
+
 class McpAdapter:
     name='mcp'
     def status(self):return {'name':self.name,'configured':True,'available':(config.ROOT/'scripts/mcp_docs_server.py').is_file(),'read_only':True,'provider':'Dokumentacja KripAI · MCP stdio'}
@@ -94,8 +102,8 @@ class McpFilesAdapter:
         if arguments['action']=='search':search_query(arguments.get('query',''),scope['request'])
         return execute(arguments['action'],arguments.get('path',''),scope.get('mcp_files_root'),query=arguments.get('query',''))
 
-ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter(),'mcp':McpAdapter(),'mcp_files':McpFilesAdapter()}
-TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web'}
+ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter(),'mcp':McpAdapter(),'mcp_files':McpFilesAdapter(),'feeds':FeedAdapter()}
+TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web','feed_read':'feeds'}
 
 def read(name, arguments, scope):
     if name=='mcp_docs':return ADAPTERS['mcp'].read(name,arguments,scope)

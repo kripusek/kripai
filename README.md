@@ -248,3 +248,5 @@ Możesz [zacząć osobną rozmowę od wybranej odpowiedzi](docs/ROZMOWY_GALEZIE.
 [Kopiowanie całej wiadomości](docs/KOPIOWANIE_WIADOMOSCI.md) zachowuje pełny tekst i Markdown.
 
 GitHub pozwala [odczytać historię commitów i zmiany konkretnego SHA](docs/GITHUB_COMMITY.md), bez nowych uprawnień zapisu.
+
+[Publiczne kanały RSS i Atom](docs/RSS_ATOM.md): test połączenia, wpisy i przygotowanie pytania w menu Połączenia, bez konta.

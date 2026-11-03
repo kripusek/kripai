@@ -171,3 +171,9 @@ https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/m
 https://docs.github.com/en/rest/commits/commits
 Sprawdzone: Contents read, publiczne bez konta, sha/per_page, niepełne patche
 i paginacja plików; wdrożenie ma własne niższe limity opisane w GITHUB_COMMITY.md.
+
+## Publiczne kanały syndykacji
+https://www.rssboard.org/rss-specification
+https://www.rfc-editor.org/rfc/rfc4287.html
+Rzeczywiste próby: https://www.djangoproject.com/rss/weblog/ oraz
+https://github.com/python/cpython/releases.atom. Własne niższe limity: RSS_ATOM.md.

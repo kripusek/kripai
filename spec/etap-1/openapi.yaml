@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: KripAI native Windows — chat, głos, pliki i pamięć PDF
-  version: 1.11.0
+  version: 1.12.0
   description: HTTP tylko localhost. Sesje, CSRF, Owner ACL. Daty w odpowiedziach
     jako Unix seconds.
 servers:
@@ -9,6 +9,28 @@ servers:
 security:
 - sessionCookie: []
 paths:
+  /integrations/feeds/test:
+    post:
+      summary: Jednorazowo odczytaj publiczny RSS2/Atom1, bez subskrypcji i modelu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [url]
+              properties:
+                url: {type: string, minLength: 1, maxLength: 2048}
+      responses:
+        '200':
+          description: available=true, read_only=true, title/url/format, do5 items title/url/date/excerpt oraz liczniki/truncated/scope_note; przy błędzie available=false i error bez rzekomo pustej listy
+        '401':
+          description: Brak sesji lub sesja odwołana podczas odczytu
+        '403':
+          description: Nieprawidłowy CSRF lub Origin
+        '422':
+          description: Nieprawidłowe argumenty JSON
   /conversations/search:
     get:
       summary: Literalnie szukaj w treści własnych wiadomości, bez modelu

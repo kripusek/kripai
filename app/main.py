@@ -361,6 +361,20 @@ def integrations_status(user=Depends(identity)):
     from .integrations import ADAPTERS
     return {'items':[adapter.status() for adapter in ADAPTERS.values()]}
 
+@app.post('/api/v1/integrations/feeds/test')
+def feed_test(body:tools.WebRead,user=Depends(identity)):
+    def check_session():
+        with connect() as conn:
+            if not conn.execute('SELECT 1 FROM sessions WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at>now()',(user['session_id'],user['id'])).fetchone():raise tools.ToolError('login_required')
+    try:
+        scope=tools.policy(body.url,True,False)
+        result=tools.read('feed_read',{'url':body.url},scope,check_session)
+        check_session()
+        return dict(result,available=True,read_only=True)
+    except tools.ToolError as exc:
+        if exc.code=='login_required':fail(401,exc.code)
+        return {'available':False,'error':exc.code,'read_only':True}
+
 @app.post('/api/v1/integrations/mcp/test')
 def mcp_test(user=Depends(identity)):
     from .mcp_client import execute

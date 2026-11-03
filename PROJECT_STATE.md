@@ -676,3 +676,21 @@ głosu, nowego prywatnego konta ani pozostałych etapów.
 Odciski źródeł/instalacji/uruchomionego backendu zgodne, tools.js serwowany
 dokładnie, nowe sekcje zaakceptowane przez zainstalowany schemat. Health200,
 historia bez sesji401, rzeczywisty model gotowy. Nie logowano konta właściciela.
+
+## 03.11.2026 — 4c: adapter publicznych kanałów RSS/Atom
+Wspólny rejestr: feeds/feed_read, zgoda istniejącego Internetu. RSS2/Atom1UTF8,
+do5wpisów, opisy300, kolejność wydawcy bez obietnicy całego archiwum/artykulów.
+Panel testu faktycznie czyta kanał; dopisuje pytanie do szkicu bez autosend,
+bez przechowywania URL i bez usuwania zdjęcia. XMLbase/alternate, ograniczenia
+XML20/5000/512KiB; DTD/encje, lokalne linki, zły format/kodowanie odrzucone.
+Artykuł dostępny web_read dopiero z rzeczywistych wyników; brak nowych zgód.
+Test sesja/CSRF+recheck; logout i zmiana URL blokują późne odpowiedzi.
+Windows326 Python (325 OK,1 symlink pominięty), Node154/154. Prawdziwe procesy
+odczytały RSS Django i Atom CPython po5/10. Chromium/realAPI: list5, szkic/fokus,
+mobile390, messagesPOST0/model0; faultXML i held200 po logout zignorowane.
+Osobno realny CUDA wybrał feed_read i zakończył odpowiedź345znaków ze źródłem;
+konto/kontroler fixture. VRAM6968/8192MiB, pojedynczy pomiar. Brak nowego testu
+głosu/prywatnych kont. Poprawiony stary test budżetu planera, bez zmiany GPU.
+Brak migracji/deps. START.cmd/Ctrl+F5. Kontrakt docs/RSS_ATOM.md, raport TESTY.
+To adapter RSS, nie drugi dostawca MCP. Etap4c nadal częściowo wdrożony;
+dalej: uporządkowanie panelu Połączenia, kolejny dostawca MCP, pamięć wizualna2.5c.
