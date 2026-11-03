@@ -1,17 +1,17 @@
 'use strict';
 window.KripMcpFiles=(()=>{
- let root,label,state,form,browser,browseButton,searchInput,searchButton,rootId=null,browseEpoch=0,epoch=0;
+ let root,label,state,form,browser,browseButton,searchInput,searchButton,group,rootId=null,browseEpoch=0,epoch=0;
  const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
  const errors={mcp_files_query_invalid:'Podaj fragment nazwy (2–80 znaków): litery, cyfry, spacje, kropki, podkreślenia lub myślniki.',mcp_files_search_limit:'Folder jest za duży lub za głęboki do wyszukiwania. Wybierz mniejszy folder dokumentów.',mcp_files_search_links:'Wyszukiwanie wymaga folderu bez dowiązań i junction w nieukrytych podkatalogach.',mcp_files_not_configured:'Najpierw wybierz folder.',mcp_files_unavailable:'Przygotuj serwer. Wymagany Node.js 24+ w Program Files.',mcp_files_install_failed:'Nie przygotowano serwera. Sprawdź Node.js 24+, dostęp do npm i uprawnienia folderu programu.',mcp_files_configuration_invalid:'Podaj istniejący folder i krótką nazwę.',mcp_files_path_denied:'Folder lub plik niedozwolony. Nie wybieraj folderów danych, kopii, skrótów ani całego dysku.',mcp_files_directory_large:'Katalog zawiera ponad 200 pozycji. Wybierz mniejszy folder.',mcp_files_scope_changed:'Folder zmienił się. Ponów odczyt.',mcp_timeout:'Serwer nie odpowiedział w wyznaczonym czasie.',mcp_files_document_missing:'Nie można odczytać folderu lub dokumentu.'};
  async function request(path,method='GET',body){
   try{return await api('/integrations/mcp-files/'+path,method,body);}catch(e){throw Error(errors[e.code]||e.message||'Operacja MCP nie powiodła się.');}
  }
  function resetBrowser(){browseEpoch++;browser?.replaceChildren();}
- function clear(){epoch++;rootId=null;resetBrowser();if(browseButton)browseButton.disabled=true;if(searchButton)searchButton.disabled=true;if(searchInput)searchInput.value='';if(root)root.value='';if(label)label.value='';if(state)state.textContent='';}
+ function clear(){epoch++;rootId=null;resetBrowser();if(browseButton)browseButton.disabled=true;if(searchButton)searchButton.disabled=true;if(searchInput)searchInput.value='';if(root)root.value='';if(label)label.value='';if(state)state.textContent='';group?.setStatus('neutral','Nie wybrano folderu');}
  async function refresh(){
   const version=epoch;if(!state)return;
-  try{const data=await request('config');if(version!==epoch)return;if(rootId!==(data.root_id||null)){rootId=data.root_id||null;resetBrowser();searchInput.value='';}browseButton.disabled=!(rootId&&data.configured&&data.available);searchButton.disabled=browseButton.disabled;root.value=data.root||'';label.value=data.label||'Moje dokumenty';state.textContent=(data.configured?'Wybrano: '+data.label+'. ':'Folder nie jest wybrany. ')+(data.available?'Serwer przygotowany.':'Serwer wymaga przygotowania (opcjonalny Node.js 24+).');}
-  catch(e){if(version===epoch)state.textContent=e.message;}
+  try{const data=await request('config');if(version!==epoch)return;if(rootId!==(data.root_id||null)){rootId=data.root_id||null;resetBrowser();searchInput.value='';}group?.setStatus(!data.available?'neutral':data.configured?'ok':'neutral',!data.available?'Wymaga przygotowania':data.configured?'Folder wybrany':'Wybierz folder');browseButton.disabled=!(rootId&&data.configured&&data.available);searchButton.disabled=browseButton.disabled;root.value=data.root||'';label.value=data.label||'Moje dokumenty';state.textContent=(data.configured?'Wybrano: '+data.label+'. ':'Folder nie jest wybrany. ')+(data.available?'Serwer przygotowany.':'Serwer wymaga przygotowania (opcjonalny Node.js 24+).');}
+  catch(e){if(version===epoch){state.textContent=e.message;group?.setStatus('error','Błąd odczytu stanu');}}
  }
  function relative(value){return typeof value==='string'&&value.length>0&&value.length<=200&&!/[\\:\x00-\x1f\x7f]/.test(value)&&value.split('/').length<=6&&value.split('/').every(p=>p&&p!=='.'&&p!=='..'&&!p.startsWith('.'));}
  async function browse(path='',search=null){
@@ -50,14 +50,14 @@ window.KripMcpFiles=(()=>{
    if(search!==null)browser.append(el('p','Pasujące dokumenty: '+(Number.isInteger(data.matched_documents)?data.matched_documents:count)+(data.truncated?'. Pokazano pierwsze 20; doprecyzuj nazwę.':'. Przeszukano wybrany folder i podkatalogi.')));
   }catch(e){if(id===rootId&&version===browseEpoch)browser.replaceChildren(el('p',e.message));}
  }
- async function action(button,operation){
-  const version=epoch;button.disabled=true;
-  try{const message=await operation();if(version!==epoch)return;await refresh();if(version===epoch&&message)state.textContent=message;}
-  catch(e){if(version===epoch)state.textContent=e.message;}
+ async function action(button,operation,successLabel=null){
+  const version=epoch;button.disabled=true;group?.setStatus('pending','Pracuję…');
+  try{const message=await operation();if(version!==epoch)return;await refresh();if(version===epoch){if(message)state.textContent=message;if(successLabel)group?.setStatus('ok',successLabel);}}
+  catch(e){if(version===epoch){state.textContent=e.message;group?.setStatus('error','Błąd operacji');}}
   finally{button.disabled=false;}
  }
  document.addEventListener('DOMContentLoaded',()=>{
-  const panel=document.getElementById('integrationsPanel');state=el('p');state.setAttribute('role','status');
+  const panel=document.getElementById('integrationsPanel');group=window.KripIntegrationGroups?.mount({id:'mcp_files',title:'MCP · folder dokumentów',parent:panel});state=el('p');state.setAttribute('role','status');
   root=el('input');root.required=true;root.maxLength=1024;root.placeholder='C:\\Notatki';root.autocomplete='off';
   label=el('input');label.required=true;label.maxLength=60;label.value='Moje dokumenty';
   const rootLabel=el('label','Folder dokumentów na tym komputerze'),nameLabel=el('label','Nazwa połączenia');rootLabel.append(root);nameLabel.append(label);
@@ -65,11 +65,11 @@ window.KripMcpFiles=(()=>{
   for(const button of [prepare,test,disconnect])button.type='button';save.type='submit';form=el('form');form.append(rootLabel,nameLabel,save);
   prepare.onclick=()=>action(prepare,async()=>{await request('prepare','POST');return 'Serwer przygotowany. Wybierz folder i sprawdź odczyt.';});
   form.onsubmit=e=>{e.preventDefault();const selection={root:root.value,label:label.value};return action(save,async()=>{await request('config','POST',selection);return 'Folder wybrany. Włącz MCP w menu + przy wysyłaniu wiadomości.';});};
-  test.onclick=()=>action(test,async()=>{const data=await request('test','POST');return data.available?'MCP działa · dokumenty w katalogu: '+data.documents+' · pominięte pozycje: '+data.omitted_entries:(errors[data.error]||'Serwer odmówił odczytu. Sprawdź konfigurację folderu.');});
+  test.onclick=()=>action(test,async()=>{const data=await request('test','POST');if(!data.available)throw Error(errors[data.error]||'Serwer odmówił odczytu. Sprawdź konfigurację folderu.');return 'MCP działa · dokumenty w katalogu: '+data.documents+' · pominięte pozycje: '+data.omitted_entries;},'Test odczytu OK');
   disconnect.onclick=()=>action(disconnect,async()=>{await request('disconnect','POST');return 'Folder odłączony. Kopia konfiguracji pozostaje w folderze kopii.';});
   browser=el('div');browser.className='mcp-browser';browser.setAttribute('aria-live','polite');browseButton=el('button','Przeglądaj dokumenty');browseButton.type='button';browseButton.disabled=true;browseButton.onclick=()=>browse();
   searchInput=el('input');searchInput.required=true;searchInput.minLength=2;searchInput.maxLength=80;searchInput.placeholder='Fragment nazwy, np. raport';const searchLabel=el('label','Szukaj dokumentów po nazwie');searchLabel.append(searchInput);searchButton=el('button','Znajdź po nazwie');searchButton.type='submit';searchButton.disabled=true;const searchForm=el('form');searchForm.append(searchLabel,searchButton);searchForm.onsubmit=e=>{e.preventDefault();return browse('',searchInput.value.trim());};
-  panel.append(el('h3','MCP · Twój folder dokumentów'),el('p','Opcjonalny oficjalny serwer filesystem 2.1.0. Tylko odczyt .md/.txt do 32 KiB, bez skrótów i ukrytych plików. Wybierz osobny folder przeznaczony do udostępnienia modelowi, bez prywatnych poświadczeń. Przygotowanie pobiera przypięty pakiet z npm; pozostałe funkcje KripAI działają bez Node.js.'),state,prepare,form,test,disconnect,browseButton,searchForm,browser);
+  (group?.body||panel).append(el('h3','MCP · Twój folder dokumentów'),el('p','Opcjonalny oficjalny serwer filesystem 2.1.0. Tylko odczyt .md/.txt do 32 KiB, bez skrótów i ukrytych plików. Wybierz osobny folder przeznaczony do udostępnienia modelowi, bez prywatnych poświadczeń. Przygotowanie pobiera przypięty pakiet z npm; pozostałe funkcje KripAI działają bez Node.js.'),state,prepare,form,test,disconnect,browseButton,searchForm,browser);
  });
  return {refresh,clear};
 })();

@@ -250,3 +250,5 @@ Możesz [zacząć osobną rozmowę od wybranej odpowiedzi](docs/ROZMOWY_GALEZIE.
 GitHub pozwala [odczytać historię commitów i zmiany konkretnego SHA](docs/GITHUB_COMMITY.md), bez nowych uprawnień zapisu.
 
 [Publiczne kanały RSS i Atom](docs/RSS_ATOM.md): test połączenia, wpisy i przygotowanie pytania w menu Połączenia, bez konta.
+
+[Panel Połączenia](docs/POLACZENIA_SEKCJE.md) ma zwijane sekcje i widoczny stan GitHuba, MCP i RSS.

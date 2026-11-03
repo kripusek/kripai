@@ -694,3 +694,23 @@ głosu/prywatnych kont. Poprawiony stary test budżetu planera, bez zmiany GPU.
 Brak migracji/deps. START.cmd/Ctrl+F5. Kontrakt docs/RSS_ATOM.md, raport TESTY.
 To adapter RSS, nie drugi dostawca MCP. Etap4c nadal częściowo wdrożony;
 dalej: uporządkowanie panelu Połączenia, kolejny dostawca MCP, pamięć wizualna2.5c.
+
+## 03.11.2026 — zwijane sekcje i stan integracji
+Panel Połączenia: cztery natywne details/summary, stała kolejność GitHub/MCPdocs/
+MCPfolder/RSS, widoczny krótki stan bez rozwijania formularzy. Bez auto-testów
+i nowych żądań przy zwijaniu. Błąd lokalnej konfiguracji GitHuba nie udaje
+publicznego połączenia; można jawnie odłączyć lokalnie z istniejącą kopią.
+Logout zwija i resetuje stany, stare żądania nie nadpisują nowej sesji/pola
+tokenu ani blokady przycisków. Nieudany test folderu MCP zachowuje błąd.
+Windows326 Python (325 OK,1 symlink pominięty), Node164/164. Realny Chromium/
+API: cztery zamknięte grupy, Enter, mobile390 bez overflow/okno484px, tokeninput
+czyszczony przy close, logout reset; rzeczywisty odczyt MCPdocs OK, wymuszony
+błąd widoczny. FoldingPOST0/messages0/model0. Inference tej paczki nieuruchamiana.
+Kod integration-groups.js i moduły UI, bez migracji/deps. START.cmd/Ctrl+F5.
+Kontrakt docs/POLACZENIA_SEKCJE.md i raport TESTY. Etap4c nadal częściowy.
+Dalej: konkretny drugi dostawca MCP tylko do odczytu, następnie pamięć wizualna2.5c.
+
+Potwierdzenie poprzedniej paczki RSSdb66f4b: lokalna instalacja po kopii kodu/
+bazy, odciski źródło/instalacja/backend zgodne. Zainstalowany realny worker
+odczytał5wpisówDjango; plikiJS zgodne, backend200, endpointRSS bez sesji401.
+Nie używano produkcyjnego konta. Weryfikacja wykonana przed zmianami panelu.

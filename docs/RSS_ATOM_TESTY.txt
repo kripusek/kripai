@@ -574,3 +574,13 @@ NIE URUCHOMIONO w tym zestawie: prawdziwy llama-server CUDA, pobranie 5 GB, inst
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms 688.2221
+
+Installed RSS verification before UI grouping:
+{
+  "source_installed_running": "equal",
+  "installed_real_feed_count": 5,
+  "backend": 200,
+  "feeds_without_login": 401,
+  "served_assets": "exact",
+  "production_account_login_tested": false
+}
