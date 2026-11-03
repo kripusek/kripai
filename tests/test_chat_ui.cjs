@@ -177,3 +177,8 @@ test('późny błąd otwarcia gałęzi nie wraca po logout',async()=>{
  h.ctx.fetch=(url,options)=>url.includes('/fork-cid/messages')?new Promise((_,r)=>reject=r):original(url,options);
  const pending=configured.onBranch({id:'fork-cid',title:'Gałąź'});await h.doc.getElementById('logout').onclick();reject(Error('fixture offline'));await pending;assert.equal(h.doc.getElementById('notice').textContent,'');
 });
+
+test('kopiowanie całej wiadomości integruje user i żywy streaming; logout czyści przyciski',async()=>{
+ const attached=[];let cleared=0;const h=await harness({KripMessageCopy:{configure(){},clear(){cleared++;},attach(container,options){attached.push(options.getText);}}});
+ h.doc.getElementById('prompt').value='Pełna wiadomość użytkownika';await h.doc.getElementById('composer').onsubmit({preventDefault(){}});assert(attached.some(get=>get()==='Pełna wiadomość użytkownika'));const live=attached.at(-1);assert.equal(live(),'');h.streams[0].events['assistant.text.delta']({lastEventId:'1',data:JSON.stringify({text:'**Żółw** ze źródłem [W1]'})});assert.equal(live(),'**Żółw** ze źródłem [W1]');const before=cleared;await h.doc.getElementById('logout').onclick();assert.equal(cleared,before+1);
+});

@@ -244,3 +244,5 @@ Menu **Rozmowa**: [zmiana nazwy i eksport Markdown/JSON ze źródłami](docs/ROZ
 Panel historii ma [wyszukiwanie treści wiadomości i przejście do starszego punktu](docs/WYSZUKIWANIE_HISTORII.md), bez uruchamiania modelu.
 
 Możesz [zacząć osobną rozmowę od wybranej odpowiedzi](docs/ROZMOWY_GALEZIE.md), zachowując oryginalną historię.
+
+[Kopiowanie całej wiadomości](docs/KOPIOWANIE_WIADOMOSCI.md) zachowuje pełny tekst i Markdown.

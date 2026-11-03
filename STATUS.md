@@ -731,3 +731,24 @@ Start START.cmd i Ctrl+F5. Brak migracji/deps. Kod conversation_branch.py,
 conversation-branch.js i app/main. Kontrakt docs/ROZMOWY_GALEZIE.md, raport TESTY.
 Następnie: kopiowanie pełnych wiadomości jednym przyciskiem z obsługą błędów
 schowka, bez uruchamiania modelu i bez zmiany historii.
+
+## 03.11.2026 — kopiowanie całych wiadomości
+Przycisk pod user/assistant kopiuje pełny oryginalny tekst z Markdown/Unicode
+i oznaczeniami źródeł, także bieżący fragment streamingu. Bez HTML, obrazów
+ani dodatkowych wycinków źródeł. Jawny klik, brak network/model/autosend.
+Schowek denied/unsupported/pusty tekst mają uczciwy komunikat. Pending blokuje
+ponowienia bez odbierania fokusu; logout/full-load unieważniają stare wyniki.
+Już zleconego zapisu systemowego nie cofamy; OS schowek nie jest czyszczony.
+Szkic pozostaje bez zmian. Kod message-copy.js i bubble/load/showLogin.
+Windows:302 Python (301 OK,1 pominięty), Node145/145. Realny Chromium z lokalnym
+schowkiem: user/assistant, długi UnicodeMarkdown, błędy i późny wynik/logout,
+mobile390. Konto/kontroler fixture, messagesPOST0/model0; brak nowej inferencji.
+Brak migracji/deps. START.cmd i Ctrl+F5. Kontrakt docs/KOPIOWANIE_WIADOMOSCI.md
+i dosłowny raport TESTY. Dalsze etapy: pamięć wizualna2.5c i pozostałe integracje
+według planu; nie uznajemy tych zakresów za ukończone przez funkcje historii.
+
+Potwierdzenie poprzedniej paczki gałęzi07a409e: lokalna aktualizacja po kopii
+kodu/bazy; backend/model200, oficjalny MCP read prawdziwym procesem z folderu
+testowego, START3.892s bez zmiany PID modelu. Odciski źródeł/zainstalowanego/
+uruchomionego kodu zgodne przed rozpoczęciem zmian kopiowania. Bez logowania
+produkcyjnego konta i bez zmiany jego folderu MCP.
