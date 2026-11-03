@@ -138,3 +138,6 @@ wybrany lokalnie, tylko .md/.txt i list/read; Node opcjonalny. Dawne zapisy
 
 03.11.2026: przeglądanie folderu MCP i wybór dokumentu do szkicu wdrożone;
 bez nowego RPC i automatycznego wysyłania. Kontrakt: ../../docs/MCP_FOLDER.md.
+
+03.11.2026: wyszukiwanie nazw dokumentów MCP przez search_files wdrożone;
+kontrakt ../../docs/MCP_WYSZUKIWANIE.md. Nie jest to wyszukiwanie treści.

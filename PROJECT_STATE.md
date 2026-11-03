@@ -504,3 +504,21 @@ z zainstalowanymi plikami; backend i model health=200, konfiguracja bez sesji
 401. Odczyt przez zainstalowany Node/MCP poprawny. Ponowne START.ps1
 -NoBrowser: 3.798 s, PID modelu bez zmiany; to otwarcie działającej
 aplikacji. Bez nowej generacji AI, bez hasła owner i bez zmiany jego folderu.
+
+## 03.11.2026 — wyszukiwanie nazw dokumentów MCP
+mcp_files action=search/query: fragment nazwy z bieżącej prośby, rzeczywiste
+search_files oficjalnego serwera i filtr casefold, do 20 wyników. Względne
+wyniki autoryzują kolejny read; brak uprawnień zapisu i nowych zależności.
+GET mcp-files/search i pole wyszukiwania w Połączeniach, źródło zachowuje query.
+Rekurencja do 6 poziomów, 1000 pozycji i 64000 bajtów nazw absolutnych przed
+uruchomieniem Node; duży zakres i nieukryte dowiązanie odrzucają całą operację.
+Ukryte poddrzewa wyłączone; tylko .md/.txt do 32 KiB. Jawne matched_documents,
+omitted_entries i truncated. To wyszukiwanie nazw, nie indeks treści.
+Windows: 238 Python (237 OK, 1 symlink pominięty), Node 77/77. Rzeczywisty
+search_files: podkatalog/polska nazwa/odczyt wyniku, ukryte pliki pominięte,
+API z sesją i źródłem, stare root/obce query/glob/junction/limity odrzucone.
+Chrome/Playwright desktop i 390px: wyszukiwanie, limit i wybór do szkicu;
+API wizualnej próby kontrolowane, brak błędów konsoli. Nowej generacji CUDA
+w tej paczce nie wykonywano. Start START.cmd; brak migracji. Kontrakt/raport:
+docs/MCP_WYSZUKIWANIE.md i MCP_WYSZUKIWANIE_TESTY.txt. Następnie: odczyt
+konkretnego zgłoszenia GitHub i dyskusji, nadal bez zapisu do serwisu.

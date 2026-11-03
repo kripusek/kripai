@@ -53,6 +53,17 @@ paths:
       responses:
         '204':
           description: Odłączono
+  /integrations/mcp-files/search:
+    get:
+      summary: Szukaj dokumentów po fragmencie nazwy przez MCP (sesja, tylko odczyt)
+      parameters:
+      - {name: root, in: query, required: true, schema: {type: string, format: uuid}}
+      - {name: query, in: query, required: true, schema: {type: string, minLength: 2, maxLength: 80}}
+      responses:
+        '200':
+          description: Do 20 względnych paths, matched_documents, truncated, omitted_entries i źródło zachowujące query
+        '404':
+          description: Nieaktualny root, niedozwolone query, limit przeszukiwania lub niedostępny serwer
   /integrations/mcp-files/catalog:
     get:
       summary: Katalog bieżącego folderu MCP (sesja)

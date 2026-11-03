@@ -1,4 +1,4 @@
-"""Jeden przypięty zewnętrzny serwer MCP; tylko list_directory/read_text_file."""
+"""Jeden przypięty zewnętrzny serwer MCP; jawna lista metod tylko do odczytu."""
 import json,os,shutil
 from pathlib import Path
 from urllib.parse import urlencode
@@ -9,7 +9,46 @@ from .mcp_client import StdioClient
 from scripts import setup_mcp_filesystem as setup
 
 MAX_BYTES=32768;MAX_TEXT=12000
-READ_TOOLS={'list_directory','read_text_file'}
+READ_TOOLS={'list_directory','read_text_file','search_files'}
+
+def search_query(value,request=None):
+    if not isinstance(value,str):raise ToolError('tool_arguments_invalid')
+    query=value.strip()
+    if not 2<=len(query)<=80 or not any(c.isalnum() for c in query) or any(not(c.isalnum() or c in ' ._-') for c in query):raise ToolError('mcp_files_query_invalid')
+    if request is not None and query.casefold() not in request.casefold():raise ToolError('tool_resource_not_authorized')
+    return query
+
+def search_budget(root):
+    count=0;path_bytes=0
+    def visit(directory,depth):
+        nonlocal count,path_bytes
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                count+=1;path_bytes+=len(entry.path.encode('utf-8'))+1
+                if count>1000 or path_bytes>64000:raise ToolError('mcp_files_search_limit')
+                if entry.name.startswith('.'):continue
+                stat=entry.stat(follow_symlinks=False)
+                # Wyszukiwanie jest rekurencyjne: odmawiamy całej operacji przy
+                # dowiązaniu, zamiast polegać na sposobie chodzenia serwera po nim.
+                if entry.is_symlink() or getattr(stat,'st_file_attributes',0)&0x400:raise ToolError('mcp_files_search_links')
+                if depth>=6:raise ToolError('mcp_files_search_limit')
+                if entry.is_dir(follow_symlinks=False):visit(entry.path,depth+1)
+    visit(str(root),0)
+
+def search_result(value,data,query,root_id):
+    paths=[];omitted=0
+    for line in ([] if value=='No matches found' else value.splitlines()):
+        path=Path(line)
+        if not path.is_absolute():raise ToolError('mcp_protocol_invalid')
+        try:relative=path.relative_to(data['root']).as_posix()
+        except ValueError:raise ToolError('mcp_files_path_denied') from None
+        if query.casefold() not in path.name.casefold():continue
+        try:local_path(data,relative,read=True)
+        except (ToolError,OSError):omitted+=1;continue
+        paths.append(relative)
+    paths=sorted(set(paths),key=str.casefold);total=len(paths);paths=paths[:20]
+    source='/api/v1/integrations/mcp-files/search?'+urlencode({'root':root_id,'query':query})
+    return {'url':source,'title':'MCP · '+data['label']+' · nazwa: '+query,'text':'\n'.join(paths) or 'Brak dokumentów pasujących do nazwy.','paths':paths,'content_kind':'directory_search','truncated':total>20,'matched_documents':total,'omitted_entries':omitted,'scope_note':'Fragment nazwy, bez rozróżniania wielkości liter; do 20 dokumentów .md/.txt.'}
 
 def no_links(path):
     cursor=Path(path.anchor)
@@ -81,12 +120,18 @@ def local_path(data,relative,read=False):
 def configured_id():
     data=settings();return data['id'] if data else None
 
-def execute(action,relative='',root_id=None):
-    if action not in {'list','read'}:raise ToolError('mcp_tool_denied')
+def execute(action,relative='',root_id=None,query=''):
+    if action not in {'list','read','search'}:raise ToolError('mcp_tool_denied')
     data=settings()
     if not data:raise ToolError('mcp_files_not_configured')
     if root_id!=data['id']:raise ToolError('mcp_files_scope_changed')
-    try:path,relative=local_path(data,relative,read=action=='read')
+    if action=='search':
+        if relative:raise ToolError('tool_arguments_invalid')
+        query=search_query(query)
+    elif query:raise ToolError('tool_arguments_invalid')
+    try:
+        path,relative=local_path(data,relative,read=action=='read')
+        if action=='search':search_budget(path)
     except OSError:raise ToolError('mcp_files_document_missing') from None
     if action=='list':
         for index,_ in enumerate(path.iterdir()):
@@ -102,12 +147,16 @@ def execute(action,relative='',root_id=None):
             matches=[tool for tool in catalog['tools'] if isinstance(tool,dict) and tool.get('name')==name]
             annotations=matches[0].get('annotations') if len(matches)==1 else None
             if not isinstance(annotations,dict) or annotations.get('readOnlyHint') is not True or annotations.get('destructiveHint') is True:raise ToolError('mcp_tool_denied')
-        result=client.request('tools/call',{'name':'list_directory' if action=='list' else 'read_text_file','arguments':{'path':str(path)}})
+        name='search_files' if action=='search' else 'list_directory' if action=='list' else 'read_text_file'
+        arguments={'path':str(path)}
+        if action=='search':arguments.update(pattern='**/*',excludePatterns=['**/.*'])
+        result=client.request('tools/call',{'name':name,'arguments':arguments})
         check()
         if result.get('isError'):raise ToolError('mcp_remote_error')
         content=result.get('content')
         if not isinstance(content,list) or len(content)!=1 or not isinstance(content[0],dict) or content[0].get('type')!='text' or not isinstance(content[0].get('text'),str):raise ToolError('mcp_protocol_invalid')
         value=content[0]['text']
+        if action=='search':return search_result(value,data,query,root_id)
         source='/api/v1/integrations/mcp-files/'+('catalog' if action=='list' else 'document')+'?'+urlencode({'root':root_id,'path':relative})
         if action=='read':
             if '\x00' in value:raise ToolError('tool_format_denied')

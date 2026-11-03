@@ -90,8 +90,9 @@ class McpFilesAdapter:
     def read(self,name,arguments,scope):
         if not scope.get('mcp'):raise ToolError('tool_permission_denied')
         if arguments['action']=='read' and arguments['path'] not in scope.get('local_documents',[]):raise ToolError('tool_resource_not_authorized')
-        from .mcp_files import execute
-        return execute(arguments['action'],arguments.get('path',''),scope.get('mcp_files_root'))
+        from .mcp_files import execute,search_query
+        if arguments['action']=='search':search_query(arguments.get('query',''),scope['request'])
+        return execute(arguments['action'],arguments.get('path',''),scope.get('mcp_files_root'),query=arguments.get('query',''))
 
 ADAPTERS: dict[str, ReadAdapter] = {'github': GithubAdapter(), 'web': WebAdapter(),'mcp':McpAdapter(),'mcp_files':McpFilesAdapter()}
 TOOL_ADAPTERS = {'github_read':'github','github_find':'github','web_read':'web','web_search':'web'}

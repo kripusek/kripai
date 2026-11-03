@@ -43,3 +43,13 @@ test('nazwy są tekstem, niedozwolone ścieżki pomijane, a zdjęcie nie jest us
  const h=harness(async p=>p.endsWith('/config')?configuration():{paths:['<img>.md','../secret.md','C:/secret.md','.hidden.md'],text:'[FILE] <img>.md\n[DIR] ../secret'});await h.api.refresh();await button(h,'Przeglądaj dokumenty').onclick();assert(!walk(h.panel).some(n=>n.tagName==='img'));assert.equal(walk(h.panel).filter(n=>n.tagName==='a').length,1);
  h.window.KripAttachments={has:()=>true};button(h,'Zapytaj o dokument').onclick();assert.equal(h.doc.getElementById('prompt').value,'');assert.equal(h.doc.getElementById('allowMcp').checked,undefined);assert.match(h.panel.textContent,/Usuń zdjęcie/);
 });
+test('wyszukiwanie nazwy jest lokalnym GET, pokazuje limit i pozwala wybrać wynik',async()=>{
+ const calls=[],h=harness(async(p,m)=>{calls.push([p,m]);return p.endsWith('/config')?configuration():{paths:['docs/Raport 2026.txt'],text:'docs/Raport 2026.txt',matched_documents:27,truncated:true,omitted_entries:2};});
+ await h.api.refresh();h.nodes.filter(n=>n.tagName==='input')[2].value='raport 2026';await h.nodes.filter(n=>n.tagName==='form')[1].onsubmit({preventDefault(){}});
+ assert(calls[1][0].includes('/search?root='+root+'&query=raport+2026'));assert(calls.every(([,method])=>method==='GET'));assert.match(h.panel.textContent,/Pasujące dokumenty: 27/);assert.match(h.panel.textContent,/pierwsze 20/);
+ button(h,'Zapytaj o dokument').onclick();assert.match(h.doc.getElementById('prompt').value,/Raport 2026.txt/);h.api.clear();assert.equal(h.nodes.filter(n=>n.tagName==='input')[2].value,'');
+});
+test('spóźnione wyszukiwanie nie zastępuje nowszego katalogu',async()=>{
+ let resolve;const h=harness(async p=>p.endsWith('/config')?configuration():p.includes('/search?')?new Promise(r=>resolve=r):{paths:[],text:'Brak dokumentów'});
+ await h.api.refresh();h.nodes.filter(n=>n.tagName==='input')[2].value='raport';const pending=h.nodes.filter(n=>n.tagName==='form')[1].onsubmit({preventDefault(){}});await button(h,'Przeglądaj dokumenty').onclick();resolve({paths:['stary.md'],text:'stary.md',matched_documents:1});await pending;assert(!h.panel.textContent.includes('stary.md'));assert(h.panel.textContent.includes('Katalog: /'));
+});

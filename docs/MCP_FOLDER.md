@@ -18,7 +18,7 @@ Zgoda jest domyślnie wyłączona; samo połączenie nie wysyła plików do mode
 
 ## Granice
 
-- Tylko `list_directory` i `read_text_file`, sprawdzone także przez adnotacje
+- Tylko `list_directory`, `read_text_file` i `search_files`, sprawdzone także przez adnotacje
   serwera. Model nie dostaje surowego RPC, poleceń programu ani metod zapisu.
   Oficjalny serwer udostępnia również zapis: klient KripAI go nie wywołuje.
   To kontrola klienta, nie systemowy sandbox dla dowolnego złośliwego programu.
@@ -71,3 +71,5 @@ pozycje są zliczane; błąd serwera jest pokazany zamiast rzekomo pustej listy.
 Przy wylogowaniu/zmianie root lista i stare przyciski są unieważniane. Nie
 usuwamy istniejącego szkicu ani zdjęcia; zdjęcie trzeba odłączyć przed tym
 wyborem dokumentu. Inne zgody wiadomości pozostają zgodne z wyborem użytkownika.
+
+Wyszukiwanie nazw i dodatkowa odczytowa metoda search_files: [kontrakt](MCP_WYSZUKIWANIE.md).

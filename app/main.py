@@ -437,6 +437,13 @@ def mcp_files_source(request:Request,root:UUID,path:str=Query(default='',max_len
     except tools.ToolError as exc:fail(404,exc.code)
     except OSError:fail(404,'mcp_files_document_missing')
 
+@app.get('/api/v1/integrations/mcp-files/search')
+def mcp_files_search(root:UUID,query:str=Query(min_length=2,max_length=80),user=Depends(identity)):
+    from .mcp_files import execute
+    try:return execute('search',root_id=str(root),query=query)
+    except tools.ToolError as exc:fail(404,exc.code)
+    except OSError:fail(404,'mcp_files_document_missing')
+
 @app.get('/api/v1/integrations/github/drafts')
 def github_drafts(user=Depends(identity)):
     from .github_changes import list_drafts

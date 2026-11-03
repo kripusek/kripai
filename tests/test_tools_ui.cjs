@@ -2,6 +2,10 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 const {document,Node,walk}=require('./dom.cjs');
 test('błędny site i przekierowanie poza filtr mają czytelne opisy',()=>{assert.match(harness().api.activity({name:'web_search',state:'tool_search_filter_invalid'}),/samą domenę/);assert.match(harness().api.activity({name:'web_read',state:'tool_search_domain_denied'}),/poza dozwolony filtr/);});
 function harness(){const doc=document(),ctx={document:doc,window:{},URL};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/tools.js'),'utf8'),ctx);return {doc,api:ctx.window.KripTools};}
+test('źródło wyszukiwania nazw MCP zachowuje query i odrzuca obcą trasę',()=>{
+ const h=harness(),box=new Node('article'),target=new Node('div');box.append(target);const url='/api/v1/integrations/mcp-files/search?root=12345678-1234-1234-1234-123456789abc&query=g%C4%99%C5%9Bl%C4%85+raport';
+ h.api.renderSources(target,[{name:'mcp_files',url},{name:'web_read',url},{name:'mcp_files',url:url+'&write=true'}]);const links=walk(box).filter(n=>n.tagName==='a');assert.equal(links.length,1);assert.equal(links[0].href,url);
+});
 
 test('zewnętrzne źródło MCP wymaga nazwy adaptera i nie przyjmuje zmienionej trasy',()=>{
  const h=harness(),box=new Node('article'),target=new Node('div');box.append(target);

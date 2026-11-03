@@ -28,6 +28,10 @@ class GithubFind(Strict):
 class McpDocs(Strict):
     action:Literal['list','read']
     path:str=Field(default='',max_length=200)
+class McpFiles(Strict):
+    action:Literal['list','read','search']
+    path:str=Field(default='',max_length=200)
+    query:str=Field(default='',max_length=80)
 class GithubFileChange(Strict):
     path:str=Field(min_length=1,max_length=200)
     content:str=Field(min_length=1,max_length=20000)
@@ -45,7 +49,7 @@ REGISTRY={
 
 REGISTRY['github_draft']=(GithubDraft,'Prepare a LOCAL pull request proposal for kripusek/kripusek-autoexec when the user asks for edits. First read every changed file with section=file; only editable=true files (at most 3000 characters, read in full) can be changed. Supply entire replacement content. Does not publish or grant write permission.')
 REGISTRY['mcp_docs']=(McpDocs,'Read local KripAI documentation via MCP. action=list discovers documents; action=read requires path from the current request or actual catalog. No account, network or writes.')
-REGISTRY['mcp_files']=(McpDocs,'Read .md/.txt from the folder selected locally by the owner through the external filesystem MCP server. action=list lists a relative directory; action=read requires relative path from this request or actual catalog. No absolute paths or writes. This is the configured owner folder, not built-in KripAI documentation.')
+REGISTRY['mcp_files']=(McpFiles,'Read .md/.txt from the folder selected locally by the owner through external filesystem MCP. action=list lists path; action=search finds a literal filename fragment using query copied from the current request (path must be empty), at most 20 documents; action=read requires path from this request or an actual list/search result. No absolute paths or writes. This is the owner folder, not built-in KripAI documentation.')
 
 def bind_integrations(scope):
     result=dict(scope)
@@ -70,6 +74,9 @@ def read(name,arguments,scope,check):
     except (ValidationError,TypeError):raise ToolError('tool_arguments_invalid') from None
     if name=='mcp_docs' and arguments['action']=='read' and arguments['path'] not in scope.get('documents',[]):raise ToolError('tool_resource_not_authorized')
     if name=='mcp_files' and arguments['action']=='read' and arguments['path'] not in scope.get('local_documents',[]):raise ToolError('tool_resource_not_authorized')
+    if name=='mcp_files' and arguments['action']=='search':
+        from .mcp_files import search_query
+        search_query(arguments['query'],scope['request'])
     root=config.DATA/'tools-tmp';root.mkdir(parents=True,exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='read-',dir=root) as directory:
         folder=Path(directory);(folder/'request.json').write_text(json.dumps({'name':name,'arguments':arguments,'scope':scope},ensure_ascii=False),encoding='utf-8')
@@ -186,7 +193,7 @@ def plan(client,messages,scope,check,activity):
                     if name=='mcp_docs' and arguments.get('action')=='list':
                         for path in raw.pop('paths',[]):
                             if path not in scope['documents']:scope['documents'].append(path)
-                    if name=='mcp_files' and arguments.get('action')=='list':
+                    if name=='mcp_files' and arguments.get('action') in {'list','search'}:
                         for path in raw.pop('paths',[]):
                             if path not in scope['local_documents']:scope['local_documents'].append(path)
                     if name=='github_read' and arguments.get('section')=='file' and not arguments.get('ref') and raw.get('sha') and len(raw.get('document',''))<=3000 and not raw.get('truncated'):
